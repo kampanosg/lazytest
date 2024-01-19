@@ -1,0 +1,13 @@
+variables:
+  name: lazytest
+defaults:
+  - build
+recipes:
+  build:
+    description: "build the project"
+    steps:
+      - "go build -o :name: ./cmd/lazytest/*.go"
+  test:
+    description: "run the unit tests of the project"
+    steps:
+      - "go test -v ./..."
