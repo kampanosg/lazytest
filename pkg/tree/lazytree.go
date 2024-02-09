@@ -14,7 +14,7 @@ type LazyNode struct {
 	Name     string
 	IsFolder bool
 	Children []*LazyNode
-	Suite    *models.LazyTestSuite
+	Suite    models.LazyTestSuite
 }
 
 func NewFolder(name string) *LazyNode {
