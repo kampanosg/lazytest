@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 
-	"github.com/kampanosg/lazytest/pkg/models"
+	"github.com/kampanosg/lazytest/pkg/engines"
+	"github.com/kampanosg/lazytest/pkg/engines/golang"
 	"github.com/kampanosg/lazytest/pkg/tree"
 )
 
@@ -19,7 +19,9 @@ func main() {
 
 	root := tree.NewFolder(currentDir)
 
-	err = traverseDir(currentDir, root)
+	ge := golang.NewGolangEngine()
+
+	err = traverseDir(currentDir, root, ge)
 	if err != nil {
 		fmt.Println("Error traversing directory:", err)
 		return
@@ -28,7 +30,7 @@ func main() {
 	root.TraverseDFS("")
 }
 
-func traverseDir(dir string, parent *tree.LazyNode) error {
+func traverseDir(dir string, parent *tree.LazyNode, engine engines.LazyTestEngine) error {
 	file, err := os.Open(dir)
 	if err != nil {
 		return err
@@ -45,16 +47,20 @@ func traverseDir(dir string, parent *tree.LazyNode) error {
 		if fileInfo.IsDir() {
 			node = tree.NewFolder(fileInfo.Name())
 
-			err := traverseDir(filepath.Join(dir, fileInfo.Name()), node)
+			err := traverseDir(filepath.Join(dir, fileInfo.Name()), node, engine)
 			if err != nil {
 				return err
 			}
 		} else {
-			if strings.HasSuffix(fileInfo.Name(), "_test.go") {
+			suite, err := engine.Load(dir, fileInfo)
+			if err != nil {
+				return err
+			}
+
+			if suite != nil {
 				node = &tree.LazyNode{
-					Name:     fileInfo.Name(),
-					IsFolder: false,
-					Suite:    models.LazyTestSuite{Path: filepath.Join(dir, fileInfo.Name())},
+					Name:  fileInfo.Name(),
+					Suite: *suite,
 				}
 			}
 		}
