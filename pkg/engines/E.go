@@ -7,5 +7,5 @@ import (
 )
 
 type LazyTestEngine interface {
-	LoadTestSuite(dir string, f fs.FileInfo) (*models.LazyTestSuite, error)
+	ParseTestSuite(dir string, f fs.FileInfo) (*models.LazyTestSuite, error)
 }

@@ -23,7 +23,7 @@ func NewGolangEngine() *GolangEngine {
 	return &GolangEngine{}
 }
 
-func (g *GolangEngine) LoadTestSuite(dir string, f fs.FileInfo) (*models.LazyTestSuite, error) {
+func (g *GolangEngine) ParseTestSuite(dir string, f fs.FileInfo) (*models.LazyTestSuite, error) {
 	if !strings.HasSuffix(f.Name(), suffix) {
 		return nil, nil
 	}
