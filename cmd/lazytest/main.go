@@ -68,7 +68,7 @@ func main() {
 	output.SetBackgroundColor(tcell.ColorDefault)
 
 	legend := tview.NewTextView()
-	legend.SetText("?: help | 1/2: navigate | q: quit")
+	legend.SetText("?: help, 1/2: navigate, q: quit")
 	legend.SetTextAlign(tview.AlignCenter)
 	legend.SetBackgroundColor(tcell.ColorDefault)
 
@@ -79,6 +79,18 @@ func main() {
 	grid.AddItem(tree, 0, 0, 1, 1, 0, 0, true)
 	grid.AddItem(output, 0, 1, 1, 1, 0, 0, false)
 	grid.AddItem(legend, 1, 0, 1, 2, 0, 0, false)
+
+	app.SetInputCapture(func(event *tcell.EventKey) *tcell.EventKey {
+		switch pressed_key := event.Rune(); pressed_key {
+		case 'q':
+			app.Stop()
+		case '1':
+			app.SetFocus(tree)
+		case '2':
+			app.SetFocus(output)
+		}
+		return event
+	})
 
 	if err := app.SetRoot(grid, true).SetFocus(tree).Run(); err != nil {
 		panic(err)
