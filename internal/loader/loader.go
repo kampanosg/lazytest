@@ -5,6 +5,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/kampanosg/lazytest/pkg/engines"
 	"github.com/kampanosg/lazytest/pkg/models"
@@ -36,6 +37,11 @@ func (l *LazyTestLoader) LoadLazyTests(dir string, parent *tree.LazyNode) error 
 
 	for _, fileInfo := range fileInfos {
 		var node *tree.LazyNode
+		
+		if strings.HasPrefix(fileInfo.Name(), ".") {
+			continue
+		}
+
 		if fileInfo.IsDir() {
 			node = tree.NewFolder(fileInfo.Name())
 			if err := l.LoadLazyTests(filepath.Join(dir, fileInfo.Name()), node); err != nil {
