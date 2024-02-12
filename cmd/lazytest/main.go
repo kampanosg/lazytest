@@ -52,6 +52,10 @@ func main() {
 	tree.SetRoot(treeViewRoot)
 	tree.SetCurrentNode(treeViewRoot)
 	tree.SetTopLevel(1)
+	tree.SetBackgroundColor(tcell.ColorDefault)
+	tree.SetChangedFunc(func(node *tview.TreeNode) {
+		node.SetColor(tcell.ColorDarkSeaGreen)
+	})
 	tree.SetSelectedFunc(func(node *tview.TreeNode) {
 		node.SetExpanded(!node.IsExpanded())
 	})
@@ -61,11 +65,12 @@ func main() {
 	output.SetTitleAlign(tview.AlignLeft)
 	output.SetBorder(true)
 	output.SetBorderColor(tcell.ColorBlue)
+	output.SetBackgroundColor(tcell.ColorDefault)
 
 	legend := tview.NewTextView()
 	legend.SetText("?: help | 1/2: navigate | q: quit")
 	legend.SetTextAlign(tview.AlignCenter)
-	legend.SetBackgroundColor(tcell.ColorBlack)
+	legend.SetBackgroundColor(tcell.ColorDefault)
 
 	grid := tview.NewGrid()
 	grid.SetRows(0, 1)
@@ -83,9 +88,8 @@ func main() {
 func buildTestNodes(lazyNode *tree.LazyNode) []*tview.TreeNode {
 	nodes := []*tview.TreeNode{}
 	if lazyNode.IsFolder && lazyNode.HasTestSuites() {
-		f := tview.NewTreeNode(lazyNode.Name)
+		f := tview.NewTreeNode(fmt.Sprintf("[white] %s", lazyNode.Name))
 		f.SetSelectable(true)
-		f.SetColor(tcell.ColorWhite)
 
 		for _, child := range lazyNode.Children {
 			ns := buildTestNodes(child)
@@ -96,14 +100,12 @@ func buildTestNodes(lazyNode *tree.LazyNode) []*tview.TreeNode {
 
 		nodes = append(nodes, f)
 	} else if !lazyNode.IsFolder {
-		testSuite := tview.NewTreeNode(fmt.Sprintf("󰟓 %s", lazyNode.Name))
+		testSuite := tview.NewTreeNode(fmt.Sprintf("[white]󰟓 %s", lazyNode.Name))
 		testSuite.SetSelectable(true)
-		testSuite.SetColor(tcell.ColorWhite)
 
 		for _, t := range lazyNode.Suite.Tests {
-			test := tview.NewTreeNode(t.Name)
+			test := tview.NewTreeNode(fmt.Sprintf("[blue] 󰐊 %s", t.Name))
 			test.SetSelectable(true)
-			test.SetColor(tcell.ColorBlue)
 			testSuite.AddChild(test)
 		}
 
