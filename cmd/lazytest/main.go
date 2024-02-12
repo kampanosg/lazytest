@@ -1,15 +1,15 @@
 package main
 
 import (
-	"log"
+	"fmt"
 
+	"github.com/gdamore/tcell/v2"
 	"github.com/kampanosg/lazytest/internal/loader"
 	"github.com/kampanosg/lazytest/pkg/engines"
 	"github.com/kampanosg/lazytest/pkg/engines/golang"
 	"github.com/kampanosg/lazytest/pkg/tree"
 
-	ui "github.com/gizak/termui/v3"
-	"github.com/gizak/termui/v3/widgets"
+	"github.com/rivo/tview"
 )
 
 type nodeValue string
@@ -30,119 +30,83 @@ func main() {
 		panic(err)
 	}
 
-	if err := ui.Init(); err != nil {
-		log.Fatalf("failed to initialize termui: %v", err)
-	}
+	app := tview.NewApplication()
+	app.EnableMouse(true)
 
-	defer ui.Close()
-
-	p2 := widgets.NewParagraph()
-	p2.Text = "<> This row has 3 columns\n<- Widgets can be stacked up like left side\n<- Stacked widgets are treated as a single widget"
-	p2.Text = "test"
-	p2.Title = "Output"
-
-	legend := widgets.NewParagraph()
-	legend.Text = "q: Quit"
-	legend.Title = "Legend"
-
-	grid := ui.NewGrid()
-	termWidth, termHeight := ui.TerminalDimensions()
-	grid.SetRect(0, 0, termWidth, termHeight)
+	tree := tview.NewTreeView()
 
 	nodes := buildTestNodes(root)
-	testsTree := widgets.NewTree()
-	testsTree.TextStyle = ui.NewStyle(ui.ColorWhite)
-	testsTree.SelectedRowStyle = ui.NewStyle(ui.ColorWhite, ui.ColorCyan, ui.ModifierBold)
-	testsTree.WrapText = false
-	testsTree.SetNodes(nodes)
-	testsTree.Title = "Tests"
-	testsTree.ExpandAll()
-
-	grid.Set(
-		ui.NewRow(.90,
-			ui.NewCol(1.0/3, testsTree),
-			ui.NewCol(1.0/1.5, p2),
-		),
-		ui.NewRow(.1,
-			ui.NewCol(1.0, legend),
-		),
-	)
-
-	ui.Render(grid)
-
-	previousKey := ""
-	uiEvents := ui.PollEvents()
-	for {
-		e := <-uiEvents
-		switch e.ID {
-		case "q", "<C-c>":
-			return
-		case "j", "<Down>":
-			testsTree.ScrollDown()
-		case "k", "<Up>":
-			testsTree.ScrollUp()
-		case "<C-d>":
-			testsTree.ScrollHalfPageDown()
-		case "<C-u>":
-			testsTree.ScrollHalfPageUp()
-		case "<C-f>":
-			testsTree.ScrollPageDown()
-		case "<C-b>":
-			testsTree.ScrollPageUp()
-		case "g":
-			if previousKey == "g" {
-				testsTree.ScrollTop()
-			}
-		case "<Home>":
-			testsTree.ScrollTop()
-		case "<Enter>":
-			testsTree.ToggleExpand()
-		case "G", "<End>":
-			testsTree.ScrollBottom()
-		case "E":
-			testsTree.ExpandAll()
-		case "C":
-			testsTree.CollapseAll()
-		case "<Resize>":
-			x, y := ui.TerminalDimensions()
-			testsTree.SetRect(0, 0, x, y)
+	var treeViewRoot *tview.TreeNode
+	for i, n := range nodes {
+		if i == 0 {
+			treeViewRoot = n
+			continue
 		}
-
-		if previousKey == "g" {
-			previousKey = ""
-		} else {
-			previousKey = e.ID
-		}
-
-		ui.Render(testsTree)
+		treeViewRoot.AddChild(n)
 	}
 
+	tree.SetTitle("Tests")
+	tree.SetTitleAlign(tview.AlignLeft)
+	tree.SetBorder(true)
+	tree.SetBorderColor(tcell.ColorBlue)
+	tree.SetRoot(treeViewRoot)
+	tree.SetCurrentNode(treeViewRoot)
+	tree.SetTopLevel(1)
+	tree.SetSelectedFunc(func(node *tview.TreeNode) {
+		node.SetExpanded(!node.IsExpanded())
+	})
+
+	output := tview.NewTextView()
+	output.SetTitle("Output")
+	output.SetTitleAlign(tview.AlignLeft)
+	output.SetBorder(true)
+	output.SetBorderColor(tcell.ColorBlue)
+
+	legend := tview.NewTextView()
+	legend.SetText("?: help | 1/2: navigate | q: quit")
+	legend.SetTextAlign(tview.AlignCenter)
+	legend.SetBackgroundColor(tcell.ColorBlack)
+
+	grid := tview.NewGrid()
+	grid.SetRows(0, 1)
+	grid.SetColumns(33, 0)
+	grid.SetBorders(false)
+	grid.AddItem(tree, 0, 0, 1, 1, 0, 0, true)
+	grid.AddItem(output, 0, 1, 1, 1, 0, 0, false)
+	grid.AddItem(legend, 1, 0, 1, 2, 0, 0, false)
+
+	if err := app.SetRoot(grid, true).SetFocus(tree).Run(); err != nil {
+		panic(err)
+	}
 }
 
-func buildTestNodes(n *tree.LazyNode) []*widgets.TreeNode {
-	nodes := []*widgets.TreeNode{}
-	if n.IsFolder && n.HasTestSuites() {
-		f := &widgets.TreeNode{
-			Value: nodeValue(n.Name),
-			Nodes: []*widgets.TreeNode{},
-		}
-		for _, child := range n.Children {
+func buildTestNodes(lazyNode *tree.LazyNode) []*tview.TreeNode {
+	nodes := []*tview.TreeNode{}
+	if lazyNode.IsFolder && lazyNode.HasTestSuites() {
+		f := tview.NewTreeNode(lazyNode.Name)
+		f.SetSelectable(true)
+		f.SetColor(tcell.ColorWhite)
+
+		for _, child := range lazyNode.Children {
 			ns := buildTestNodes(child)
-			f.Nodes = append(f.Nodes, ns...)
-		}
-		nodes = append(nodes, f)
-	} else if !n.IsFolder {
-		testSuite := &widgets.TreeNode{
-			Value: nodeValue(n.Name),
-			Nodes: []*widgets.TreeNode{},
+			for _, n := range ns {
+				f.AddChild(n)
+			}
 		}
 
-		for _, t := range n.Suite.Tests {
-			test := &widgets.TreeNode{
-				Value: nodeValue(t.Name),
-			}
-			testSuite.Nodes = append(testSuite.Nodes, test)
+		nodes = append(nodes, f)
+	} else if !lazyNode.IsFolder {
+		testSuite := tview.NewTreeNode(fmt.Sprintf("󰟓 %s", lazyNode.Name))
+		testSuite.SetSelectable(true)
+		testSuite.SetColor(tcell.ColorWhite)
+
+		for _, t := range lazyNode.Suite.Tests {
+			test := tview.NewTreeNode(t.Name)
+			test.SetSelectable(true)
+			test.SetColor(tcell.ColorBlue)
+			testSuite.AddChild(test)
 		}
+
 		nodes = append(nodes, testSuite)
 	}
 	return nodes
