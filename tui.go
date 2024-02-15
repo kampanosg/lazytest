@@ -75,7 +75,7 @@ func (t *TUI) setupOutput() {
 	t.output.SetBorder(true)
 	t.output.SetTitle("Output")
 	t.output.SetTitleAlign(tview.AlignLeft)
-	t.output.SetBorderColor(tcell.ColorBlue)
+	t.output.SetBorderColor(tcell.ColorGreen)
 	t.output.SetBackgroundColor(tcell.ColorDefault)
 }
 
@@ -122,7 +122,7 @@ func (t *TUI) buildTestNodes(lazyNode *tree.LazyNode) []*tview.TreeNode {
 
 		nodes = append(nodes, f)
 	} else if !lazyNode.IsFolder {
-		testSuite := tview.NewTreeNode(fmt.Sprintf("[white]󰟓 %s", lazyNode.Name))
+		testSuite := tview.NewTreeNode(fmt.Sprintf("[white]%s %s", getNerdIcon(lazyNode.Suite.Type), lazyNode.Name))
 		testSuite.SetSelectable(true)
 
 		for _, t := range lazyNode.Suite.Tests {
@@ -134,4 +134,13 @@ func (t *TUI) buildTestNodes(lazyNode *tree.LazyNode) []*tview.TreeNode {
 		nodes = append(nodes, testSuite)
 	}
 	return nodes
+}
+
+func getNerdIcon(suiteType string) string {
+	switch suiteType {
+	case "golang":
+		return "󰟓"
+	default:
+		return ""
+	}
 }

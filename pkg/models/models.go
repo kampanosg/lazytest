@@ -2,6 +2,7 @@ package models
 
 type LazyTestSuite struct {
 	Tests []LazyTest
+	Type  string
 	Path  string
 }
 
