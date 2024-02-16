@@ -13,7 +13,8 @@ import (
 )
 
 const (
-	suffix = "_test.go"
+	suffix    = "_test.go"
+	suiteType = "golang"
 )
 
 type GolangEngine struct {
@@ -27,7 +28,6 @@ func (g *GolangEngine) ParseTestSuite(dir string, f fs.FileInfo) (*models.LazyTe
 	if !strings.HasSuffix(f.Name(), suffix) {
 		return nil, nil
 	}
-
 	fp := filepath.Join(dir, f.Name())
 	fset := token.NewFileSet()
 	node, err := parser.ParseFile(fset, fp, nil, parser.ParseComments)
@@ -37,6 +37,7 @@ func (g *GolangEngine) ParseTestSuite(dir string, f fs.FileInfo) (*models.LazyTe
 
 	suite := &models.LazyTestSuite{
 		Path: fp,
+		Type: suiteType,
 	}
 
 	for _, f := range node.Decls {
