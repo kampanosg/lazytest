@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/gdamore/tcell/v2"
+	"github.com/kampanosg/lazytest/pkg/models"
 	"github.com/kampanosg/lazytest/pkg/tree"
 	"github.com/rivo/tview"
 )
@@ -132,14 +133,16 @@ func (t *TUI) inputCapture(event *tcell.EventKey) *tcell.EventKey {
 		t.app.SetFocus(t.output)
 	case '3':
 		t.app.SetFocus(t.details)
+	case 'r':
+		t.handleRunCmd()
 	}
 	return event
 }
 
 func (t *TUI) buildTestNodes(lazyNode *tree.LazyNode) []*tview.TreeNode {
 	nodes := []*tview.TreeNode{}
-	hasTestSuite := lazyNode.HasTestSuite()
-	if lazyNode.IsFolder && hasTestSuite {
+
+	if lazyNode.IsFolder && lazyNode.HasTestSuite() {
 		f := tview.NewTreeNode(fmt.Sprintf("[default] %s", lazyNode.Name))
 		f.SetSelectable(true)
 
@@ -154,10 +157,12 @@ func (t *TUI) buildTestNodes(lazyNode *tree.LazyNode) []*tview.TreeNode {
 	} else if !lazyNode.IsFolder {
 		testSuite := tview.NewTreeNode(fmt.Sprintf("[bisque]%s %s", getNerdIcon(lazyNode.Suite.Type), lazyNode.Name))
 		testSuite.SetSelectable(true)
+		testSuite.SetReference(lazyNode.Suite)
 
 		for _, t := range lazyNode.Suite.Tests {
 			test := tview.NewTreeNode(fmt.Sprintf("[darkturquoise] %s", t.Name))
 			test.SetSelectable(true)
+			test.SetReference(&t)
 			testSuite.AddChild(test)
 		}
 
@@ -167,6 +172,25 @@ func (t *TUI) buildTestNodes(lazyNode *tree.LazyNode) []*tview.TreeNode {
 		nodes = append(nodes, testSuite)
 	}
 	return nodes
+}
+
+func (t *TUI) handleRunCmd() {
+	testNode := t.tree.GetCurrentNode()
+	if testNode == nil {
+		return
+	}
+
+	ref := testNode.GetReference()
+	if ref == nil {
+		return
+	}
+
+	switch ref.(type) {
+	case *models.LazyTestSuite:
+		t.output.SetText("running suite" + ref.(*models.LazyTestSuite).Path)
+	case *models.LazyTest:
+		t.output.SetText("running test" + ref.(*models.LazyTest).Name)
+	}
 }
 
 func getNerdIcon(suiteType string) string {
