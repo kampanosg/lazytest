@@ -37,7 +37,7 @@ func (l *LazyTestLoader) LoadLazyTests(dir string, parent *tree.LazyNode) error 
 
 	for _, fileInfo := range fileInfos {
 		var node *tree.LazyNode
-		
+
 		if strings.HasPrefix(fileInfo.Name(), ".") {
 			continue
 		}
@@ -56,7 +56,7 @@ func (l *LazyTestLoader) LoadLazyTests(dir string, parent *tree.LazyNode) error 
 			if suite != nil {
 				node = &tree.LazyNode{
 					Name:  fileInfo.Name(),
-					Suite: *suite,
+					Suite: suite,
 				}
 			}
 		}

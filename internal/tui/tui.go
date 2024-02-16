@@ -69,7 +69,7 @@ func (t *TUI) setupTree(treeViewRoot *tview.TreeNode) {
 	t.tree.SetTopLevel(1)
 	t.tree.SetBackgroundColor(tcell.ColorDefault)
 	t.tree.SetChangedFunc(func(node *tview.TreeNode) {
-		node.SetColor(tcell.ColorDarkSeaGreen)
+		node.SetColor(tcell.ColorBlueViolet)
 	})
 	t.tree.SetSelectedFunc(func(node *tview.TreeNode) {
 		node.SetExpanded(!node.IsExpanded())
@@ -89,10 +89,10 @@ func (t *TUI) setupDetails() {
 	t.details.SetTitleAlign(tview.AlignLeft)
 	t.details.SetBackgroundColor(tcell.ColorDefault)
 	t.details.ShowSecondaryText(false)
-	t.details.SetSelectedBackgroundColor(tcell.ColorDarkViolet)
+	t.details.SetSelectedBackgroundColor(tcell.ColorBlueViolet)
 
 	t.details.AddItem(fmt.Sprintf("[royalblue]Total: %d", t.state.Details.TotalTests), "", 0, nil)
-	t.details.AddItem(fmt.Sprintf("[limegreen]Total: %d", t.state.Details.TotalPassed), "", 0, nil)
+	t.details.AddItem(fmt.Sprintf("[limegreen]Passed: %d", t.state.Details.TotalPassed), "", 0, nil)
 	t.details.AddItem(fmt.Sprintf("[indianred]Failed: %d", t.state.Details.TotalFailed), "", 0, nil)
 }
 
@@ -138,8 +138,9 @@ func (t *TUI) inputCapture(event *tcell.EventKey) *tcell.EventKey {
 
 func (t *TUI) buildTestNodes(lazyNode *tree.LazyNode) []*tview.TreeNode {
 	nodes := []*tview.TreeNode{}
-	if lazyNode.IsFolder && lazyNode.HasTestSuites() {
-		f := tview.NewTreeNode(fmt.Sprintf("[white] %s", lazyNode.Name))
+	hasTestSuite := lazyNode.HasTestSuite()
+	if lazyNode.IsFolder && hasTestSuite {
+		f := tview.NewTreeNode(fmt.Sprintf("[default] %s", lazyNode.Name))
 		f.SetSelectable(true)
 
 		for _, child := range lazyNode.Children {
@@ -151,11 +152,11 @@ func (t *TUI) buildTestNodes(lazyNode *tree.LazyNode) []*tview.TreeNode {
 
 		nodes = append(nodes, f)
 	} else if !lazyNode.IsFolder {
-		testSuite := tview.NewTreeNode(fmt.Sprintf("[white]%s %s", getNerdIcon(lazyNode.Suite.Type), lazyNode.Name))
+		testSuite := tview.NewTreeNode(fmt.Sprintf("[bisque]%s %s", getNerdIcon(lazyNode.Suite.Type), lazyNode.Name))
 		testSuite.SetSelectable(true)
 
 		for _, t := range lazyNode.Suite.Tests {
-			test := tview.NewTreeNode(fmt.Sprintf("[blue] 󰐊 %s", t.Name))
+			test := tview.NewTreeNode(fmt.Sprintf("[darkturquoise] %s", t.Name))
 			test.SetSelectable(true)
 			testSuite.AddChild(test)
 		}
