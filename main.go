@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/kampanosg/lazytest/internal/loader"
+	"github.com/kampanosg/lazytest/internal/tui"
 	"github.com/kampanosg/lazytest/pkg/engines"
 	"github.com/kampanosg/lazytest/pkg/engines/golang"
 	"github.com/kampanosg/lazytest/pkg/tree"
@@ -24,8 +25,8 @@ func main() {
 		panic(err)
 	}
 
-	tui := NewTUI(root)
-	if err := tui.Run(); err != nil {
+	t := tui.NewTUI(root)
+	if err := t.Run(); err != nil {
 		panic(err)
 	}
 }

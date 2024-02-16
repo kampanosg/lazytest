@@ -3,10 +3,14 @@ variables:
 defaults:
   - build
 recipes:
+  run:
+    description: "run the project"
+    steps:
+      - "go run main.go"
   build:
     description: "build the project"
     steps:
-      - "go build -o :name: ./cmd/lazytest/*.go"
+      - "go build -o :name: ./main.go"
   test:
     description: "run the unit tests of the project"
     steps:

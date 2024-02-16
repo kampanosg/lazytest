@@ -1,4 +1,4 @@
-package main
+package tui
 
 import (
 	"fmt"
@@ -12,8 +12,10 @@ type TUI struct {
 	app          *tview.Application
 	tree         *tview.TreeView
 	output       *tview.TextView
+	details      *tview.List
 	legend       *tview.TextView
-	grid         *tview.Grid
+	flex         *tview.Flex
+	state        state
 	lazyTestRoot *tree.LazyNode
 }
 
@@ -22,8 +24,10 @@ func NewTUI(lt *tree.LazyNode) *TUI {
 		app:          tview.NewApplication(),
 		tree:         tview.NewTreeView(),
 		output:       tview.NewTextView(),
+		details:      tview.NewList(),
 		legend:       tview.NewTextView(),
-		grid:         tview.NewGrid(),
+		flex:         tview.NewFlex(),
+		state:        NewState(),
 		lazyTestRoot: lt,
 	}
 }
@@ -41,13 +45,14 @@ func (t *TUI) Run() error {
 
 	t.setupTree(treeViewRoot)
 	t.setupOutput()
+	t.setupDetails()
 	t.setupLegend()
-	t.setupGrid()
+	t.setupFlex()
 
 	t.app.EnableMouse(true)
 	t.app.SetInputCapture(t.inputCapture)
 
-	if err := t.app.SetRoot(t.grid, true).SetFocus(t.tree).Run(); err != nil {
+	if err := t.app.SetRoot(t.flex, true).SetFocus(t.tree).Run(); err != nil {
 		return err
 	}
 
@@ -75,24 +80,46 @@ func (t *TUI) setupOutput() {
 	t.output.SetBorder(true)
 	t.output.SetTitle("Output")
 	t.output.SetTitleAlign(tview.AlignLeft)
-	t.output.SetBorderColor(tcell.ColorGreen)
 	t.output.SetBackgroundColor(tcell.ColorDefault)
 }
 
-func (t *TUI) setupLegend() {
-	t.legend.SetBorder(true)
-	t.legend.SetTitleAlign(tview.AlignCenter)
-	t.legend.SetBackgroundColor(tcell.ColorDefault)
-	t.legend.SetText("?: help, 1/2: navigate, q: quit")
+func (t *TUI) setupDetails() {
+	t.details.SetBorder(true)
+	t.details.SetTitle("Details")
+	t.details.SetTitleAlign(tview.AlignLeft)
+	t.details.SetBackgroundColor(tcell.ColorDefault)
+	t.details.ShowSecondaryText(false)
+	t.details.SetSelectedBackgroundColor(tcell.ColorDarkViolet)
+
+	t.details.AddItem(fmt.Sprintf("[royalblue]Total: %d", t.state.Details.TotalTests), "", 0, nil)
+	t.details.AddItem(fmt.Sprintf("[limegreen]Total: %d", t.state.Details.TotalPassed), "", 0, nil)
+	t.details.AddItem(fmt.Sprintf("[indianred]Failed: %d", t.state.Details.TotalFailed), "", 0, nil)
 }
 
-func (t *TUI) setupGrid() {
-	t.grid.SetRows(0, 1)
-	t.grid.SetColumns(33, 0)
-	t.grid.SetBorders(false)
-	t.grid.AddItem(t.tree, 0, 0, 1, 1, 0, 0, true)
-	t.grid.AddItem(t.output, 0, 1, 1, 1, 0, 0, false)
-	t.grid.AddItem(t.legend, 1, 0, 1, 2, 0, 0, false)
+func (t *TUI) setupLegend() {
+	t.legend.SetBorder(false)
+	t.legend.SetTitleAlign(tview.AlignCenter)
+	t.legend.SetBackgroundColor(tcell.ColorDefault)
+	t.legend.SetText("?: help, 1/2/3: navigate, q: quit")
+}
+
+func (t *TUI) setupFlex() {
+	sidebar := tview.NewFlex()
+	sidebar.SetDirection(tview.FlexRow)
+
+	sidebar.AddItem(t.tree, 0, 7, true)
+	sidebar.AddItem(t.details, 0, 1, false)
+
+	mainContent := tview.NewFlex()
+	mainContent.AddItem(sidebar, 0, 1, false)
+	mainContent.AddItem(t.output, 0, 2, false)
+
+	footer := tview.NewFlex()
+	footer.AddItem(t.legend, 0, 1, false)
+
+	t.flex.SetDirection(tview.FlexRow)
+	t.flex.AddItem(mainContent, 0, 30, false)
+	t.flex.AddItem(footer, 0, 1, false)
 }
 
 func (t *TUI) inputCapture(event *tcell.EventKey) *tcell.EventKey {
@@ -103,6 +130,8 @@ func (t *TUI) inputCapture(event *tcell.EventKey) *tcell.EventKey {
 		t.app.SetFocus(t.tree)
 	case '2':
 		t.app.SetFocus(t.output)
+	case '3':
+		t.app.SetFocus(t.details)
 	}
 	return event
 }
@@ -130,6 +159,9 @@ func (t *TUI) buildTestNodes(lazyNode *tree.LazyNode) []*tview.TreeNode {
 			test.SetSelectable(true)
 			testSuite.AddChild(test)
 		}
+
+		totalTests := t.state.Details.TotalTests + len(lazyNode.Suite.Tests)
+		t.state.Details.TotalTests = totalTests
 
 		nodes = append(nodes, testSuite)
 	}
