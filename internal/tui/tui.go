@@ -10,7 +10,7 @@ import (
 )
 
 type runner interface {
-	Run(command string) (*models.LazyTestResult, error)
+	Run(command string) *models.LazyTestResult
 }
 
 type TUI struct {
@@ -75,9 +75,7 @@ func (t *TUI) setupTree(treeViewRoot *tview.TreeNode) {
 	t.tree.SetCurrentNode(treeViewRoot)
 	t.tree.SetTopLevel(1)
 	t.tree.SetBackgroundColor(tcell.ColorDefault)
-	t.tree.SetChangedFunc(func(node *tview.TreeNode) {
-		node.SetColor(tcell.ColorBlueViolet)
-	})
+	t.tree.SetChangedFunc(t.nodeChanged)
 	t.tree.SetSelectedFunc(func(node *tview.TreeNode) {
 		node.SetExpanded(!node.IsExpanded())
 	})
@@ -166,10 +164,11 @@ func (t *TUI) buildTestNodes(lazyNode *tree.LazyNode) []*tview.TreeNode {
 		testSuite.SetSelectable(true)
 		testSuite.SetReference(lazyNode.Suite)
 
-		for _, t := range lazyNode.Suite.Tests {
+		// can probable remove the i with Go 1.22
+		for i, t := range lazyNode.Suite.Tests {
 			test := tview.NewTreeNode(fmt.Sprintf("[darkturquoise] %s", t.Name))
 			test.SetSelectable(true)
-			test.SetReference(&t)
+			test.SetReference(&lazyNode.Suite.Tests[i])
 			testSuite.AddChild(test)
 		}
 
@@ -200,21 +199,62 @@ func (t *TUI) handleRunCmd() {
 		t.state.Details.TotalFailed = 0
 		test := ref.(*models.LazyTest)
 		testNode.SetText(fmt.Sprintf("[yellow] [darkturquoise]%s", test.Name))
-		res, err := t.runner.Run(test.RunCmd)
-		if err != nil {
-			t.output.SetText(fmt.Sprintf("%s", err))
-			t.output.SetBorderColor(tcell.ColorOrangeRed)
-			testNode.SetText(fmt.Sprintf("[orangered] [darkturquoise]%s", test.Name))
-			t.state.Details.TotalFailed++
-		} else {
-			t.output.SetText(res.Output)
+		t.output.SetBorderColor(tcell.ColorYellow)
+		res := t.runner.Run(test.RunCmd)
+		if res.IsSuccess {
 			t.output.SetBorderColor(tcell.ColorGreen)
 			testNode.SetText(fmt.Sprintf("[limegreen] [darkturquoise]%s", test.Name))
 			t.state.Details.TotalPassed++
+		} else {
+			t.output.SetBorderColor(tcell.ColorOrangeRed)
+			testNode.SetText(fmt.Sprintf("[orangered] [darkturquoise]%s", test.Name))
+			t.state.Details.TotalFailed++
 		}
 
+		t.output.SetText(res.Output)
+		t.state.TestOutput[testNode] = res
 		t.setupDetails()
 	}
+}
+
+func (t *TUI) nodeChanged(node *tview.TreeNode) {
+	node.SetColor(tcell.ColorBlueViolet)
+
+	ref := node.GetReference()
+	if ref == nil {
+		return
+	}
+
+	switch ref.(type) {
+	case *models.LazyTestSuite:
+		borderColor := tcell.ColorWhite
+		output := ""
+		for _, child := range node.GetChildren() {
+			res, ok := t.state.TestOutput[child]
+			if ok {
+				borderColor = tcell.ColorGreen
+				if !res.IsSuccess {
+					borderColor = tcell.ColorOrangeRed
+				}
+
+				o := fmt.Sprintf("--- %s ---\n%s\n\n", child.GetText(), res.Output)
+				output = output + o
+			}
+		}
+		t.output.SetBorderColor(borderColor)
+		t.output.SetText(output)
+	case *models.LazyTest:
+		res, ok := t.state.TestOutput[node]
+		if ok {
+			if res.IsSuccess {
+				t.output.SetBorderColor(tcell.ColorGreen)
+			} else {
+				t.output.SetBorderColor(tcell.ColorOrangeRed)
+			}
+			t.output.SetText(res.Output)
+		}
+	}
+
 }
 
 func getNerdIcon(suiteType string) string {
