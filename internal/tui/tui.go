@@ -9,26 +9,32 @@ import (
 	"github.com/rivo/tview"
 )
 
+type runner interface {
+	Run(command string) (*models.LazyTestResult, error)
+}
+
 type TUI struct {
 	app          *tview.Application
 	tree         *tview.TreeView
 	output       *tview.TextView
-	details      *tview.List
+	details      *tview.TextView
 	legend       *tview.TextView
 	flex         *tview.Flex
 	state        state
+	runner       runner
 	lazyTestRoot *tree.LazyNode
 }
 
-func NewTUI(lt *tree.LazyNode) *TUI {
+func NewTUI(lt *tree.LazyNode, r runner) *TUI {
 	return &TUI{
 		app:          tview.NewApplication(),
 		tree:         tview.NewTreeView(),
 		output:       tview.NewTextView(),
-		details:      tview.NewList(),
+		details:      tview.NewTextView(),
 		legend:       tview.NewTextView(),
 		flex:         tview.NewFlex(),
 		state:        NewState(),
+		runner:       r,
 		lazyTestRoot: lt,
 	}
 }
@@ -82,6 +88,8 @@ func (t *TUI) setupOutput() {
 	t.output.SetTitle("Output")
 	t.output.SetTitleAlign(tview.AlignLeft)
 	t.output.SetBackgroundColor(tcell.ColorDefault)
+	t.output.SetScrollable(true)
+	t.output.SetDynamicColors(true)
 }
 
 func (t *TUI) setupDetails() {
@@ -89,12 +97,11 @@ func (t *TUI) setupDetails() {
 	t.details.SetTitle("Details")
 	t.details.SetTitleAlign(tview.AlignLeft)
 	t.details.SetBackgroundColor(tcell.ColorDefault)
-	t.details.ShowSecondaryText(false)
-	t.details.SetSelectedBackgroundColor(tcell.ColorBlueViolet)
-
-	t.details.AddItem(fmt.Sprintf("[royalblue]Total: %d", t.state.Details.TotalTests), "", 0, nil)
-	t.details.AddItem(fmt.Sprintf("[limegreen]Passed: %d", t.state.Details.TotalPassed), "", 0, nil)
-	t.details.AddItem(fmt.Sprintf("[indianred]Failed: %d", t.state.Details.TotalFailed), "", 0, nil)
+	t.details.SetScrollable(true)
+	t.details.SetWrap(true)
+	t.details.SetDynamicColors(true)
+	t.details.SetText(fmt.Sprintf("[darkturquoise]Total: %d\n[limegreen]Passed: %d\n[indianred]Failed: %d",
+		t.state.Details.TotalTests, t.state.Details.TotalPassed, t.state.Details.TotalFailed))
 }
 
 func (t *TUI) setupLegend() {
@@ -189,7 +196,24 @@ func (t *TUI) handleRunCmd() {
 	case *models.LazyTestSuite:
 		t.output.SetText("running suite" + ref.(*models.LazyTestSuite).Path)
 	case *models.LazyTest:
-		t.output.SetText("running test" + ref.(*models.LazyTest).Name)
+		t.state.Details.TotalPassed = 0
+		t.state.Details.TotalFailed = 0
+		test := ref.(*models.LazyTest)
+		testNode.SetText(fmt.Sprintf("[yellow] [darkturquoise]%s", test.Name))
+		res, err := t.runner.Run(test.RunCmd)
+		if err != nil {
+			t.output.SetText(fmt.Sprintf("%s", err))
+			t.output.SetBorderColor(tcell.ColorOrangeRed)
+			testNode.SetText(fmt.Sprintf("[orangered] [darkturquoise]%s", test.Name))
+			t.state.Details.TotalFailed++
+		} else {
+			t.output.SetText(res.Output)
+			t.output.SetBorderColor(tcell.ColorGreen)
+			testNode.SetText(fmt.Sprintf("[limegreen] [darkturquoise]%s", test.Name))
+			t.state.Details.TotalPassed++
+		}
+
+		t.setupDetails()
 	}
 }
 
