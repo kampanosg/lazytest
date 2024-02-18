@@ -2,6 +2,7 @@ package tui
 
 import (
 	"fmt"
+	"sync"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/kampanosg/lazytest/pkg/models"
@@ -191,30 +192,50 @@ func (t *TUI) handleRunCmd() {
 		return
 	}
 
+	var wg sync.WaitGroup
+	t.state.Details.TotalPassed = 0
+	t.state.Details.TotalFailed = 0
+
+	t.app.QueueUpdateDraw(func() {
+		t.output.Clear()
+	})
+
 	switch ref.(type) {
 	case *models.LazyTestSuite:
-		t.output.SetText("running suite" + ref.(*models.LazyTestSuite).Path)
-	case *models.LazyTest:
-		t.state.Details.TotalPassed = 0
-		t.state.Details.TotalFailed = 0
-		test := ref.(*models.LazyTest)
-		testNode.SetText(fmt.Sprintf("[yellow] [darkturquoise]%s", test.Name))
-		t.output.SetBorderColor(tcell.ColorYellow)
-		res := t.runner.Run(test.RunCmd)
-		if res.IsSuccess {
-			t.output.SetBorderColor(tcell.ColorGreen)
-			testNode.SetText(fmt.Sprintf("[limegreen] [darkturquoise]%s", test.Name))
-			t.state.Details.TotalPassed++
-		} else {
-			t.output.SetBorderColor(tcell.ColorOrangeRed)
-			testNode.SetText(fmt.Sprintf("[orangered] [darkturquoise]%s", test.Name))
-			t.state.Details.TotalFailed++
+		for _, child := range testNode.GetChildren() {
+			wg.Add(1)
+			test := child.GetReference().(*models.LazyTest)
+			go t.runTest(&wg, child, test)
 		}
-
-		t.output.SetText(res.Output)
-		t.state.TestOutput[testNode] = res
-		t.setupDetails()
+		wg.Wait()
+		t.nodeChanged(testNode)
+	case *models.LazyTest:
+		wg.Add(1)
+		t.runTest(&wg, testNode, ref.(*models.LazyTest))
+		wg.Wait()
 	}
+
+	t.setupDetails()
+}
+
+func (t *TUI) runTest(wg *sync.WaitGroup, testNode *tview.TreeNode, test *models.LazyTest) {
+	defer wg.Done()
+	testNode.SetText(fmt.Sprintf("[yellow] [darkturquoise]%s", test.Name))
+	t.output.SetBorderColor(tcell.ColorYellow)
+
+	res := t.runner.Run(test.RunCmd)
+	if res.IsSuccess {
+		t.output.SetBorderColor(tcell.ColorGreen)
+		testNode.SetText(fmt.Sprintf("[limegreen] [darkturquoise]%s", test.Name))
+		t.state.Details.TotalPassed++
+	} else {
+		t.output.SetBorderColor(tcell.ColorOrangeRed)
+		testNode.SetText(fmt.Sprintf("[orangered] [darkturquoise]%s", test.Name))
+		t.state.Details.TotalFailed++
+	}
+
+	t.output.SetText(res.Output)
+	t.state.TestOutput[testNode] = res
 }
 
 func (t *TUI) nodeChanged(node *tview.TreeNode) {
