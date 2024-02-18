@@ -89,6 +89,7 @@ func (t *TUI) setupOutput() {
 	t.output.SetBackgroundColor(tcell.ColorDefault)
 	t.output.SetScrollable(true)
 	t.output.SetDynamicColors(true)
+	t.output.SetRegions(true)
 }
 
 func (t *TUI) setupDetails() {
@@ -140,7 +141,7 @@ func (t *TUI) inputCapture(event *tcell.EventKey) *tcell.EventKey {
 	case '3':
 		t.app.SetFocus(t.details)
 	case 'r':
-		t.handleRunCmd()
+		go t.handleRunCmd()
 	}
 	return event
 }
@@ -197,7 +198,7 @@ func (t *TUI) handleRunCmd() {
 	t.state.Details.TotalFailed = 0
 
 	t.app.QueueUpdateDraw(func() {
-		t.output.Clear()
+		t.output.SetText("")
 	})
 
 	switch ref.(type) {
@@ -220,21 +221,30 @@ func (t *TUI) handleRunCmd() {
 
 func (t *TUI) runTest(wg *sync.WaitGroup, testNode *tview.TreeNode, test *models.LazyTest) {
 	defer wg.Done()
-	testNode.SetText(fmt.Sprintf("[yellow] [darkturquoise]%s", test.Name))
-	t.output.SetBorderColor(tcell.ColorYellow)
+
+	t.app.QueueUpdateDraw(func() {
+		testNode.SetText(fmt.Sprintf("[yellow] [darkturquoise]%s", test.Name))
+		t.output.SetBorderColor(tcell.ColorYellow)
+	})
 
 	res := t.runner.Run(test.RunCmd)
 	if res.IsSuccess {
-		t.output.SetBorderColor(tcell.ColorGreen)
-		testNode.SetText(fmt.Sprintf("[limegreen] [darkturquoise]%s", test.Name))
+		t.app.QueueUpdateDraw(func() {
+			t.output.SetBorderColor(tcell.ColorGreen)
+			testNode.SetText(fmt.Sprintf("[limegreen] [darkturquoise]%s", test.Name))
+		})
 		t.state.Details.TotalPassed++
 	} else {
-		t.output.SetBorderColor(tcell.ColorOrangeRed)
-		testNode.SetText(fmt.Sprintf("[orangered] [darkturquoise]%s", test.Name))
+		t.app.QueueUpdateDraw(func() {
+			t.output.SetBorderColor(tcell.ColorOrangeRed)
+			testNode.SetText(fmt.Sprintf("[orangered] [darkturquoise]%s", test.Name))
+		})
 		t.state.Details.TotalFailed++
 	}
 
-	t.output.SetText(res.Output)
+	t.app.QueueUpdateDraw(func() {
+		t.output.SetText(res.Output)
+	})
 	t.state.TestOutput[testNode] = res
 }
 
