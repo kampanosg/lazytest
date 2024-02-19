@@ -1,7 +1,13 @@
 package tui
 
+import (
+	"github.com/kampanosg/lazytest/pkg/models"
+	"github.com/rivo/tview"
+)
+
 type state struct {
-	Details details
+	Details    details
+	TestOutput map[*tview.TreeNode]*models.LazyTestResult
 }
 
 type details struct {
@@ -17,5 +23,6 @@ func NewState() state {
 			TotalPassed: 0,
 			TotalFailed: 0,
 		},
+		TestOutput: make(map[*tview.TreeNode]*models.LazyTestResult),
 	}
 }

@@ -44,7 +44,8 @@ func (g *GolangEngine) ParseTestSuite(dir string, f fs.FileInfo) (*models.LazyTe
 		fn, ok := f.(*ast.FuncDecl)
 		if ok && (strings.HasPrefix(fn.Name.Name, "Test") || strings.HasSuffix(fn.Name.Name, "Test")) {
 			suite.Tests = append(suite.Tests, models.LazyTest{
-				Name: fn.Name.Name,
+				Name:   fn.Name.Name,
+				RunCmd: "go test -v -run " + fn.Name.Name + " ./" + fp,
 			})
 		}
 	}

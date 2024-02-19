@@ -7,8 +7,8 @@ type LazyTestSuite struct {
 }
 
 type LazyTest struct {
-	Name string
-	Run  func(LazyTestResult, error)
+	Name   string
+	RunCmd string
 }
 
 type LazyTestResult struct {
