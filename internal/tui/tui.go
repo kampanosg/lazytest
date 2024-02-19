@@ -10,6 +10,14 @@ import (
 	"github.com/rivo/tview"
 )
 
+const helpText = `
+	[darkturquoise]1 / 2 / 3: [white]Focus on the tree / output / details
+	[darkturquoise]r: [white]Run the selected test / test suite
+	[darkturquoise]a: [white]Run all tests
+	[darkturquoise]q: [white]Quit
+	[darkturquoise]?: [white]Show this help message
+`
+
 type runner interface {
 	Run(command string) *models.LazyTestResult
 }
@@ -144,6 +152,8 @@ func (t *TUI) inputCapture(event *tcell.EventKey) *tcell.EventKey {
 		go t.handleRunCmd()
 	case 'a':
 		go t.handleRunAllCmd()
+	case '?':
+		t.handleShowHelp()
 	}
 	return event
 }
@@ -282,6 +292,20 @@ func (t *TUI) runTest(wg *sync.WaitGroup, testNode *tview.TreeNode, test *models
 		t.output.SetText(res.Output)
 	})
 	t.state.TestOutput[testNode] = res
+}
+
+func (t *TUI) handleShowHelp() {
+	modal := tview.NewModal()
+	modal.SetText(helpText)
+	modal.SetBackgroundColor(tcell.ColorBlack)
+	modal.AddButtons([]string{"Cancel"})
+	modal.SetDoneFunc(func(buttonIndex int, buttonLabel string) {
+		if buttonLabel == "Cancel" {
+			t.app.SetRoot(t.flex, true).SetFocus(t.tree)
+		}
+	})
+
+	t.app.SetRoot(modal, true)
 }
 
 func (t *TUI) nodeChanged(node *tview.TreeNode) {
