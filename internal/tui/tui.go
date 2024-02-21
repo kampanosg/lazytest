@@ -26,6 +26,7 @@ type TUI struct {
 	app          *tview.Application
 	tree         *tview.TreeView
 	output       *tview.TextView
+	infoBox      *tview.TextView
 	details      *tview.TextView
 	legend       *tview.TextView
 	flex         *tview.Flex
@@ -39,6 +40,7 @@ func NewTUI(lt *tree.LazyNode, r runner) *TUI {
 		app:          tview.NewApplication(),
 		tree:         tview.NewTreeView(),
 		output:       tview.NewTextView(),
+		infoBox:      tview.NewTextView(),
 		details:      tview.NewTextView(),
 		legend:       tview.NewTextView(),
 		flex:         tview.NewFlex(),
@@ -61,6 +63,7 @@ func (t *TUI) Run() error {
 
 	t.setupTree(treeViewRoot)
 	t.setupOutput()
+	t.setupInfoBox()
 	t.setupDetails()
 	t.setupLegend()
 	t.setupFlex()
@@ -100,6 +103,15 @@ func (t *TUI) setupOutput() {
 	t.output.SetRegions(true)
 }
 
+func (t *TUI) setupInfoBox() {
+	t.infoBox.SetBorder(true)
+	t.infoBox.SetTitle("Info")
+	t.infoBox.SetTitleAlign(tview.AlignLeft)
+	t.infoBox.SetBackgroundColor(tcell.ColorDefault)
+	t.infoBox.SetDynamicColors(true)
+	t.infoBox.SetText("Welcome to LazyTest  ")
+}
+
 func (t *TUI) setupDetails() {
 	t.details.SetBorder(true)
 	t.details.SetTitle("Details")
@@ -127,14 +139,19 @@ func (t *TUI) setupFlex() {
 	sidebar.AddItem(t.details, 0, 1, false)
 
 	mainContent := tview.NewFlex()
-	mainContent.AddItem(sidebar, 0, 1, false)
-	mainContent.AddItem(t.output, 0, 2, false)
+	mainContent.SetDirection(tview.FlexRow)
+	mainContent.AddItem(t.output, 0, 20, false)
+	mainContent.AddItem(t.infoBox, 0, 1, false)
+
+	app := tview.NewFlex()
+	app.AddItem(sidebar, 0, 1, false)
+	app.AddItem(mainContent, 0, 2, false)
 
 	footer := tview.NewFlex()
 	footer.AddItem(t.legend, 0, 1, false)
 
 	t.flex.SetDirection(tview.FlexRow)
-	t.flex.AddItem(mainContent, 0, 30, false)
+	t.flex.AddItem(app, 0, 30, false)
 	t.flex.AddItem(footer, 0, 1, false)
 }
 
@@ -209,6 +226,7 @@ func (t *TUI) handleRunCmd() {
 
 	t.app.QueueUpdateDraw(func() {
 		t.output.SetText("")
+		t.infoBox.SetText("Running...")
 	})
 
 	switch ref.(type) {
@@ -227,6 +245,7 @@ func (t *TUI) handleRunCmd() {
 	}
 
 	t.setupDetails()
+	t.updateRunInfo()
 }
 
 func (t *TUI) handleRunAllCmd() {
@@ -236,12 +255,14 @@ func (t *TUI) handleRunAllCmd() {
 
 	t.app.QueueUpdateDraw(func() {
 		t.output.SetText("")
+		t.infoBox.SetText("Running all tests...")
 	})
 
 	t.doRunAll(&wg, t.tree.GetRoot().GetChildren())
 
 	wg.Wait()
 	t.setupDetails()
+	t.updateRunInfo()
 }
 
 func (t *TUI) doRunAll(wg *sync.WaitGroup, nodes []*tview.TreeNode) {
@@ -344,6 +365,20 @@ func (t *TUI) nodeChanged(node *tview.TreeNode) {
 		}
 	}
 
+}
+
+func (t *TUI) updateRunInfo() {
+	t.app.QueueUpdateDraw(func() {
+		msg := "Finished running."
+		if t.state.Details.TotalPassed > 0 {
+			msg = fmt.Sprintf("%s [limegreen]%d passed.", msg, t.state.Details.TotalPassed)
+		}
+		if t.state.Details.TotalFailed > 0 {
+			msg = fmt.Sprintf("%s [orangered]%d failed", msg, t.state.Details.TotalFailed)
+		}
+
+		t.infoBox.SetText(msg)
+	})
 }
 
 func getNerdIcon(suiteType string) string {
