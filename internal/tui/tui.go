@@ -11,7 +11,7 @@ import (
 )
 
 const helpText = `
-	[darkturquoise]1 / 2 / 3: [white]Focus on the tree / output / details
+	[darkturquoise]1 / 2: [white]Focus on the tree / output 
 	[darkturquoise]r: [white]Run the selected test / test suite
 	[darkturquoise]a: [white]Run all tests
 	[darkturquoise]q: [white]Quit
@@ -146,8 +146,6 @@ func (t *TUI) inputCapture(event *tcell.EventKey) *tcell.EventKey {
 		t.app.SetFocus(t.tree)
 	case '2':
 		t.app.SetFocus(t.output)
-	case '3':
-		t.app.SetFocus(t.details)
 	case 'r':
 		go t.handleRunCmd()
 	case 'a':
