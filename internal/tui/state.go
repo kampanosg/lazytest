@@ -6,26 +6,20 @@ import (
 )
 
 type state struct {
-	Details     details
 	TestOutput  map[*tview.TreeNode]*models.LazyTestResult
 	FailedTests []*tview.TreeNode
-}
-
-type details struct {
-	TotalPassed int
+	PassedTests []*tview.TreeNode
 }
 
 func NewState() state {
 	return state{
-		Details: details{
-			TotalPassed: 0,
-		},
 		TestOutput:  make(map[*tview.TreeNode]*models.LazyTestResult),
 		FailedTests: make([]*tview.TreeNode, 0),
+		PassedTests: make([]*tview.TreeNode, 0),
 	}
 }
 
 func (s *state) Reset() {
-	s.Details.TotalPassed = 0
 	s.FailedTests = make([]*tview.TreeNode, 0)
+	s.PassedTests = make([]*tview.TreeNode, 0)
 }

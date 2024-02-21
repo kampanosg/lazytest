@@ -15,6 +15,7 @@ const helpText = `
 	[darkturquoise]r: [white]Run the selected test / test suite
 	[darkturquoise]a: [white]Run all tests
 	[darkturquoise]f: [white]Run all failed tests
+	[darkturquoise]p: [white]Run all passed tests
 	[darkturquoise]q: [white]Quit
 	[darkturquoise]?: [white]Show this help message
 `
@@ -154,6 +155,8 @@ func (t *TUI) inputCapture(event *tcell.EventKey) *tcell.EventKey {
 		go t.handleRunAllCmd()
 	case 'f':
 		go t.handleRunFailedCmd()
+	case 'p':
+		go t.handleRunPassedCmd()
 	case '?':
 		t.handleShowHelp()
 	}
@@ -298,6 +301,41 @@ func (t *TUI) handleRunFailedCmd() {
 	t.updateRunInfo()
 }
 
+func (t *TUI) handleRunPassedCmd() {
+	if len(t.state.PassedTests) == 0 {
+		t.app.QueueUpdateDraw(func() {
+			t.infoBox.SetText("No passed tests to run. Try running all tests ")
+		})
+		return
+	}
+
+	var wg sync.WaitGroup
+
+	passedTests := t.state.PassedTests
+	t.state.Reset()
+
+	t.app.QueueUpdateDraw(func() {
+		t.output.SetText("")
+		t.infoBox.SetText("Running passed tests...")
+	})
+
+	for _, testNode := range passedTests {
+		wg.Add(1)
+		ref := testNode.GetReference()
+		if ref == nil {
+			continue
+		}
+
+		if test, ok := ref.(*models.LazyTest); ok {
+			t.runTest(&wg, testNode, test)
+		}
+
+	}
+
+	wg.Wait()
+	t.updateRunInfo()
+}
+
 func (t *TUI) runTest(wg *sync.WaitGroup, testNode *tview.TreeNode, test *models.LazyTest) {
 	defer wg.Done()
 
@@ -312,7 +350,7 @@ func (t *TUI) runTest(wg *sync.WaitGroup, testNode *tview.TreeNode, test *models
 			t.output.SetBorderColor(tcell.ColorGreen)
 			testNode.SetText(fmt.Sprintf("[limegreen] [darkturquoise]%s", test.Name))
 		})
-		t.state.Details.TotalPassed++
+		t.state.PassedTests = append(t.state.PassedTests, testNode)
 	} else {
 		t.app.QueueUpdateDraw(func() {
 			t.output.SetBorderColor(tcell.ColorOrangeRed)
@@ -384,12 +422,13 @@ func (t *TUI) nodeChanged(node *tview.TreeNode) {
 func (t *TUI) updateRunInfo() {
 	t.app.QueueUpdateDraw(func() {
 		totalFailed := len(t.state.FailedTests)
+		totalPassed := len(t.state.PassedTests)
 		msg := "Finished running."
-		if t.state.Details.TotalPassed > 0 {
-			msg = fmt.Sprintf("%s [limegreen]%d passed.", msg, t.state.Details.TotalPassed)
+		if totalPassed > 0 {
+			msg = fmt.Sprintf("%s [limegreen]%d passed", msg, totalPassed)
 		}
 		if totalFailed > 0 {
-			msg = fmt.Sprintf("%s [orangered]%d failed", msg, totalFailed)
+			msg = fmt.Sprintf("%s. [orangered]%d failed", msg, totalFailed)
 		}
 
 		t.infoBox.SetText(msg)
