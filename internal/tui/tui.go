@@ -10,6 +10,14 @@ import (
 	"github.com/rivo/tview"
 )
 
+const helpText = `
+	[darkturquoise]1 / 2: [white]Focus on the tree / output 
+	[darkturquoise]r: [white]Run the selected test / test suite
+	[darkturquoise]a: [white]Run all tests
+	[darkturquoise]q: [white]Quit
+	[darkturquoise]?: [white]Show this help message
+`
+
 type runner interface {
 	Run(command string) *models.LazyTestResult
 }
@@ -138,10 +146,12 @@ func (t *TUI) inputCapture(event *tcell.EventKey) *tcell.EventKey {
 		t.app.SetFocus(t.tree)
 	case '2':
 		t.app.SetFocus(t.output)
-	case '3':
-		t.app.SetFocus(t.details)
 	case 'r':
 		go t.handleRunCmd()
+	case 'a':
+		go t.handleRunAllCmd()
+	case '?':
+		t.handleShowHelp()
 	}
 	return event
 }
@@ -219,6 +229,40 @@ func (t *TUI) handleRunCmd() {
 	t.setupDetails()
 }
 
+func (t *TUI) handleRunAllCmd() {
+	var wg sync.WaitGroup
+	t.state.Details.TotalPassed = 0
+	t.state.Details.TotalFailed = 0
+
+	t.app.QueueUpdateDraw(func() {
+		t.output.SetText("")
+	})
+
+	t.doRunAll(&wg, t.tree.GetRoot().GetChildren())
+
+	wg.Wait()
+	t.setupDetails()
+}
+
+func (t *TUI) doRunAll(wg *sync.WaitGroup, nodes []*tview.TreeNode) {
+	for _, testNode := range nodes {
+		if len(testNode.GetChildren()) > 0 {
+			t.doRunAll(wg, testNode.GetChildren())
+		} else {
+			ref := testNode.GetReference()
+			if ref == nil {
+				continue
+			}
+
+			switch ref.(type) {
+			case *models.LazyTest:
+				wg.Add(1)
+				t.runTest(wg, testNode, ref.(*models.LazyTest))
+			}
+		}
+	}
+}
+
 func (t *TUI) runTest(wg *sync.WaitGroup, testNode *tview.TreeNode, test *models.LazyTest) {
 	defer wg.Done()
 
@@ -246,6 +290,20 @@ func (t *TUI) runTest(wg *sync.WaitGroup, testNode *tview.TreeNode, test *models
 		t.output.SetText(res.Output)
 	})
 	t.state.TestOutput[testNode] = res
+}
+
+func (t *TUI) handleShowHelp() {
+	modal := tview.NewModal()
+	modal.SetText(helpText)
+	modal.SetBackgroundColor(tcell.ColorBlack)
+	modal.AddButtons([]string{"Cancel"})
+	modal.SetDoneFunc(func(buttonIndex int, buttonLabel string) {
+		if buttonLabel == "Cancel" {
+			t.app.SetRoot(t.flex, true).SetFocus(t.tree)
+		}
+	})
+
+	t.app.SetRoot(modal, true)
 }
 
 func (t *TUI) nodeChanged(node *tview.TreeNode) {
