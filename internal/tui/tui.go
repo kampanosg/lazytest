@@ -14,6 +14,7 @@ const helpText = `
 	[darkturquoise]1 / 2: [white]Focus on the tree / output 
 	[darkturquoise]r: [white]Run the selected test / test suite
 	[darkturquoise]a: [white]Run all tests
+	[darkturquoise]f: [white]Run all failed tests
 	[darkturquoise]q: [white]Quit
 	[darkturquoise]?: [white]Show this help message
 `
@@ -151,6 +152,8 @@ func (t *TUI) inputCapture(event *tcell.EventKey) *tcell.EventKey {
 		go t.handleRunCmd()
 	case 'a':
 		go t.handleRunAllCmd()
+	case 'f':
+		go t.handleRunFailedCmd()
 	case '?':
 		t.handleShowHelp()
 	}
@@ -185,9 +188,6 @@ func (t *TUI) buildTestNodes(lazyNode *tree.LazyNode) []*tview.TreeNode {
 			testSuite.AddChild(test)
 		}
 
-		totalTests := t.state.Details.TotalTests + len(lazyNode.Suite.Tests)
-		t.state.Details.TotalTests = totalTests
-
 		nodes = append(nodes, testSuite)
 	}
 	return nodes
@@ -205,8 +205,7 @@ func (t *TUI) handleRunCmd() {
 	}
 
 	var wg sync.WaitGroup
-	t.state.Details.TotalPassed = 0
-	t.state.Details.TotalFailed = 0
+	t.state.Reset()
 
 	t.app.QueueUpdateDraw(func() {
 		t.output.SetText("")
@@ -233,8 +232,7 @@ func (t *TUI) handleRunCmd() {
 
 func (t *TUI) handleRunAllCmd() {
 	var wg sync.WaitGroup
-	t.state.Details.TotalPassed = 0
-	t.state.Details.TotalFailed = 0
+	t.state.Reset()
 
 	t.app.QueueUpdateDraw(func() {
 		t.output.SetText("")
@@ -266,6 +264,40 @@ func (t *TUI) doRunAll(wg *sync.WaitGroup, nodes []*tview.TreeNode) {
 	}
 }
 
+func (t *TUI) handleRunFailedCmd() {
+	if len(t.state.FailedTests) == 0 {
+		t.app.QueueUpdateDraw(func() {
+			t.infoBox.SetText("No failed tests to run. Good job ")
+		})
+		return
+	}
+
+	var wg sync.WaitGroup
+
+	failedTests := t.state.FailedTests
+	t.state.Reset()
+
+	t.app.QueueUpdateDraw(func() {
+		t.output.SetText("")
+		t.infoBox.SetText("Running failed tests...")
+	})
+
+	for _, testNode := range failedTests {
+		wg.Add(1)
+		ref := testNode.GetReference()
+		if ref == nil {
+			continue
+		}
+
+		if test, ok := ref.(*models.LazyTest); ok {
+			t.runTest(&wg, testNode, test)
+		}
+	}
+
+	wg.Wait()
+	t.updateRunInfo()
+}
+
 func (t *TUI) runTest(wg *sync.WaitGroup, testNode *tview.TreeNode, test *models.LazyTest) {
 	defer wg.Done()
 
@@ -286,7 +318,7 @@ func (t *TUI) runTest(wg *sync.WaitGroup, testNode *tview.TreeNode, test *models
 			t.output.SetBorderColor(tcell.ColorOrangeRed)
 			testNode.SetText(fmt.Sprintf("[orangered] [darkturquoise]%s", test.Name))
 		})
-		t.state.Details.TotalFailed++
+		t.state.FailedTests = append(t.state.FailedTests, testNode)
 	}
 
 	t.app.QueueUpdateDraw(func() {
@@ -351,12 +383,13 @@ func (t *TUI) nodeChanged(node *tview.TreeNode) {
 
 func (t *TUI) updateRunInfo() {
 	t.app.QueueUpdateDraw(func() {
+		totalFailed := len(t.state.FailedTests)
 		msg := "Finished running."
 		if t.state.Details.TotalPassed > 0 {
 			msg = fmt.Sprintf("%s [limegreen]%d passed.", msg, t.state.Details.TotalPassed)
 		}
-		if t.state.Details.TotalFailed > 0 {
-			msg = fmt.Sprintf("%s [orangered]%d failed", msg, t.state.Details.TotalFailed)
+		if totalFailed > 0 {
+			msg = fmt.Sprintf("%s [orangered]%d failed", msg, totalFailed)
 		}
 
 		t.infoBox.SetText(msg)
