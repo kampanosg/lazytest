@@ -27,7 +27,6 @@ type TUI struct {
 	tree         *tview.TreeView
 	output       *tview.TextView
 	infoBox      *tview.TextView
-	details      *tview.TextView
 	legend       *tview.TextView
 	flex         *tview.Flex
 	state        state
@@ -41,7 +40,6 @@ func NewTUI(lt *tree.LazyNode, r runner) *TUI {
 		tree:         tview.NewTreeView(),
 		output:       tview.NewTextView(),
 		infoBox:      tview.NewTextView(),
-		details:      tview.NewTextView(),
 		legend:       tview.NewTextView(),
 		flex:         tview.NewFlex(),
 		state:        NewState(),
@@ -64,7 +62,6 @@ func (t *TUI) Run() error {
 	t.setupTree(treeViewRoot)
 	t.setupOutput()
 	t.setupInfoBox()
-	t.setupDetails()
 	t.setupLegend()
 	t.setupFlex()
 
@@ -112,18 +109,6 @@ func (t *TUI) setupInfoBox() {
 	t.infoBox.SetText("Welcome to LazyTest  ")
 }
 
-func (t *TUI) setupDetails() {
-	t.details.SetBorder(true)
-	t.details.SetTitle("Details")
-	t.details.SetTitleAlign(tview.AlignLeft)
-	t.details.SetBackgroundColor(tcell.ColorDefault)
-	t.details.SetScrollable(true)
-	t.details.SetWrap(true)
-	t.details.SetDynamicColors(true)
-	t.details.SetText(fmt.Sprintf("[darkturquoise]Total: %d\n[limegreen]Passed: %d\n[indianred]Failed: %d",
-		t.state.Details.TotalTests, t.state.Details.TotalPassed, t.state.Details.TotalFailed))
-}
-
 func (t *TUI) setupLegend() {
 	t.legend.SetBorder(false)
 	t.legend.SetTitleAlign(tview.AlignCenter)
@@ -135,8 +120,7 @@ func (t *TUI) setupFlex() {
 	sidebar := tview.NewFlex()
 	sidebar.SetDirection(tview.FlexRow)
 
-	sidebar.AddItem(t.tree, 0, 7, true)
-	sidebar.AddItem(t.details, 0, 1, false)
+	sidebar.AddItem(t.tree, 0, 1, true)
 
 	mainContent := tview.NewFlex()
 	mainContent.SetDirection(tview.FlexRow)
@@ -244,7 +228,6 @@ func (t *TUI) handleRunCmd() {
 		wg.Wait()
 	}
 
-	t.setupDetails()
 	t.updateRunInfo()
 }
 
@@ -261,7 +244,6 @@ func (t *TUI) handleRunAllCmd() {
 	t.doRunAll(&wg, t.tree.GetRoot().GetChildren())
 
 	wg.Wait()
-	t.setupDetails()
 	t.updateRunInfo()
 }
 
