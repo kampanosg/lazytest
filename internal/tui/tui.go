@@ -170,6 +170,7 @@ func (t *TUI) setupSearch() {
 			t.search.SetText("")
 			t.tree.SetRoot(t.state.Root)
 			t.app.SetFocus(t.tree)
+			t.infoBox.SetText("Exited search mode")
 		}
 	})
 }
@@ -178,7 +179,7 @@ func (t *TUI) setupLegend() {
 	t.legend.SetBorder(false)
 	t.legend.SetTitleAlign(tview.AlignCenter)
 	t.legend.SetBackgroundColor(tcell.ColorDefault)
-	t.legend.SetText("?: help, 1/2/3: navigate, q: quit")
+	t.legend.SetText("?: help, 1/2: navigate, /: search, q: quit")
 }
 
 func (t *TUI) setupFlex() {
@@ -225,8 +226,10 @@ func (t *TUI) inputCapture(event *tcell.EventKey) *tcell.EventKey {
 		go t.handleRunPassedCmd()
 	case '/':
 		t.state.IsSearching = true
+		t.infoBox.SetText("Search mode. Press <ESC> to exit, <Enter> to go to the search results, C to clear the results")
 		t.app.SetFocus(t.search)
 	case 'C':
+		t.infoBox.SetText("Cleared search")
 		go t.handleClearSearchCmd()
 	case '?':
 		t.handleShowHelp()
@@ -450,6 +453,7 @@ func (t *TUI) runTest(wg *sync.WaitGroup, testNode *tview.TreeNode, test *models
 	t.app.QueueUpdateDraw(func() {
 		t.output.SetText(res.Output)
 	})
+
 	t.state.TestOutput[testNode] = res
 }
 
