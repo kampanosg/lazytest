@@ -2,6 +2,7 @@ package tui
 
 import (
 	"fmt"
+	"strings"
 	"sync"
 
 	"github.com/gdamore/tcell/v2"
@@ -14,6 +15,12 @@ const helpText = `
 	[darkturquoise]1 / 2: [white]Focus on the tree / output 
 	[darkturquoise]r: [white]Run the selected test / test suite
 	[darkturquoise]a: [white]Run all tests
+	[darkturquoise]f: [white]Run all failed tests
+	[darkturquoise]p: [white]Run all passed tests
+	[darkturquoise]/: [white]Search
+	[darkturquoise]Enter: [white](in search mode) Go to the search results
+	[darkturquoise]<ESC>: [white]Exit search mode
+	[darkturquoise]C: [white](outside search mode) Clear search
 	[darkturquoise]q: [white]Quit
 	[darkturquoise]?: [white]Show this help message
 `
@@ -26,7 +33,8 @@ type TUI struct {
 	app          *tview.Application
 	tree         *tview.TreeView
 	output       *tview.TextView
-	details      *tview.TextView
+	infoBox      *tview.TextView
+	search       *tview.InputField
 	legend       *tview.TextView
 	flex         *tview.Flex
 	state        state
@@ -39,7 +47,8 @@ func NewTUI(lt *tree.LazyNode, r runner) *TUI {
 		app:          tview.NewApplication(),
 		tree:         tview.NewTreeView(),
 		output:       tview.NewTextView(),
-		details:      tview.NewTextView(),
+		infoBox:      tview.NewTextView(),
+		search:       tview.NewInputField(),
 		legend:       tview.NewTextView(),
 		flex:         tview.NewFlex(),
 		state:        NewState(),
@@ -49,7 +58,7 @@ func NewTUI(lt *tree.LazyNode, r runner) *TUI {
 }
 
 func (t *TUI) Run() error {
-	nodes := t.buildTestNodes(t.lazyTestRoot)
+	nodes := t.buildTestNodes(t.lazyTestRoot, "")
 	var treeViewRoot *tview.TreeNode
 	for i, n := range nodes {
 		if i == 0 {
@@ -59,16 +68,19 @@ func (t *TUI) Run() error {
 		treeViewRoot.AddChild(n)
 	}
 
-	t.setupTree(treeViewRoot)
+	t.state.Root = treeViewRoot
+
+	t.setupTree(t.state.Root)
 	t.setupOutput()
-	t.setupDetails()
+	t.setupInfoBox()
+	t.setupSearch()
 	t.setupLegend()
 	t.setupFlex()
 
 	t.app.EnableMouse(true)
 	t.app.SetInputCapture(t.inputCapture)
 
-	if err := t.app.SetRoot(t.flex, true).SetFocus(t.tree).Run(); err != nil {
+	if err := t.app.SetRoot(t.flex, true).SetFocus(t.tree).EnablePaste(true).Run(); err != nil {
 		return err
 	}
 
@@ -100,45 +112,103 @@ func (t *TUI) setupOutput() {
 	t.output.SetRegions(true)
 }
 
-func (t *TUI) setupDetails() {
-	t.details.SetBorder(true)
-	t.details.SetTitle("Details")
-	t.details.SetTitleAlign(tview.AlignLeft)
-	t.details.SetBackgroundColor(tcell.ColorDefault)
-	t.details.SetScrollable(true)
-	t.details.SetWrap(true)
-	t.details.SetDynamicColors(true)
-	t.details.SetText(fmt.Sprintf("[darkturquoise]Total: %d\n[limegreen]Passed: %d\n[indianred]Failed: %d",
-		t.state.Details.TotalTests, t.state.Details.TotalPassed, t.state.Details.TotalFailed))
+func (t *TUI) setupInfoBox() {
+	t.infoBox.SetBorder(true)
+	t.infoBox.SetTitle("Info")
+	t.infoBox.SetTitleAlign(tview.AlignLeft)
+	t.infoBox.SetBackgroundColor(tcell.ColorDefault)
+	t.infoBox.SetDynamicColors(true)
+	t.infoBox.SetText("Welcome to LazyTest  ")
+}
+
+func (t *TUI) setupSearch() {
+	t.search.SetTitle("Search")
+	t.search.SetBorder(true)
+	t.search.SetBackgroundColor(tcell.ColorDefault)
+	t.search.SetTitleAlign(tview.AlignLeft)
+	t.search.SetFieldBackgroundColor(tcell.ColorDefault)
+	t.search.SetPlaceholder("Press / to search")
+	t.search.SetPlaceholderStyle(tcell.StyleDefault.Foreground(tcell.ColorGray))
+
+	t.search.SetFocusFunc(func() {
+	})
+
+	t.search.SetChangedFunc(func(searchQuery string) {
+		if strings.HasSuffix(searchQuery, "/") {
+			// when the user presses / to search, the / is still in the input field
+			// so we're removing it here
+			searchQuery = searchQuery[:len(searchQuery)-1]
+			t.search.SetText(searchQuery)
+		}
+
+		if searchQuery != "" {
+			nodes := t.buildTestNodes(t.lazyTestRoot, searchQuery)
+
+			var root *tview.TreeNode
+			for i, n := range nodes {
+				if i == 0 {
+					root = n
+					continue
+				}
+				root.AddChild(n)
+			}
+
+			t.tree.SetRoot(root)
+		} else {
+			t.tree.SetRoot(t.state.Root)
+		}
+	})
+
+	t.search.SetDoneFunc(func(key tcell.Key) {
+		t.state.IsSearching = false
+
+		if key == tcell.KeyEnter {
+			t.app.SetFocus(t.tree)
+		}
+
+		if key == tcell.KeyEscape {
+			t.search.SetText("")
+			t.tree.SetRoot(t.state.Root)
+			t.app.SetFocus(t.tree)
+			t.infoBox.SetText("Exited search mode")
+		}
+	})
 }
 
 func (t *TUI) setupLegend() {
 	t.legend.SetBorder(false)
 	t.legend.SetTitleAlign(tview.AlignCenter)
 	t.legend.SetBackgroundColor(tcell.ColorDefault)
-	t.legend.SetText("?: help, 1/2/3: navigate, q: quit")
+	t.legend.SetText("?: help, 1/2: navigate, /: search, q: quit")
 }
 
 func (t *TUI) setupFlex() {
 	sidebar := tview.NewFlex()
 	sidebar.SetDirection(tview.FlexRow)
-
-	sidebar.AddItem(t.tree, 0, 7, true)
-	sidebar.AddItem(t.details, 0, 1, false)
+	sidebar.AddItem(t.tree, 0, 20, true)
+	sidebar.AddItem(t.search, 0, 1, false)
 
 	mainContent := tview.NewFlex()
-	mainContent.AddItem(sidebar, 0, 1, false)
-	mainContent.AddItem(t.output, 0, 2, false)
+	mainContent.SetDirection(tview.FlexRow)
+	mainContent.AddItem(t.output, 0, 20, false)
+	mainContent.AddItem(t.infoBox, 0, 1, false)
+
+	app := tview.NewFlex()
+	app.AddItem(sidebar, 0, 1, false)
+	app.AddItem(mainContent, 0, 2, false)
 
 	footer := tview.NewFlex()
 	footer.AddItem(t.legend, 0, 1, false)
 
 	t.flex.SetDirection(tview.FlexRow)
-	t.flex.AddItem(mainContent, 0, 30, false)
+	t.flex.AddItem(app, 0, 30, false)
 	t.flex.AddItem(footer, 0, 1, false)
 }
 
 func (t *TUI) inputCapture(event *tcell.EventKey) *tcell.EventKey {
+	if t.state.IsSearching {
+		return event
+	}
 	switch pressed_key := event.Rune(); pressed_key {
 	case 'q':
 		t.app.Stop()
@@ -150,13 +220,24 @@ func (t *TUI) inputCapture(event *tcell.EventKey) *tcell.EventKey {
 		go t.handleRunCmd()
 	case 'a':
 		go t.handleRunAllCmd()
+	case 'f':
+		go t.handleRunFailedCmd()
+	case 'p':
+		go t.handleRunPassedCmd()
+	case '/':
+		t.state.IsSearching = true
+		t.infoBox.SetText("Search mode. Press <ESC> to exit, <Enter> to go to the search results, C to clear the results")
+		t.app.SetFocus(t.search)
+	case 'C':
+		t.infoBox.SetText("Cleared search")
+		go t.handleClearSearchCmd()
 	case '?':
 		t.handleShowHelp()
 	}
 	return event
 }
 
-func (t *TUI) buildTestNodes(lazyNode *tree.LazyNode) []*tview.TreeNode {
+func (t *TUI) buildTestNodes(lazyNode *tree.LazyNode, searchQuery string) []*tview.TreeNode {
 	nodes := []*tview.TreeNode{}
 
 	if lazyNode.IsFolder && lazyNode.HasTestSuite() {
@@ -164,7 +245,7 @@ func (t *TUI) buildTestNodes(lazyNode *tree.LazyNode) []*tview.TreeNode {
 		f.SetSelectable(true)
 
 		for _, child := range lazyNode.Children {
-			ns := t.buildTestNodes(child)
+			ns := t.buildTestNodes(child, searchQuery)
 			for _, n := range ns {
 				f.AddChild(n)
 			}
@@ -172,22 +253,36 @@ func (t *TUI) buildTestNodes(lazyNode *tree.LazyNode) []*tview.TreeNode {
 
 		nodes = append(nodes, f)
 	} else if !lazyNode.IsFolder {
+		searchQuery = strings.ToLower(searchQuery)
+		addTestSuite := false
+
+		if searchQuery == "" {
+			addTestSuite = true
+		}
+
 		testSuite := tview.NewTreeNode(fmt.Sprintf("[bisque]%s %s", getNerdIcon(lazyNode.Suite.Type), lazyNode.Name))
 		testSuite.SetSelectable(true)
 		testSuite.SetReference(lazyNode.Suite)
 
-		// can probable remove the i with Go 1.22
+		if strings.Contains(strings.ToLower(lazyNode.Name), searchQuery) {
+			addTestSuite = true
+		}
+
+		// can probably remove the i with Go 1.22
 		for i, t := range lazyNode.Suite.Tests {
 			test := tview.NewTreeNode(fmt.Sprintf("[darkturquoise] %s", t.Name))
 			test.SetSelectable(true)
 			test.SetReference(&lazyNode.Suite.Tests[i])
-			testSuite.AddChild(test)
+
+			if searchQuery == "" || addTestSuite || strings.Contains(strings.ToLower(t.Name), searchQuery) {
+				testSuite.AddChild(test)
+				addTestSuite = true
+			}
 		}
 
-		totalTests := t.state.Details.TotalTests + len(lazyNode.Suite.Tests)
-		t.state.Details.TotalTests = totalTests
-
-		nodes = append(nodes, testSuite)
+		if addTestSuite {
+			nodes = append(nodes, testSuite)
+		}
 	}
 	return nodes
 }
@@ -204,11 +299,11 @@ func (t *TUI) handleRunCmd() {
 	}
 
 	var wg sync.WaitGroup
-	t.state.Details.TotalPassed = 0
-	t.state.Details.TotalFailed = 0
+	t.state.Reset()
 
 	t.app.QueueUpdateDraw(func() {
 		t.output.SetText("")
+		t.infoBox.SetText("Running...")
 	})
 
 	switch ref.(type) {
@@ -226,22 +321,22 @@ func (t *TUI) handleRunCmd() {
 		wg.Wait()
 	}
 
-	t.setupDetails()
+	t.updateRunInfo()
 }
 
 func (t *TUI) handleRunAllCmd() {
 	var wg sync.WaitGroup
-	t.state.Details.TotalPassed = 0
-	t.state.Details.TotalFailed = 0
+	t.state.Reset()
 
 	t.app.QueueUpdateDraw(func() {
 		t.output.SetText("")
+		t.infoBox.SetText("Running all tests...")
 	})
 
 	t.doRunAll(&wg, t.tree.GetRoot().GetChildren())
 
 	wg.Wait()
-	t.setupDetails()
+	t.updateRunInfo()
 }
 
 func (t *TUI) doRunAll(wg *sync.WaitGroup, nodes []*tview.TreeNode) {
@@ -263,6 +358,75 @@ func (t *TUI) doRunAll(wg *sync.WaitGroup, nodes []*tview.TreeNode) {
 	}
 }
 
+func (t *TUI) handleRunFailedCmd() {
+	if len(t.state.FailedTests) == 0 {
+		t.app.QueueUpdateDraw(func() {
+			t.infoBox.SetText("No failed tests to run. Good job ")
+		})
+		return
+	}
+
+	var wg sync.WaitGroup
+
+	failedTests := t.state.FailedTests
+	t.state.Reset()
+
+	t.app.QueueUpdateDraw(func() {
+		t.output.SetText("")
+		t.infoBox.SetText("Running failed tests...")
+	})
+
+	for _, testNode := range failedTests {
+		wg.Add(1)
+		ref := testNode.GetReference()
+		if ref == nil {
+			continue
+		}
+
+		if test, ok := ref.(*models.LazyTest); ok {
+			t.runTest(&wg, testNode, test)
+		}
+	}
+
+	wg.Wait()
+	t.updateRunInfo()
+}
+
+func (t *TUI) handleRunPassedCmd() {
+	if len(t.state.PassedTests) == 0 {
+		t.app.QueueUpdateDraw(func() {
+			t.infoBox.SetText("No passed tests to run. Try running all tests ")
+		})
+		return
+	}
+
+	var wg sync.WaitGroup
+
+	passedTests := t.state.PassedTests
+	t.state.Reset()
+
+	t.app.QueueUpdateDraw(func() {
+		t.output.SetText("")
+		t.infoBox.SetText("Running passed tests...")
+	})
+
+	for _, testNode := range passedTests {
+		wg.Add(1)
+		ref := testNode.GetReference()
+		if ref == nil {
+			continue
+		}
+
+		if test, ok := ref.(*models.LazyTest); ok {
+			t.runTest(&wg, testNode, test)
+		}
+
+	}
+
+	wg.Wait()
+	t.updateRunInfo()
+}
+
 func (t *TUI) runTest(wg *sync.WaitGroup, testNode *tview.TreeNode, test *models.LazyTest) {
 	defer wg.Done()
 
@@ -277,18 +441,19 @@ func (t *TUI) runTest(wg *sync.WaitGroup, testNode *tview.TreeNode, test *models
 			t.output.SetBorderColor(tcell.ColorGreen)
 			testNode.SetText(fmt.Sprintf("[limegreen] [darkturquoise]%s", test.Name))
 		})
-		t.state.Details.TotalPassed++
+		t.state.PassedTests = append(t.state.PassedTests, testNode)
 	} else {
 		t.app.QueueUpdateDraw(func() {
 			t.output.SetBorderColor(tcell.ColorOrangeRed)
 			testNode.SetText(fmt.Sprintf("[orangered] [darkturquoise]%s", test.Name))
 		})
-		t.state.Details.TotalFailed++
+		t.state.FailedTests = append(t.state.FailedTests, testNode)
 	}
 
 	t.app.QueueUpdateDraw(func() {
 		t.output.SetText(res.Output)
 	})
+
 	t.state.TestOutput[testNode] = res
 }
 
@@ -296,9 +461,9 @@ func (t *TUI) handleShowHelp() {
 	modal := tview.NewModal()
 	modal.SetText(helpText)
 	modal.SetBackgroundColor(tcell.ColorBlack)
-	modal.AddButtons([]string{"Cancel"})
+	modal.AddButtons([]string{"Exit <ESC>"})
 	modal.SetDoneFunc(func(buttonIndex int, buttonLabel string) {
-		if buttonLabel == "Cancel" {
+		if buttonIndex <= 1 {
 			t.app.SetRoot(t.flex, true).SetFocus(t.tree)
 		}
 	})
@@ -343,7 +508,30 @@ func (t *TUI) nodeChanged(node *tview.TreeNode) {
 			t.output.SetText(res.Output)
 		}
 	}
+}
 
+func (t *TUI) updateRunInfo() {
+	t.app.QueueUpdateDraw(func() {
+		totalFailed := len(t.state.FailedTests)
+		totalPassed := len(t.state.PassedTests)
+		msg := "Finished running."
+		if totalPassed > 0 {
+			msg = fmt.Sprintf("%s [limegreen]%d passed", msg, totalPassed)
+		}
+		if totalFailed > 0 {
+			msg = fmt.Sprintf("%s. [orangered]%d failed", msg, totalFailed)
+		}
+
+		t.infoBox.SetText(msg)
+	})
+}
+
+func (t *TUI) handleClearSearchCmd() {
+	t.app.QueueUpdateDraw(func() {
+		t.search.SetText("")
+		t.tree.SetRoot(t.state.Root)
+		t.app.SetFocus(t.tree)
+	})
 }
 
 func getNerdIcon(suiteType string) string {
