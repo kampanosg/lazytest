@@ -9,6 +9,8 @@ type state struct {
 	TestOutput  map[*tview.TreeNode]*models.LazyTestResult
 	FailedTests []*tview.TreeNode
 	PassedTests []*tview.TreeNode
+	IsSearching bool
+	Root        *tview.TreeNode
 }
 
 func NewState() state {
@@ -16,6 +18,8 @@ func NewState() state {
 		TestOutput:  make(map[*tview.TreeNode]*models.LazyTestResult),
 		FailedTests: make([]*tview.TreeNode, 0),
 		PassedTests: make([]*tview.TreeNode, 0),
+		IsSearching: false,
+		Root:        tview.NewTreeNode(""),
 	}
 }
 
