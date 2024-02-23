@@ -2,6 +2,7 @@ package tui
 
 import (
 	"fmt"
+	"strings"
 	"sync"
 
 	"github.com/gdamore/tcell/v2"
@@ -123,34 +124,24 @@ func (t *TUI) setupSearch() {
 	t.search.SetPlaceholder("Press / to search")
 	t.search.SetPlaceholderStyle(tcell.StyleDefault.Foreground(tcell.ColorGray))
 
-	t.search.SetFocusFunc(func() {
-	})
+	t.search.SetChangedFunc(func(searchQuery string) {
+		if strings.HasSuffix(searchQuery, "/") {
+			// when the user presses / to search, the / is still in the input field
+			// so we're removing it here
+			searchQuery = searchQuery[:len(searchQuery)-1]
+			t.search.SetText(searchQuery)
+		}
 
-	// t.search.SetChangedFunc(func(searchQuery string) {
-	// 	if strings.HasSuffix(searchQuery, "/") {
-	// 		// when the user presses / to search, the / is still in the input field
-	// 		// so we're removing it here
-	// 		searchQuery = searchQuery[:len(searchQuery)-1]
-	// 		t.search.SetText(searchQuery)
-	// 	}
-	//
-	// 	if searchQuery != "" {
-	// 		nodes := t.buildTestNodes(t.lazyTestRoot, searchQuery)
-	//
-	// 		var root *tview.TreeNode
-	// 		for i, n := range nodes {
-	// 			if i == 0 {
-	// 				root = n
-	// 				continue
-	// 			}
-	// 			root.AddChild(n)
-	// 		}
-	//
-	// 		t.tree.SetRoot(root)
-	// 	} else {
-	// 		t.tree.SetRoot(t.state.Root)
-	// 	}
-	// })
+		if searchQuery == "" {
+			t.tree.SetRoot(t.state.Root)
+			return
+		}
+
+		root := t.state.Root
+		filtered := search(root, searchQuery)
+		t.tree.SetRoot(filtered)
+
+	})
 
 	t.search.SetDoneFunc(func(key tcell.Key) {
 		t.state.IsSearching = false
@@ -166,6 +157,46 @@ func (t *TUI) setupSearch() {
 			t.infoBox.SetText("Exited search mode")
 		}
 	})
+}
+
+func search(root *tview.TreeNode, query string) *tview.TreeNode {
+	filtered := tview.NewTreeNode("Search results")
+	doSearch(root, filtered, query)
+	return filtered
+}
+
+func doSearch(original, filtered *tview.TreeNode, query string) {
+	if query == "" {
+		filtered.AddChild(original)
+		return
+	}
+
+	ref := original.GetReference()
+	if ref == nil {
+		for _, child := range original.GetChildren() {
+			doSearch(child, filtered, query)
+		}
+	} else {
+		if testSuite, ok := ref.(*models.LazyTestSuite); ok {
+			if strings.Contains(testSuite.Path, query) {
+				filtered.AddChild(original)
+				return
+			}
+
+			for _, test := range original.GetChildren() {
+				ref := test.GetReference()
+				if ref == nil {
+					continue
+				}
+
+				if t, ok := ref.(*models.LazyTest); ok {
+					if strings.Contains(t.Name, query) {
+						filtered.AddChild(test)
+					}
+				}
+			}
+		}
+	}
 }
 
 func (t *TUI) setupLegend() {
