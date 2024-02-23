@@ -35,7 +35,6 @@ type TUI struct {
 	app       *tview.Application
 	Elements  *elements.Elements
 	tree      *tview.TreeView
-	output    *tview.TextView
 	search    *tview.InputField
 	flex      *tview.Flex
 	state     state
@@ -49,7 +48,6 @@ func NewTUI(d string, r runner, e []engines.LazyEngine) *TUI {
 		app:       tview.NewApplication(),
 		Elements:  elements.NewElements(),
 		tree:      tview.NewTreeView(),
-		output:    tview.NewTextView(),
 		search:    tview.NewInputField(),
 		flex:      tview.NewFlex(),
 		state:     NewState(),
@@ -66,7 +64,6 @@ func (t *TUI) Run() error {
 	t.Elements.Setup()
 
 	t.setupTree(t.state.Root)
-	t.setupOutput()
 	t.setupSearch()
 	t.setupFlex()
 
@@ -93,16 +90,6 @@ func (t *TUI) setupTree(treeViewRoot *tview.TreeNode) {
 	t.tree.SetSelectedFunc(func(node *tview.TreeNode) {
 		node.SetExpanded(!node.IsExpanded())
 	})
-}
-
-func (t *TUI) setupOutput() {
-	t.output.SetBorder(true)
-	t.output.SetTitle("Output")
-	t.output.SetTitleAlign(tview.AlignLeft)
-	t.output.SetBackgroundColor(tcell.ColorDefault)
-	t.output.SetScrollable(true)
-	t.output.SetDynamicColors(true)
-	t.output.SetRegions(true)
 }
 
 func (t *TUI) setupSearch() {
@@ -197,7 +184,7 @@ func (t *TUI) setupFlex() {
 
 	mainContent := tview.NewFlex()
 	mainContent.SetDirection(tview.FlexRow)
-	mainContent.AddItem(t.output, 0, 20, false)
+	mainContent.AddItem(t.Elements.Output, 0, 20, false)
 	mainContent.AddItem(t.Elements.InfoBox, 3, 0, false)
 
 	app := tview.NewFlex()
@@ -222,7 +209,7 @@ func (t *TUI) inputCapture(event *tcell.EventKey) *tcell.EventKey {
 	case '1':
 		t.app.SetFocus(t.tree)
 	case '2':
-		t.app.SetFocus(t.output)
+		t.app.SetFocus(t.Elements.Output)
 	case 'r':
 		go t.handleRunCmd()
 	case 'a':
@@ -259,7 +246,7 @@ func (t *TUI) handleRunCmd() {
 	t.state.Reset()
 
 	t.app.QueueUpdateDraw(func() {
-		t.output.SetText("")
+		t.Elements.Output.SetText("")
 		t.Elements.InfoBox.SetText("Running...")
 	})
 
@@ -286,7 +273,7 @@ func (t *TUI) handleRunAllCmd() {
 	t.state.Reset()
 
 	t.app.QueueUpdateDraw(func() {
-		t.output.SetText("")
+		t.Elements.Output.SetText("")
 		t.Elements.InfoBox.SetText("Running all tests...")
 	})
 
@@ -329,7 +316,7 @@ func (t *TUI) handleRunFailedCmd() {
 	t.state.Reset()
 
 	t.app.QueueUpdateDraw(func() {
-		t.output.SetText("")
+		t.Elements.Output.SetText("")
 		t.Elements.InfoBox.SetText("Running failed tests...")
 	})
 
@@ -363,7 +350,7 @@ func (t *TUI) handleRunPassedCmd() {
 	t.state.Reset()
 
 	t.app.QueueUpdateDraw(func() {
-		t.output.SetText("")
+		t.Elements.Output.SetText("")
 		t.Elements.InfoBox.SetText("Running passed tests...")
 	})
 
@@ -389,26 +376,26 @@ func (t *TUI) runTest(wg *sync.WaitGroup, testNode *tview.TreeNode, test *models
 
 	t.app.QueueUpdateDraw(func() {
 		testNode.SetText(fmt.Sprintf("[yellow] [darkturquoise]%s", test.Name))
-		t.output.SetBorderColor(tcell.ColorYellow)
+		t.Elements.Output.SetBorderColor(tcell.ColorYellow)
 	})
 
 	res := t.runner.Run(test.RunCmd)
 	if res.IsSuccess {
 		t.app.QueueUpdateDraw(func() {
-			t.output.SetBorderColor(tcell.ColorGreen)
+			t.Elements.Output.SetBorderColor(tcell.ColorGreen)
 			testNode.SetText(fmt.Sprintf("[limegreen] [darkturquoise]%s", test.Name))
 		})
 		t.state.PassedTests = append(t.state.PassedTests, testNode)
 	} else {
 		t.app.QueueUpdateDraw(func() {
-			t.output.SetBorderColor(tcell.ColorOrangeRed)
+			t.Elements.Output.SetBorderColor(tcell.ColorOrangeRed)
 			testNode.SetText(fmt.Sprintf("[orangered] [darkturquoise]%s", test.Name))
 		})
 		t.state.FailedTests = append(t.state.FailedTests, testNode)
 	}
 
 	t.app.QueueUpdateDraw(func() {
-		t.output.SetText(res.Output)
+		t.Elements.Output.SetText(res.Output)
 	})
 
 	t.state.TestOutput[testNode] = res
@@ -451,17 +438,17 @@ func (t *TUI) nodeChanged(node *tview.TreeNode) {
 				output = output + o
 			}
 		}
-		t.output.SetBorderColor(borderColor)
-		t.output.SetText(output)
+		t.Elements.Output.SetBorderColor(borderColor)
+		t.Elements.Output.SetText(output)
 	case *models.LazyTest:
 		res, ok := t.state.TestOutput[node]
 		if ok {
 			if res.IsSuccess {
-				t.output.SetBorderColor(tcell.ColorGreen)
+				t.Elements.Output.SetBorderColor(tcell.ColorGreen)
 			} else {
-				t.output.SetBorderColor(tcell.ColorOrangeRed)
+				t.Elements.Output.SetBorderColor(tcell.ColorOrangeRed)
 			}
-			t.output.SetText(res.Output)
+			t.Elements.Output.SetText(res.Output)
 		}
 	}
 }
