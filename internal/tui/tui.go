@@ -18,7 +18,7 @@ type runner interface {
 }
 
 type TUI struct {
-	app       *tview.Application
+	App       *tview.Application
 	Elements  *elements.Elements
 	tree      *tview.TreeView
 	search    *tview.InputField
@@ -31,7 +31,7 @@ type TUI struct {
 
 func NewTUI(d string, r runner, e []engines.LazyEngine) *TUI {
 	return &TUI{
-		app:       tview.NewApplication(),
+		App:       tview.NewApplication(),
 		Elements:  elements.NewElements(),
 		tree:      tview.NewTreeView(),
 		search:    tview.NewInputField(),
@@ -53,10 +53,10 @@ func (t *TUI) Run() error {
 	t.setupSearch()
 	t.setupFlex()
 
-	t.app.EnableMouse(true)
-	t.app.SetInputCapture(t.inputCapture)
+	t.App.EnableMouse(true)
+	t.App.SetInputCapture(t.inputCapture)
 
-	if err := t.app.SetRoot(t.flex, true).SetFocus(t.tree).EnablePaste(true).Run(); err != nil {
+	if err := t.App.SetRoot(t.flex, true).SetFocus(t.tree).EnablePaste(true).Run(); err != nil {
 		return err
 	}
 
@@ -110,13 +110,13 @@ func (t *TUI) setupSearch() {
 		t.state.IsSearching = false
 
 		if key == tcell.KeyEnter {
-			t.app.SetFocus(t.tree)
+			t.App.SetFocus(t.tree)
 		}
 
 		if key == tcell.KeyEscape {
 			t.search.SetText("")
 			t.tree.SetRoot(t.state.Root)
-			t.app.SetFocus(t.tree)
+			t.App.SetFocus(t.tree)
 			t.Elements.InfoBox.SetText("Exited search mode")
 		}
 	})
@@ -191,11 +191,11 @@ func (t *TUI) inputCapture(event *tcell.EventKey) *tcell.EventKey {
 	}
 	switch pressed_key := event.Rune(); pressed_key {
 	case 'q':
-		t.app.Stop()
+		t.App.Stop()
 	case '1':
-		t.app.SetFocus(t.tree)
+		t.App.SetFocus(t.tree)
 	case '2':
-		t.app.SetFocus(t.Elements.Output)
+		t.App.SetFocus(t.Elements.Output)
 	case 'r':
 		go t.handleRunCmd()
 	case 'a':
@@ -207,7 +207,7 @@ func (t *TUI) inputCapture(event *tcell.EventKey) *tcell.EventKey {
 	case '/':
 		t.state.IsSearching = true
 		t.Elements.InfoBox.SetText("Search mode. Press <ESC> to exit, <Enter> to go to the search results, C to clear the results")
-		t.app.SetFocus(t.search)
+		t.App.SetFocus(t.search)
 	case 'C':
 		t.Elements.InfoBox.SetText("Cleared search")
 		go t.handleClearSearchCmd()
@@ -231,7 +231,7 @@ func (t *TUI) handleRunCmd() {
 	var wg sync.WaitGroup
 	t.state.Reset()
 
-	t.app.QueueUpdateDraw(func() {
+	t.App.QueueUpdateDraw(func() {
 		t.Elements.Output.SetText("")
 		t.Elements.InfoBox.SetText("Running...")
 	})
@@ -258,7 +258,7 @@ func (t *TUI) handleRunAllCmd() {
 	var wg sync.WaitGroup
 	t.state.Reset()
 
-	t.app.QueueUpdateDraw(func() {
+	t.App.QueueUpdateDraw(func() {
 		t.Elements.Output.SetText("")
 		t.Elements.InfoBox.SetText("Running all tests...")
 	})
@@ -290,7 +290,7 @@ func (t *TUI) doRunAll(wg *sync.WaitGroup, nodes []*tview.TreeNode) {
 
 func (t *TUI) handleRunFailedCmd() {
 	if len(t.state.FailedTests) == 0 {
-		t.app.QueueUpdateDraw(func() {
+		t.App.QueueUpdateDraw(func() {
 			t.Elements.InfoBox.SetText("No failed tests to run. Good job ")
 		})
 		return
@@ -301,7 +301,7 @@ func (t *TUI) handleRunFailedCmd() {
 	failedTests := t.state.FailedTests
 	t.state.Reset()
 
-	t.app.QueueUpdateDraw(func() {
+	t.App.QueueUpdateDraw(func() {
 		t.Elements.Output.SetText("")
 		t.Elements.InfoBox.SetText("Running failed tests...")
 	})
@@ -324,7 +324,7 @@ func (t *TUI) handleRunFailedCmd() {
 
 func (t *TUI) handleRunPassedCmd() {
 	if len(t.state.PassedTests) == 0 {
-		t.app.QueueUpdateDraw(func() {
+		t.App.QueueUpdateDraw(func() {
 			t.Elements.InfoBox.SetText("No passed tests to run. Try running all tests ")
 		})
 		return
@@ -335,7 +335,7 @@ func (t *TUI) handleRunPassedCmd() {
 	passedTests := t.state.PassedTests
 	t.state.Reset()
 
-	t.app.QueueUpdateDraw(func() {
+	t.App.QueueUpdateDraw(func() {
 		t.Elements.Output.SetText("")
 		t.Elements.InfoBox.SetText("Running passed tests...")
 	})
@@ -360,27 +360,27 @@ func (t *TUI) handleRunPassedCmd() {
 func (t *TUI) runTest(wg *sync.WaitGroup, testNode *tview.TreeNode, test *models.LazyTest) {
 	defer wg.Done()
 
-	t.app.QueueUpdateDraw(func() {
+	t.App.QueueUpdateDraw(func() {
 		testNode.SetText(fmt.Sprintf("[yellow] [darkturquoise]%s", test.Name))
 		t.Elements.Output.SetBorderColor(tcell.ColorYellow)
 	})
 
 	res := t.runner.Run(test.RunCmd)
 	if res.IsSuccess {
-		t.app.QueueUpdateDraw(func() {
+		t.App.QueueUpdateDraw(func() {
 			t.Elements.Output.SetBorderColor(tcell.ColorGreen)
 			testNode.SetText(fmt.Sprintf("[limegreen] [darkturquoise]%s", test.Name))
 		})
 		t.state.PassedTests = append(t.state.PassedTests, testNode)
 	} else {
-		t.app.QueueUpdateDraw(func() {
+		t.App.QueueUpdateDraw(func() {
 			t.Elements.Output.SetBorderColor(tcell.ColorOrangeRed)
 			testNode.SetText(fmt.Sprintf("[orangered] [darkturquoise]%s", test.Name))
 		})
 		t.state.FailedTests = append(t.state.FailedTests, testNode)
 	}
 
-	t.app.QueueUpdateDraw(func() {
+	t.App.QueueUpdateDraw(func() {
 		t.Elements.Output.SetText(res.Output)
 	})
 
@@ -390,10 +390,10 @@ func (t *TUI) runTest(wg *sync.WaitGroup, testNode *tview.TreeNode, test *models
 func (t *TUI) handleShowHelp() {
 	t.Elements.HelpModal.SetDoneFunc(func(buttonIndex int, buttonLabel string) {
 		if buttonIndex <= 1 {
-			t.app.SetRoot(t.flex, true).SetFocus(t.tree)
+			t.App.SetRoot(t.flex, true).SetFocus(t.tree)
 		}
 	})
-	t.app.SetRoot(t.Elements.HelpModal, true)
+	t.App.SetRoot(t.Elements.HelpModal, true)
 }
 
 func (t *TUI) nodeChanged(node *tview.TreeNode) {
@@ -435,7 +435,7 @@ func (t *TUI) nodeChanged(node *tview.TreeNode) {
 }
 
 func (t *TUI) updateRunInfo() {
-	t.app.QueueUpdateDraw(func() {
+	t.App.QueueUpdateDraw(func() {
 		totalFailed := len(t.state.FailedTests)
 		totalPassed := len(t.state.PassedTests)
 		msg := "Finished running."
@@ -451,9 +451,9 @@ func (t *TUI) updateRunInfo() {
 }
 
 func (t *TUI) handleClearSearchCmd() {
-	t.app.QueueUpdateDraw(func() {
+	t.App.QueueUpdateDraw(func() {
 		t.search.SetText("")
 		t.tree.SetRoot(t.state.Root)
-		t.app.SetFocus(t.tree)
+		t.App.SetFocus(t.tree)
 	})
 }
