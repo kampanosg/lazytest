@@ -19,7 +19,7 @@ func NewState() state {
 		FailedTests: make([]*tview.TreeNode, 0),
 		PassedTests: make([]*tview.TreeNode, 0),
 		IsSearching: false,
-		Root:        tview.NewTreeNode(""),
+		Root:        tview.NewTreeNode("."),
 	}
 }
 

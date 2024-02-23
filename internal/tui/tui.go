@@ -2,12 +2,12 @@ package tui
 
 import (
 	"fmt"
-	"strings"
 	"sync"
 
 	"github.com/gdamore/tcell/v2"
+	"github.com/kampanosg/lazytest/internal/tui/loader"
+	"github.com/kampanosg/lazytest/pkg/engines"
 	"github.com/kampanosg/lazytest/pkg/models"
-	"github.com/kampanosg/lazytest/pkg/tree"
 	"github.com/rivo/tview"
 )
 
@@ -30,45 +30,38 @@ type runner interface {
 }
 
 type TUI struct {
-	app          *tview.Application
-	tree         *tview.TreeView
-	output       *tview.TextView
-	infoBox      *tview.TextView
-	search       *tview.InputField
-	legend       *tview.TextView
-	flex         *tview.Flex
-	state        state
-	runner       runner
-	lazyTestRoot *tree.LazyNode
+	app       *tview.Application
+	tree      *tview.TreeView
+	output    *tview.TextView
+	infoBox   *tview.TextView
+	search    *tview.InputField
+	legend    *tview.TextView
+	flex      *tview.Flex
+	state     state
+	directory string
+	runner    runner
+	loader    *loader.LazyTestLoader
 }
 
-func NewTUI(lt *tree.LazyNode, r runner) *TUI {
+func NewTUI(d string, r runner, e []engines.LazyEngine) *TUI {
 	return &TUI{
-		app:          tview.NewApplication(),
-		tree:         tview.NewTreeView(),
-		output:       tview.NewTextView(),
-		infoBox:      tview.NewTextView(),
-		search:       tview.NewInputField(),
-		legend:       tview.NewTextView(),
-		flex:         tview.NewFlex(),
-		state:        NewState(),
-		runner:       r,
-		lazyTestRoot: lt,
+		app:       tview.NewApplication(),
+		tree:      tview.NewTreeView(),
+		output:    tview.NewTextView(),
+		infoBox:   tview.NewTextView(),
+		search:    tview.NewInputField(),
+		legend:    tview.NewTextView(),
+		flex:      tview.NewFlex(),
+		state:     NewState(),
+		directory: d,
+		runner:    r,
+		loader:    loader.NewLazyTestLoader(e),
 	}
 }
 
 func (t *TUI) Run() error {
-	nodes := t.buildTestNodes(t.lazyTestRoot, "")
-	var treeViewRoot *tview.TreeNode
-	for i, n := range nodes {
-		if i == 0 {
-			treeViewRoot = n
-			continue
-		}
-		treeViewRoot.AddChild(n)
-	}
-
-	t.state.Root = treeViewRoot
+	t.state.Root = tview.NewTreeNode(t.directory)
+	t.loader.LoadLazyTests(t.directory, t.state.Root)
 
 	t.setupTree(t.state.Root)
 	t.setupOutput()
@@ -94,7 +87,7 @@ func (t *TUI) setupTree(treeViewRoot *tview.TreeNode) {
 	t.tree.SetBorderColor(tcell.ColorBlue)
 	t.tree.SetRoot(treeViewRoot)
 	t.tree.SetCurrentNode(treeViewRoot)
-	t.tree.SetTopLevel(1)
+	t.tree.SetTopLevel(0)
 	t.tree.SetBackgroundColor(tcell.ColorDefault)
 	t.tree.SetChangedFunc(t.nodeChanged)
 	t.tree.SetSelectedFunc(func(node *tview.TreeNode) {
@@ -133,31 +126,31 @@ func (t *TUI) setupSearch() {
 	t.search.SetFocusFunc(func() {
 	})
 
-	t.search.SetChangedFunc(func(searchQuery string) {
-		if strings.HasSuffix(searchQuery, "/") {
-			// when the user presses / to search, the / is still in the input field
-			// so we're removing it here
-			searchQuery = searchQuery[:len(searchQuery)-1]
-			t.search.SetText(searchQuery)
-		}
-
-		if searchQuery != "" {
-			nodes := t.buildTestNodes(t.lazyTestRoot, searchQuery)
-
-			var root *tview.TreeNode
-			for i, n := range nodes {
-				if i == 0 {
-					root = n
-					continue
-				}
-				root.AddChild(n)
-			}
-
-			t.tree.SetRoot(root)
-		} else {
-			t.tree.SetRoot(t.state.Root)
-		}
-	})
+	// t.search.SetChangedFunc(func(searchQuery string) {
+	// 	if strings.HasSuffix(searchQuery, "/") {
+	// 		// when the user presses / to search, the / is still in the input field
+	// 		// so we're removing it here
+	// 		searchQuery = searchQuery[:len(searchQuery)-1]
+	// 		t.search.SetText(searchQuery)
+	// 	}
+	//
+	// 	if searchQuery != "" {
+	// 		nodes := t.buildTestNodes(t.lazyTestRoot, searchQuery)
+	//
+	// 		var root *tview.TreeNode
+	// 		for i, n := range nodes {
+	// 			if i == 0 {
+	// 				root = n
+	// 				continue
+	// 			}
+	// 			root.AddChild(n)
+	// 		}
+	//
+	// 		t.tree.SetRoot(root)
+	// 	} else {
+	// 		t.tree.SetRoot(t.state.Root)
+	// 	}
+	// })
 
 	t.search.SetDoneFunc(func(key tcell.Key) {
 		t.state.IsSearching = false
@@ -235,56 +228,6 @@ func (t *TUI) inputCapture(event *tcell.EventKey) *tcell.EventKey {
 		t.handleShowHelp()
 	}
 	return event
-}
-
-func (t *TUI) buildTestNodes(lazyNode *tree.LazyNode, searchQuery string) []*tview.TreeNode {
-	nodes := []*tview.TreeNode{}
-
-	if lazyNode.IsFolder && lazyNode.HasTestSuite() {
-		f := tview.NewTreeNode(fmt.Sprintf("[default] %s", lazyNode.Name))
-		f.SetSelectable(true)
-
-		for _, child := range lazyNode.Children {
-			ns := t.buildTestNodes(child, searchQuery)
-			for _, n := range ns {
-				f.AddChild(n)
-			}
-		}
-
-		nodes = append(nodes, f)
-	} else if !lazyNode.IsFolder {
-		searchQuery = strings.ToLower(searchQuery)
-		addTestSuite := false
-
-		if searchQuery == "" {
-			addTestSuite = true
-		}
-
-		testSuite := tview.NewTreeNode(fmt.Sprintf("[bisque]%s %s", getNerdIcon(lazyNode.Suite.Type), lazyNode.Name))
-		testSuite.SetSelectable(true)
-		testSuite.SetReference(lazyNode.Suite)
-
-		if strings.Contains(strings.ToLower(lazyNode.Name), searchQuery) {
-			addTestSuite = true
-		}
-
-		// can probably remove the i with Go 1.22
-		for i, t := range lazyNode.Suite.Tests {
-			test := tview.NewTreeNode(fmt.Sprintf("[darkturquoise] %s", t.Name))
-			test.SetSelectable(true)
-			test.SetReference(&lazyNode.Suite.Tests[i])
-
-			if searchQuery == "" || addTestSuite || strings.Contains(strings.ToLower(t.Name), searchQuery) {
-				testSuite.AddChild(test)
-				addTestSuite = true
-			}
-		}
-
-		if addTestSuite {
-			nodes = append(nodes, testSuite)
-		}
-	}
-	return nodes
 }
 
 func (t *TUI) handleRunCmd() {
@@ -473,7 +416,6 @@ func (t *TUI) handleShowHelp() {
 
 func (t *TUI) nodeChanged(node *tview.TreeNode) {
 	node.SetColor(tcell.ColorBlueViolet)
-
 	ref := node.GetReference()
 	if ref == nil {
 		return
@@ -532,13 +474,4 @@ func (t *TUI) handleClearSearchCmd() {
 		t.tree.SetRoot(t.state.Root)
 		t.app.SetFocus(t.tree)
 	})
-}
-
-func getNerdIcon(suiteType string) string {
-	switch suiteType {
-	case "golang":
-		return "󰟓"
-	default:
-		return ""
-	}
 }
