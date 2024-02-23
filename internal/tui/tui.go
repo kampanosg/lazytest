@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/gdamore/tcell/v2"
+	"github.com/kampanosg/lazytest/internal/tui/elements"
 	"github.com/kampanosg/lazytest/internal/tui/loader"
 	"github.com/kampanosg/lazytest/pkg/engines"
 	"github.com/kampanosg/lazytest/pkg/models"
@@ -32,9 +33,9 @@ type runner interface {
 
 type TUI struct {
 	app       *tview.Application
+	Elements  *elements.Elements
 	tree      *tview.TreeView
 	output    *tview.TextView
-	infoBox   *tview.TextView
 	search    *tview.InputField
 	legend    *tview.TextView
 	flex      *tview.Flex
@@ -47,9 +48,9 @@ type TUI struct {
 func NewTUI(d string, r runner, e []engines.LazyEngine) *TUI {
 	return &TUI{
 		app:       tview.NewApplication(),
+		Elements:  elements.NewElements(),
 		tree:      tview.NewTreeView(),
 		output:    tview.NewTextView(),
-		infoBox:   tview.NewTextView(),
 		search:    tview.NewInputField(),
 		legend:    tview.NewTextView(),
 		flex:      tview.NewFlex(),
@@ -64,9 +65,10 @@ func (t *TUI) Run() error {
 	t.state.Root = tview.NewTreeNode(t.directory)
 	t.loader.LoadLazyTests(t.directory, t.state.Root)
 
+	t.Elements.Setup()
+
 	t.setupTree(t.state.Root)
 	t.setupOutput()
-	t.setupInfoBox()
 	t.setupSearch()
 	t.setupLegend()
 	t.setupFlex()
@@ -104,15 +106,6 @@ func (t *TUI) setupOutput() {
 	t.output.SetScrollable(true)
 	t.output.SetDynamicColors(true)
 	t.output.SetRegions(true)
-}
-
-func (t *TUI) setupInfoBox() {
-	t.infoBox.SetBorder(true)
-	t.infoBox.SetTitle("Info")
-	t.infoBox.SetTitleAlign(tview.AlignLeft)
-	t.infoBox.SetBackgroundColor(tcell.ColorDefault)
-	t.infoBox.SetDynamicColors(true)
-	t.infoBox.SetText("Welcome to LazyTest  ")
 }
 
 func (t *TUI) setupSearch() {
@@ -154,7 +147,7 @@ func (t *TUI) setupSearch() {
 			t.search.SetText("")
 			t.tree.SetRoot(t.state.Root)
 			t.app.SetFocus(t.tree)
-			t.infoBox.SetText("Exited search mode")
+			t.Elements.InfoBox.SetText("Exited search mode")
 		}
 	})
 }
@@ -215,7 +208,7 @@ func (t *TUI) setupFlex() {
 	mainContent := tview.NewFlex()
 	mainContent.SetDirection(tview.FlexRow)
 	mainContent.AddItem(t.output, 0, 20, false)
-	mainContent.AddItem(t.infoBox, 3, 0, false)
+	mainContent.AddItem(t.Elements.InfoBox, 3, 0, false)
 
 	app := tview.NewFlex()
 	app.AddItem(sidebar, 0, 1, false)
@@ -250,10 +243,10 @@ func (t *TUI) inputCapture(event *tcell.EventKey) *tcell.EventKey {
 		go t.handleRunPassedCmd()
 	case '/':
 		t.state.IsSearching = true
-		t.infoBox.SetText("Search mode. Press <ESC> to exit, <Enter> to go to the search results, C to clear the results")
+		t.Elements.InfoBox.SetText("Search mode. Press <ESC> to exit, <Enter> to go to the search results, C to clear the results")
 		t.app.SetFocus(t.search)
 	case 'C':
-		t.infoBox.SetText("Cleared search")
+		t.Elements.InfoBox.SetText("Cleared search")
 		go t.handleClearSearchCmd()
 	case '?':
 		t.handleShowHelp()
@@ -277,7 +270,7 @@ func (t *TUI) handleRunCmd() {
 
 	t.app.QueueUpdateDraw(func() {
 		t.output.SetText("")
-		t.infoBox.SetText("Running...")
+		t.Elements.InfoBox.SetText("Running...")
 	})
 
 	switch ref.(type) {
@@ -304,7 +297,7 @@ func (t *TUI) handleRunAllCmd() {
 
 	t.app.QueueUpdateDraw(func() {
 		t.output.SetText("")
-		t.infoBox.SetText("Running all tests...")
+		t.Elements.InfoBox.SetText("Running all tests...")
 	})
 
 	t.doRunAll(&wg, t.tree.GetRoot().GetChildren())
@@ -335,7 +328,7 @@ func (t *TUI) doRunAll(wg *sync.WaitGroup, nodes []*tview.TreeNode) {
 func (t *TUI) handleRunFailedCmd() {
 	if len(t.state.FailedTests) == 0 {
 		t.app.QueueUpdateDraw(func() {
-			t.infoBox.SetText("No failed tests to run. Good job ")
+			t.Elements.InfoBox.SetText("No failed tests to run. Good job ")
 		})
 		return
 	}
@@ -347,7 +340,7 @@ func (t *TUI) handleRunFailedCmd() {
 
 	t.app.QueueUpdateDraw(func() {
 		t.output.SetText("")
-		t.infoBox.SetText("Running failed tests...")
+		t.Elements.InfoBox.SetText("Running failed tests...")
 	})
 
 	for _, testNode := range failedTests {
@@ -369,7 +362,7 @@ func (t *TUI) handleRunFailedCmd() {
 func (t *TUI) handleRunPassedCmd() {
 	if len(t.state.PassedTests) == 0 {
 		t.app.QueueUpdateDraw(func() {
-			t.infoBox.SetText("No passed tests to run. Try running all tests ")
+			t.Elements.InfoBox.SetText("No passed tests to run. Try running all tests ")
 		})
 		return
 	}
@@ -381,7 +374,7 @@ func (t *TUI) handleRunPassedCmd() {
 
 	t.app.QueueUpdateDraw(func() {
 		t.output.SetText("")
-		t.infoBox.SetText("Running passed tests...")
+		t.Elements.InfoBox.SetText("Running passed tests...")
 	})
 
 	for _, testNode := range passedTests {
@@ -495,7 +488,7 @@ func (t *TUI) updateRunInfo() {
 			msg = fmt.Sprintf("%s. [orangered]%d failed", msg, totalFailed)
 		}
 
-		t.infoBox.SetText(msg)
+		t.Elements.InfoBox.SetText(msg)
 	})
 }
 
