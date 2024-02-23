@@ -210,12 +210,12 @@ func (t *TUI) setupFlex() {
 	sidebar := tview.NewFlex()
 	sidebar.SetDirection(tview.FlexRow)
 	sidebar.AddItem(t.tree, 0, 20, true)
-	sidebar.AddItem(t.search, 0, 1, false)
+	sidebar.AddItem(t.search, 3, 0, false)
 
 	mainContent := tview.NewFlex()
 	mainContent.SetDirection(tview.FlexRow)
 	mainContent.AddItem(t.output, 0, 20, false)
-	mainContent.AddItem(t.infoBox, 0, 1, false)
+	mainContent.AddItem(t.infoBox, 3, 0, false)
 
 	app := tview.NewFlex()
 	app.AddItem(sidebar, 0, 1, false)
