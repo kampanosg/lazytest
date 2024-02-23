@@ -13,20 +13,6 @@ import (
 	"github.com/rivo/tview"
 )
 
-const helpText = `
-	[darkturquoise]1 / 2: [white]Focus on the tree / output 
-	[darkturquoise]r: [white]Run the selected test / test suite
-	[darkturquoise]a: [white]Run all tests
-	[darkturquoise]f: [white]Run all failed tests
-	[darkturquoise]p: [white]Run all passed tests
-	[darkturquoise]/: [white]Search
-	[darkturquoise]Enter: [white](in search mode) Go to the search results
-	[darkturquoise]<ESC>: [white]Exit search mode
-	[darkturquoise]C: [white](outside search mode) Clear search
-	[darkturquoise]q: [white]Quit
-	[darkturquoise]?: [white]Show this help message
-`
-
 type runner interface {
 	Run(command string) *models.LazyTestResult
 }
@@ -402,17 +388,12 @@ func (t *TUI) runTest(wg *sync.WaitGroup, testNode *tview.TreeNode, test *models
 }
 
 func (t *TUI) handleShowHelp() {
-	modal := tview.NewModal()
-	modal.SetText(helpText)
-	modal.SetBackgroundColor(tcell.ColorBlack)
-	modal.AddButtons([]string{"Exit <ESC>"})
-	modal.SetDoneFunc(func(buttonIndex int, buttonLabel string) {
+	t.Elements.HelpModal.SetDoneFunc(func(buttonIndex int, buttonLabel string) {
 		if buttonIndex <= 1 {
 			t.app.SetRoot(t.flex, true).SetFocus(t.tree)
 		}
 	})
-
-	t.app.SetRoot(modal, true)
+	t.app.SetRoot(t.Elements.HelpModal, true)
 }
 
 func (t *TUI) nodeChanged(node *tview.TreeNode) {
