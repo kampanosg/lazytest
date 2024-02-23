@@ -6,6 +6,6 @@ import (
 	"github.com/kampanosg/lazytest/pkg/models"
 )
 
-type LazyTestEngine interface {
+type LazyEngine interface {
 	ParseTestSuite(dir string, f fs.FileInfo) (*models.LazyTestSuite, error)
 }
