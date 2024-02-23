@@ -37,7 +37,6 @@ type TUI struct {
 	tree      *tview.TreeView
 	output    *tview.TextView
 	search    *tview.InputField
-	legend    *tview.TextView
 	flex      *tview.Flex
 	state     state
 	directory string
@@ -52,7 +51,6 @@ func NewTUI(d string, r runner, e []engines.LazyEngine) *TUI {
 		tree:      tview.NewTreeView(),
 		output:    tview.NewTextView(),
 		search:    tview.NewInputField(),
-		legend:    tview.NewTextView(),
 		flex:      tview.NewFlex(),
 		state:     NewState(),
 		directory: d,
@@ -70,7 +68,6 @@ func (t *TUI) Run() error {
 	t.setupTree(t.state.Root)
 	t.setupOutput()
 	t.setupSearch()
-	t.setupLegend()
 	t.setupFlex()
 
 	t.app.EnableMouse(true)
@@ -192,13 +189,6 @@ func doSearch(original, filtered *tview.TreeNode, query string) {
 	}
 }
 
-func (t *TUI) setupLegend() {
-	t.legend.SetBorder(false)
-	t.legend.SetTitleAlign(tview.AlignCenter)
-	t.legend.SetBackgroundColor(tcell.ColorDefault)
-	t.legend.SetText("?: help, 1/2: navigate, /: search, q: quit")
-}
-
 func (t *TUI) setupFlex() {
 	sidebar := tview.NewFlex()
 	sidebar.SetDirection(tview.FlexRow)
@@ -215,7 +205,7 @@ func (t *TUI) setupFlex() {
 	app.AddItem(mainContent, 0, 2, false)
 
 	footer := tview.NewFlex()
-	footer.AddItem(t.legend, 0, 1, false)
+	footer.AddItem(t.Elements.Legend, 0, 1, false)
 
 	t.flex.SetDirection(tview.FlexRow)
 	t.flex.AddItem(app, 0, 30, false)
