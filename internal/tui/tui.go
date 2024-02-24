@@ -2,11 +2,11 @@ package tui
 
 import (
 	"fmt"
-	"strings"
 	"sync"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/kampanosg/lazytest/internal/tui/elements"
+	"github.com/kampanosg/lazytest/internal/tui/handlers"
 	"github.com/kampanosg/lazytest/internal/tui/loader"
 	"github.com/kampanosg/lazytest/internal/tui/state"
 	"github.com/kampanosg/lazytest/pkg/engines"
@@ -42,13 +42,13 @@ func (t *TUI) Run() error {
 	t.State.TestTree = tview.NewTreeNode(t.directory)
 	t.loader.LoadLazyTests(t.directory, t.State.TestTree)
 
-	t.Elements = elements.NewElements(
+	t.Elements = elements.NewElements()
+	t.Elements.Setup(
 		t.State.TestTree,
-		t.HandleNodeChangedEvent,
-		t.handleSearchChangedEvent,
-		t.handleSearchDoneEvent,
+		handlers.HandleNodeChanged(t.Elements, t.State),
+		handlers.HandleSearchChanged(t.Elements, t.State),
+		handlers.HandleSearchDone(t.App, t.Elements, t.State),
 	)
-	t.Elements.Setup()
 
 	t.App.EnableMouse(true)
 	t.App.SetInputCapture(t.inputCapture)
@@ -58,118 +58,6 @@ func (t *TUI) Run() error {
 	}
 
 	return nil
-}
-
-func (t *TUI) HandleNodeChangedEvent(node *tview.TreeNode) {
-	node.SetColor(tcell.ColorBlueViolet)
-
-	ref := node.GetReference()
-	if ref == nil {
-		return
-	}
-
-	switch ref.(type) {
-	case *models.LazyTestSuite:
-		borderColor := tcell.ColorWhite
-		outputs := ""
-		for _, child := range node.GetChildren() {
-			res, ok := t.State.TestOutput[child]
-			if ok {
-				borderColor = tcell.ColorGreen
-				if !res.IsSuccess {
-					borderColor = tcell.ColorOrangeRed
-				}
-
-				output := fmt.Sprintf("--- %s ---\n%s\n\n", child.GetText(), res.Output)
-				outputs = outputs + output
-			}
-		}
-		t.Elements.Output.SetBorderColor(borderColor)
-		t.Elements.Output.SetText(outputs)
-	case *models.LazyTest:
-		res, ok := t.State.TestOutput[node]
-		if ok {
-			if res.IsSuccess {
-				t.Elements.Output.SetBorderColor(tcell.ColorGreen)
-			} else {
-				t.Elements.Output.SetBorderColor(tcell.ColorOrangeRed)
-			}
-			t.Elements.Output.SetText(res.Output)
-		}
-	}
-}
-
-func (t *TUI) handleSearchChangedEvent(searchQuery string) {
-	if strings.HasSuffix(searchQuery, "/") {
-		// when the user presses / to search, the / is still in the input field
-		// so we're removing it here
-		searchQuery = searchQuery[:len(searchQuery)-1]
-		t.Elements.Search.SetText(searchQuery)
-	}
-
-	if searchQuery == "" {
-		t.Elements.Tree.SetRoot(t.State.TestTree)
-		return
-	}
-
-	root := t.State.TestTree
-	filtered := search(root, searchQuery)
-	t.Elements.Tree.SetRoot(filtered)
-}
-
-func (t *TUI) handleSearchDoneEvent(key tcell.Key) {
-	t.State.IsSearching = false
-
-	if key == tcell.KeyEnter {
-		t.App.SetFocus(t.Elements.Tree)
-	}
-
-	if key == tcell.KeyEscape {
-		t.Elements.Search.SetText("")
-		t.Elements.Tree.SetRoot(t.State.TestTree)
-		t.App.SetFocus(t.Elements.Tree)
-		t.Elements.InfoBox.SetText("Exited search mode")
-	}
-}
-
-func search(root *tview.TreeNode, query string) *tview.TreeNode {
-	filtered := tview.NewTreeNode("Search results")
-	doSearch(root, filtered, query)
-	return filtered
-}
-
-func doSearch(original, filtered *tview.TreeNode, query string) {
-	if query == "" {
-		filtered.AddChild(original)
-		return
-	}
-
-	ref := original.GetReference()
-	if ref == nil {
-		for _, child := range original.GetChildren() {
-			doSearch(child, filtered, query)
-		}
-	} else {
-		if testSuite, ok := ref.(*models.LazyTestSuite); ok {
-			if strings.Contains(testSuite.Path, query) {
-				filtered.AddChild(original)
-				return
-			}
-
-			for _, test := range original.GetChildren() {
-				ref := test.GetReference()
-				if ref == nil {
-					continue
-				}
-
-				if t, ok := ref.(*models.LazyTest); ok {
-					if strings.Contains(t.Name, query) {
-						filtered.AddChild(test)
-					}
-				}
-			}
-		}
-	}
 }
 
 func (t *TUI) inputCapture(event *tcell.EventKey) *tcell.EventKey {

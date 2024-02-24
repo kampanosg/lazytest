@@ -28,12 +28,7 @@ type Elements struct {
 	handlers *handlers
 }
 
-func NewElements(
-	t *tview.TreeNode,
-	htc func(node *tview.TreeNode),
-	hsc func(query string),
-	hsd func(key tcell.Key),
-) *Elements {
+func NewElements() *Elements {
 	return &Elements{
 		Flex:      tview.NewFlex(),
 		Tree:      tview.NewTreeView(),
@@ -42,18 +37,24 @@ func NewElements(
 		Search:    tview.NewInputField(),
 		Legend:    tview.NewTextView(),
 		HelpModal: tview.NewModal(),
-		data: &elementData{
-			TestTree: t,
-		},
-		handlers: &handlers{
-			handleTreeChanged:   htc,
-			handleSearchChanged: hsc,
-			handleSearchDone:    hsd,
-		},
 	}
 }
 
-func (e *Elements) Setup() {
+func (e *Elements) Setup(
+	t *tview.TreeNode,
+	htc func(node *tview.TreeNode),
+	hsc func(query string),
+	hsd func(key tcell.Key),
+) {
+	e.handlers = &handlers{
+		handleTreeChanged:   htc,
+		handleSearchChanged: hsc,
+		handleSearchDone:    hsd,
+	}
+	e.data = &elementData{
+		TestTree: t,
+	}
+
 	e.initTree()
 	e.initOutput()
 	e.initInfoBox()
