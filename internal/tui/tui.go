@@ -22,7 +22,6 @@ type TUI struct {
 	App       *tview.Application
 	State     *state.State
 	Elements  *elements.Elements
-	flex      *tview.Flex
 	directory string
 	runner    runner
 	loader    *loader.LazyTestLoader
@@ -31,7 +30,6 @@ type TUI struct {
 func NewTUI(d string, r runner, e []engines.LazyEngine) *TUI {
 	return &TUI{
 		App:       tview.NewApplication(),
-		flex:      tview.NewFlex(),
 		directory: d,
 		runner:    r,
 		loader:    loader.NewLazyTestLoader(e),
@@ -52,12 +50,10 @@ func (t *TUI) Run() error {
 
 	t.State = s
 
-	t.setupFlex()
-
 	t.App.EnableMouse(true)
 	t.App.SetInputCapture(t.inputCapture)
 
-	if err := t.App.SetRoot(t.flex, true).SetFocus(t.Elements.Tree).EnablePaste(true).Run(); err != nil {
+	if err := t.App.SetRoot(t.Elements.Flex, true).SetFocus(t.Elements.Tree).EnablePaste(true).Run(); err != nil {
 		return err
 	}
 
@@ -135,29 +131,6 @@ func doSearch(original, filtered *tview.TreeNode, query string) {
 			}
 		}
 	}
-}
-
-func (t *TUI) setupFlex() {
-	sidebar := tview.NewFlex()
-	sidebar.SetDirection(tview.FlexRow)
-	sidebar.AddItem(t.Elements.Tree, 0, 20, true)
-	sidebar.AddItem(t.Elements.Search, 3, 0, false)
-
-	mainContent := tview.NewFlex()
-	mainContent.SetDirection(tview.FlexRow)
-	mainContent.AddItem(t.Elements.Output, 0, 20, false)
-	mainContent.AddItem(t.Elements.InfoBox, 3, 0, false)
-
-	app := tview.NewFlex()
-	app.AddItem(sidebar, 0, 1, false)
-	app.AddItem(mainContent, 0, 2, false)
-
-	footer := tview.NewFlex()
-	footer.AddItem(t.Elements.Legend, 0, 1, false)
-
-	t.flex.SetDirection(tview.FlexRow)
-	t.flex.AddItem(app, 0, 30, false)
-	t.flex.AddItem(footer, 0, 1, false)
 }
 
 func (t *TUI) inputCapture(event *tcell.EventKey) *tcell.EventKey {
@@ -365,7 +338,7 @@ func (t *TUI) runTest(wg *sync.WaitGroup, testNode *tview.TreeNode, test *models
 func (t *TUI) handleShowHelp() {
 	t.Elements.HelpModal.SetDoneFunc(func(buttonIndex int, buttonLabel string) {
 		if buttonIndex <= 1 {
-			t.App.SetRoot(t.flex, true).SetFocus(t.Elements.Tree)
+			t.App.SetRoot(t.Elements.Flex, true).SetFocus(t.Elements.Tree)
 		}
 	})
 	t.App.SetRoot(t.Elements.HelpModal, true)

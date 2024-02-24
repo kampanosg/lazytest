@@ -7,6 +7,7 @@ import (
 
 type Elements struct {
 	State     *state.State
+	Flex      *tview.Flex
 	Tree      *tview.TreeView
 	Output    *tview.TextView
 	Search    *tview.InputField
@@ -18,6 +19,7 @@ type Elements struct {
 func NewElements(s *state.State) *Elements {
 	return &Elements{
 		State:     s,
+		Flex:      tview.NewFlex(),
 		Tree:      tview.NewTreeView(),
 		Output:    tview.NewTextView(),
 		InfoBox:   tview.NewTextView(),
@@ -34,4 +36,5 @@ func (e *Elements) Setup() {
 	e.initSearch()
 	e.initLegend()
 	e.initHelp()
+	e.initFlex()
 }
