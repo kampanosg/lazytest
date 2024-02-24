@@ -13,6 +13,7 @@ type handlers struct {
 	handleTreeChanged   func(node *tview.TreeNode)
 	handleSearchDone    func(key tcell.Key)
 	handleSearchChanged func(query string)
+	handleHelpDone      func(btnIdx int, btnLbl string)
 }
 
 type Elements struct {
@@ -45,11 +46,13 @@ func (e *Elements) Setup(
 	htc func(node *tview.TreeNode),
 	hsc func(query string),
 	hsd func(key tcell.Key),
+	hhd func(btnIdx int, btnLbl string),
 ) {
 	e.handlers = &handlers{
 		handleTreeChanged:   htc,
 		handleSearchChanged: hsc,
 		handleSearchDone:    hsd,
+		handleHelpDone:      hhd,
 	}
 	e.data = &elementData{
 		TestTree: t,

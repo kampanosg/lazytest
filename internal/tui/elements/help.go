@@ -20,4 +20,5 @@ func (e *Elements) initHelp() {
 	e.HelpModal.SetText(helpText)
 	e.HelpModal.SetBackgroundColor(tcell.ColorBlack)
 	e.HelpModal.AddButtons([]string{"Exit <ESC>"})
+	e.HelpModal.SetDoneFunc(e.handlers.handleHelpDone)
 }
