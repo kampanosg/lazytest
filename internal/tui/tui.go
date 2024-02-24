@@ -51,16 +51,16 @@ func (t *TUI) Run() error {
 	)
 
 	t.App.EnableMouse(true)
-	t.App.SetInputCapture(t.inputCapture)
+	t.App.SetInputCapture(t.InputCapture)
 
 	if err := t.App.SetRoot(t.Elements.Flex, true).SetFocus(t.Elements.Tree).EnablePaste(true).Run(); err != nil {
-		return err
+		return fmt.Errorf("error running TUI: %w", err)
 	}
 
 	return nil
 }
 
-func (t *TUI) inputCapture(event *tcell.EventKey) *tcell.EventKey {
+func (t *TUI) InputCapture(event *tcell.EventKey) *tcell.EventKey {
 	if t.State.IsSearching {
 		return event
 	}
@@ -80,9 +80,7 @@ func (t *TUI) inputCapture(event *tcell.EventKey) *tcell.EventKey {
 	case 'p':
 		go t.handleRunPassedCmd()
 	case '/':
-		t.State.IsSearching = true
-		t.Elements.InfoBox.SetText("Search mode. Press <ESC> to exit, <Enter> to go to the search results, C to clear the results")
-		t.App.SetFocus(t.Elements.Search)
+		handlers.HandleSearchFocus(t.App, t.Elements, t.State)
 	case 'C':
 		t.Elements.InfoBox.SetText("Cleared search")
 		go t.handleClearSearchCmd()
