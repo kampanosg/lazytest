@@ -40,15 +40,15 @@ func NewTUI(d string, r runner, e []engines.LazyEngine) *TUI {
 
 func (t *TUI) Run() error {
 	t.State.TestTree = tview.NewTreeNode(t.directory)
-
 	t.loader.LoadLazyTests(t.directory, t.State.TestTree)
 
-	t.Elements = elements.NewElements(t.State.TestTree)
+	t.Elements = elements.NewElements(
+		t.State.TestTree,
+		t.HandleNodeChangedEvent,
+		t.handleSearchChangedEvent,
+		t.handleSearchDoneEvent,
+	)
 	t.Elements.Setup()
-
-	t.Elements.Search.SetChangedFunc(t.handleSearchChangedEvent)
-	t.Elements.Search.SetDoneFunc(t.handleSearchDoneEvent)
-	t.Elements.Tree.SetChangedFunc(t.HandleNodeChangedEvent)
 
 	t.App.EnableMouse(true)
 	t.App.SetInputCapture(t.inputCapture)

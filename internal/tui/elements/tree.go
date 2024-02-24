@@ -14,6 +14,7 @@ func (e *Elements) initTree() {
 	e.Tree.SetCurrentNode(e.data.TestTree)
 	e.Tree.SetTopLevel(0)
 	e.Tree.SetBackgroundColor(tcell.ColorDefault)
+	e.Tree.SetChangedFunc(e.handlers.handleTreeChanged)
 	e.Tree.SetSelectedFunc(func(node *tview.TreeNode) {
 		node.SetExpanded(!node.IsExpanded())
 	})
