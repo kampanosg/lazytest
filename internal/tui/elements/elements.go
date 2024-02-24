@@ -1,12 +1,14 @@
 package elements
 
 import (
-	"github.com/kampanosg/lazytest/internal/tui/state"
 	"github.com/rivo/tview"
 )
 
+type elementData struct {
+	TestTree *tview.TreeNode
+}
+
 type Elements struct {
-	State     *state.State
 	Flex      *tview.Flex
 	Tree      *tview.TreeView
 	Output    *tview.TextView
@@ -14,11 +16,11 @@ type Elements struct {
 	InfoBox   *tview.TextView
 	Legend    *tview.TextView
 	HelpModal *tview.Modal
+	data      *elementData
 }
 
-func NewElements(s *state.State) *Elements {
+func NewElements(t *tview.TreeNode) *Elements {
 	return &Elements{
-		State:     s,
 		Flex:      tview.NewFlex(),
 		Tree:      tview.NewTreeView(),
 		Output:    tview.NewTextView(),
@@ -26,6 +28,9 @@ func NewElements(s *state.State) *Elements {
 		Search:    tview.NewInputField(),
 		Legend:    tview.NewTextView(),
 		HelpModal: tview.NewModal(),
+		data: &elementData{
+			TestTree: t,
+		},
 	}
 }
 

@@ -19,9 +19,10 @@ type runner interface {
 }
 
 type TUI struct {
-	App       *tview.Application
-	State     *state.State
-	Elements  *elements.Elements
+	App      *tview.Application
+	State    *state.State
+	Elements *elements.Elements
+
 	directory string
 	runner    runner
 	loader    *loader.LazyTestLoader
@@ -30,6 +31,7 @@ type TUI struct {
 func NewTUI(d string, r runner, e []engines.LazyEngine) *TUI {
 	return &TUI{
 		App:       tview.NewApplication(),
+		State:     state.NewState(),
 		directory: d,
 		runner:    r,
 		loader:    loader.NewLazyTestLoader(e),
@@ -37,18 +39,16 @@ func NewTUI(d string, r runner, e []engines.LazyEngine) *TUI {
 }
 
 func (t *TUI) Run() error {
-	s := state.NewState()
-	s.TestTree = tview.NewTreeNode(t.directory)
+	t.State.TestTree = tview.NewTreeNode(t.directory)
 
-	t.loader.LoadLazyTests(t.directory, s.TestTree)
+	t.loader.LoadLazyTests(t.directory, t.State.TestTree)
 
-	t.Elements = elements.NewElements(s)
+	t.Elements = elements.NewElements(t.State.TestTree)
 	t.Elements.Setup()
 
 	t.Elements.Search.SetChangedFunc(t.handleSearchChangedEvent)
 	t.Elements.Search.SetDoneFunc(t.handleSearchDoneEvent)
-
-	t.State = s
+	t.Elements.Tree.SetChangedFunc(t.HandleNodeChangedEvent)
 
 	t.App.EnableMouse(true)
 	t.App.SetInputCapture(t.inputCapture)
@@ -58,6 +58,45 @@ func (t *TUI) Run() error {
 	}
 
 	return nil
+}
+
+func (t *TUI) HandleNodeChangedEvent(node *tview.TreeNode) {
+	node.SetColor(tcell.ColorBlueViolet)
+
+	ref := node.GetReference()
+	if ref == nil {
+		return
+	}
+
+	switch ref.(type) {
+	case *models.LazyTestSuite:
+		borderColor := tcell.ColorWhite
+		outputs := ""
+		for _, child := range node.GetChildren() {
+			res, ok := t.State.TestOutput[child]
+			if ok {
+				borderColor = tcell.ColorGreen
+				if !res.IsSuccess {
+					borderColor = tcell.ColorOrangeRed
+				}
+
+				output := fmt.Sprintf("--- %s ---\n%s\n\n", child.GetText(), res.Output)
+				outputs = outputs + output
+			}
+		}
+		t.Elements.Output.SetBorderColor(borderColor)
+		t.Elements.Output.SetText(outputs)
+	case *models.LazyTest:
+		res, ok := t.State.TestOutput[node]
+		if ok {
+			if res.IsSuccess {
+				t.Elements.Output.SetBorderColor(tcell.ColorGreen)
+			} else {
+				t.Elements.Output.SetBorderColor(tcell.ColorOrangeRed)
+			}
+			t.Elements.Output.SetText(res.Output)
+		}
+	}
 }
 
 func (t *TUI) handleSearchChangedEvent(searchQuery string) {
