@@ -22,7 +22,6 @@ type TUI struct {
 	App       *tview.Application
 	State     *state.State
 	Elements  *elements.Elements
-	search    *tview.InputField
 	flex      *tview.Flex
 	directory string
 	runner    runner
@@ -32,7 +31,6 @@ type TUI struct {
 func NewTUI(d string, r runner, e []engines.LazyEngine) *TUI {
 	return &TUI{
 		App:       tview.NewApplication(),
-		search:    tview.NewInputField(),
 		flex:      tview.NewFlex(),
 		directory: d,
 		runner:    r,
@@ -49,9 +47,11 @@ func (t *TUI) Run() error {
 	t.Elements = elements.NewElements(s)
 	t.Elements.Setup()
 
+	t.Elements.Search.SetChangedFunc(t.handleSearchChangedEvent)
+	t.Elements.Search.SetDoneFunc(t.handleSearchDoneEvent)
+
 	t.State = s
 
-	t.setupSearch()
 	t.setupFlex()
 
 	t.App.EnableMouse(true)
@@ -64,48 +64,37 @@ func (t *TUI) Run() error {
 	return nil
 }
 
-func (t *TUI) setupSearch() {
-	t.search.SetTitle("Search")
-	t.search.SetBorder(true)
-	t.search.SetBackgroundColor(tcell.ColorDefault)
-	t.search.SetTitleAlign(tview.AlignLeft)
-	t.search.SetFieldBackgroundColor(tcell.ColorDefault)
-	t.search.SetPlaceholder("Press / to search")
-	t.search.SetPlaceholderStyle(tcell.StyleDefault.Foreground(tcell.ColorGray))
+func (t *TUI) handleSearchChangedEvent(searchQuery string) {
+	if strings.HasSuffix(searchQuery, "/") {
+		// when the user presses / to search, the / is still in the input field
+		// so we're removing it here
+		searchQuery = searchQuery[:len(searchQuery)-1]
+		t.Elements.Search.SetText(searchQuery)
+	}
 
-	t.search.SetChangedFunc(func(searchQuery string) {
-		if strings.HasSuffix(searchQuery, "/") {
-			// when the user presses / to search, the / is still in the input field
-			// so we're removing it here
-			searchQuery = searchQuery[:len(searchQuery)-1]
-			t.search.SetText(searchQuery)
-		}
+	if searchQuery == "" {
+		t.Elements.Tree.SetRoot(t.State.TestTree)
+		return
+	}
 
-		if searchQuery == "" {
-			t.Elements.Tree.SetRoot(t.State.TestTree)
-			return
-		}
+	root := t.State.TestTree
+	filtered := search(root, searchQuery)
+	t.Elements.Tree.SetRoot(filtered)
+}
 
-		root := t.State.TestTree
-		filtered := search(root, searchQuery)
-		t.Elements.Tree.SetRoot(filtered)
+func (t *TUI) handleSearchDoneEvent(key tcell.Key) {
+	t.State.IsSearching = false
 
-	})
+	if key == tcell.KeyEnter {
+		t.App.SetFocus(t.Elements.Tree)
+	}
 
-	t.search.SetDoneFunc(func(key tcell.Key) {
-		t.State.IsSearching = false
-
-		if key == tcell.KeyEnter {
-			t.App.SetFocus(t.Elements.Tree)
-		}
-
-		if key == tcell.KeyEscape {
-			t.search.SetText("")
-			t.Elements.Tree.SetRoot(t.State.TestTree)
-			t.App.SetFocus(t.Elements.Tree)
-			t.Elements.InfoBox.SetText("Exited search mode")
-		}
-	})
+	if key == tcell.KeyEscape {
+		t.Elements.Search.SetText("")
+		t.Elements.Tree.SetRoot(t.State.TestTree)
+		t.App.SetFocus(t.Elements.Tree)
+		t.Elements.InfoBox.SetText("Exited search mode")
+	}
 }
 
 func search(root *tview.TreeNode, query string) *tview.TreeNode {
@@ -152,7 +141,7 @@ func (t *TUI) setupFlex() {
 	sidebar := tview.NewFlex()
 	sidebar.SetDirection(tview.FlexRow)
 	sidebar.AddItem(t.Elements.Tree, 0, 20, true)
-	sidebar.AddItem(t.search, 3, 0, false)
+	sidebar.AddItem(t.Elements.Search, 3, 0, false)
 
 	mainContent := tview.NewFlex()
 	mainContent.SetDirection(tview.FlexRow)
@@ -193,7 +182,7 @@ func (t *TUI) inputCapture(event *tcell.EventKey) *tcell.EventKey {
 	case '/':
 		t.State.IsSearching = true
 		t.Elements.InfoBox.SetText("Search mode. Press <ESC> to exit, <Enter> to go to the search results, C to clear the results")
-		t.App.SetFocus(t.search)
+		t.App.SetFocus(t.Elements.Search)
 	case 'C':
 		t.Elements.InfoBox.SetText("Cleared search")
 		go t.handleClearSearchCmd()
@@ -438,7 +427,7 @@ func (t *TUI) updateRunInfo() {
 
 func (t *TUI) handleClearSearchCmd() {
 	t.App.QueueUpdateDraw(func() {
-		t.search.SetText("")
+		t.Elements.Search.SetText("")
 		t.Elements.Tree.SetRoot(t.State.TestTree)
 		t.App.SetFocus(t.Elements.Tree)
 	})

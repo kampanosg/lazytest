@@ -9,6 +9,7 @@ type Elements struct {
 	State     *state.State
 	Tree      *tview.TreeView
 	Output    *tview.TextView
+	Search    *tview.InputField
 	InfoBox   *tview.TextView
 	Legend    *tview.TextView
 	HelpModal *tview.Modal
@@ -20,6 +21,7 @@ func NewElements(s *state.State) *Elements {
 		Tree:      tview.NewTreeView(),
 		Output:    tview.NewTextView(),
 		InfoBox:   tview.NewTextView(),
+		Search:    tview.NewInputField(),
 		Legend:    tview.NewTextView(),
 		HelpModal: tview.NewModal(),
 	}
@@ -29,6 +31,7 @@ func (e *Elements) Setup() {
 	e.initTree()
 	e.initOutput()
 	e.initInfoBox()
+	e.initSearch()
 	e.initLegend()
 	e.initHelp()
 }
