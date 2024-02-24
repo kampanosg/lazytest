@@ -1,29 +1,29 @@
-package tui
+package state
 
 import (
 	"github.com/kampanosg/lazytest/pkg/models"
 	"github.com/rivo/tview"
 )
 
-type state struct {
+type State struct {
+	TestTree    *tview.TreeNode
 	TestOutput  map[*tview.TreeNode]*models.LazyTestResult
 	FailedTests []*tview.TreeNode
 	PassedTests []*tview.TreeNode
 	IsSearching bool
-	Root        *tview.TreeNode
 }
 
-func NewState() state {
-	return state{
+func NewState() *State {
+	return &State{
 		TestOutput:  make(map[*tview.TreeNode]*models.LazyTestResult),
 		FailedTests: make([]*tview.TreeNode, 0),
 		PassedTests: make([]*tview.TreeNode, 0),
 		IsSearching: false,
-		Root:        tview.NewTreeNode("."),
+		TestTree:    tview.NewTreeNode("."),
 	}
 }
 
-func (s *state) Reset() {
+func (s *State) Reset() {
 	s.FailedTests = make([]*tview.TreeNode, 0)
 	s.PassedTests = make([]*tview.TreeNode, 0)
 }
