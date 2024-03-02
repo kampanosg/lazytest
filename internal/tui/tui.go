@@ -39,7 +39,9 @@ func NewTUI(d string, r runner, e []engines.LazyEngine) *TUI {
 
 func (t *TUI) Run() error {
 	t.State.TestTree = tview.NewTreeNode(t.directory)
-	t.loader.LoadLazyTests(t.directory, t.State.TestTree)
+	if err := t.loader.LoadLazyTests(t.directory, t.State.TestTree); err != nil {
+		return fmt.Errorf("unable to load tests, %w", err)
+	}
 
 	t.Elements = elements.NewElements()
 	t.Elements.Setup(
