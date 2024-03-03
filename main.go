@@ -30,7 +30,7 @@ func main() {
 	excludedEngines := strings.Split(*exc, ",")
 	var engines []engines.LazyEngine
 
-	if !slices.Contains("golang", excludedEngines) {
+	if !slices.Contains(excludedEngines, "golang") {
 		engines = append(engines, golang.NewGolangEngine())
 	}
 
