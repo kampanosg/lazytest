@@ -5,8 +5,6 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
-	"io/fs"
-	"path/filepath"
 	"strings"
 
 	"github.com/kampanosg/lazytest/pkg/models"
@@ -25,11 +23,11 @@ func NewGolangEngine() *GolangEngine {
 	return &GolangEngine{}
 }
 
-func (g *GolangEngine) ParseTestSuite(dir string, f fs.FileInfo) (*models.LazyTestSuite, error) {
-	if !strings.HasSuffix(f.Name(), suffix) {
+func (g *GolangEngine) ParseTestSuite(fp string) (*models.LazyTestSuite, error) {
+	if !strings.HasSuffix(fp, suffix) {
 		return nil, nil
 	}
-	fp := filepath.Join(dir, f.Name())
+
 	fset := token.NewFileSet()
 	node, err := parser.ParseFile(fset, fp, nil, parser.ParseComments)
 	if err != nil {
@@ -47,10 +45,19 @@ func (g *GolangEngine) ParseTestSuite(dir string, f fs.FileInfo) (*models.LazyTe
 		if ok && (strings.HasPrefix(fn.Name.Name, "Test") || strings.HasSuffix(fn.Name.Name, "Test")) {
 			suite.Tests = append(suite.Tests, &models.LazyTest{
 				Name:   fn.Name.Name,
-				RunCmd: "go test -v -run " + fn.Name.Name + " ./" + dir,
+				RunCmd: fmt.Sprintf("go test -v -run %s ./%s", fn.Name.Name, removeFileFromFilepath(fp)),
 			})
 		}
 	}
 
 	return suite, nil
+}
+
+func removeFileFromFilepath(path string) string {
+	if !strings.HasSuffix(path, ".go") {
+		return path
+	}
+
+	parts := strings.Split(path, "/")
+	return strings.Join(parts[:len(parts) - 1], "/")
 }
