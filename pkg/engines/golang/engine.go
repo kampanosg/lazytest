@@ -45,10 +45,19 @@ func (g *GolangEngine) ParseTestSuite(fp string) (*models.LazyTestSuite, error) 
 		if ok && (strings.HasPrefix(fn.Name.Name, "Test") || strings.HasSuffix(fn.Name.Name, "Test")) {
 			suite.Tests = append(suite.Tests, &models.LazyTest{
 				Name:   fn.Name.Name,
-				RunCmd: "go test -v -run " + fn.Name.Name + " ./" + fp,
+				RunCmd: fmt.Sprintf("go test -v -run %s ./%s", fn.Name.Name, removeFileFromFilepath(fp)),
 			})
 		}
 	}
 
 	return suite, nil
+}
+
+func removeFileFromFilepath(path string) string {
+	if !strings.HasSuffix(path, ".go") {
+		return path
+	}
+
+	parts := strings.Split(path, "/")
+	return strings.Join(parts[:len(parts) - 1], "/")
 }
