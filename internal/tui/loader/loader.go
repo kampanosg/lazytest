@@ -24,15 +24,9 @@ func NewLazyTestLoader(e []engines.LazyEngine) *LazyTestLoader {
 
 // LoadLazyTests will load the lazy tests from the given directory and add them to the parent node
 func (l *LazyTestLoader) LoadLazyTests(dir string, root *tview.TreeNode) error {
-	file, err := os.Open(filepath.Clean(dir))
+	fileInfos, err := loadFiles(dir)
 	if err != nil {
 		return err
-	}
-	defer file.Close()
-
-	fileInfos, err := file.Readdir(-1)
-	if err != nil {
-		return fmt.Errorf("error reading directory: %w", err)
 	}
 
 	for _, fileInfo := range fileInfos {
@@ -42,44 +36,77 @@ func (l *LazyTestLoader) LoadLazyTests(dir string, root *tview.TreeNode) error {
 			continue
 		}
 
-		if fileInfo.IsDir() {
-			node = tview.NewTreeNode(fmt.Sprintf("[white]%s", fileInfo.Name()))
-			node.SetSelectable(true)
-			if err := l.LoadLazyTests(filepath.Join(dir, fileInfo.Name()), node); err != nil {
-				return fmt.Errorf("error loading lazy tests: %w", err)
-			}
-		} else {
-			suite, err := l.findLazyTestSuite(dir, fileInfo)
-			if err != nil {
-				return fmt.Errorf("error finding lazy test suite: %w", err)
-			}
-
-			if suite != nil {
-				node = tview.NewTreeNode(fmt.Sprintf("[bisque]%s %s", suite.Icon, fileInfo.Name()))
-				node.SetReference(suite)
-				node.SetSelectable(true)
-
-				for _, t := range suite.Tests {
-					test := tview.NewTreeNode(fmt.Sprintf("[darkturquoise] %s", t.Name))
-					test.SetSelectable(true)
-					test.SetReference(t)
-					node.AddChild(test)
-				}
-
-			}
+		node, err = l.doLoad(filepath.Join(dir, fileInfo.Name()), fileInfo)
+		if err != nil {
+			return err
 		}
 
-		if node != nil {
-			root.AddChild(node)
+		if node == nil {
+			continue
 		}
+
+		root.AddChild(node)
+
 	}
 	return nil
 }
 
+func (l *LazyTestLoader) doLoad(dir string, f fs.FileInfo) (*tview.TreeNode, error) {
+	var node *tview.TreeNode
+	if f.IsDir() {
+		children, err := loadFiles(dir)
+		if err != nil {
+			return nil, err
+		}
+
+		hasTests := false
+		node = tview.NewTreeNode(fmt.Sprintf("[white]%s", f.Name()))
+
+		for _, child := range children {
+			childNode, err := l.doLoad(filepath.Join(dir, child.Name()), child)
+			if err != nil {
+				return nil, err
+			}
+
+			if childNode == nil {
+				continue
+			}
+
+			node.AddChild(childNode)
+			hasTests = true
+		}
+
+		if hasTests {
+			return node, nil
+		}
+	} else {
+		suite, err := l.findLazyTestSuite(dir)
+		if err != nil {
+			return nil, fmt.Errorf("error finding lazy test suite: %w", err)
+		}
+
+		if suite != nil {
+			node = tview.NewTreeNode(fmt.Sprintf("[bisque]%s %s", suite.Icon, f.Name()))
+			node.SetReference(suite)
+			node.SetSelectable(true)
+
+			for _, t := range suite.Tests {
+				test := tview.NewTreeNode(fmt.Sprintf("[darkturquoise] %s", t.Name))
+				test.SetSelectable(true)
+				test.SetReference(t)
+				node.AddChild(test)
+			}
+			return node, nil
+		}
+	}
+
+	return nil, nil
+}
+
 // findLazyTestSuite will use the engines to find a test suite in the given path and file
-func (l *LazyTestLoader) findLazyTestSuite(path string, f fs.FileInfo) (*models.LazyTestSuite, error) {
+func (l *LazyTestLoader) findLazyTestSuite(path string) (*models.LazyTestSuite, error) {
 	for _, engine := range l.Engines {
-		suite, err := engine.ParseTestSuite(path, f)
+		suite, err := engine.ParseTestSuite(path)
 		if err != nil {
 			return nil, fmt.Errorf("error parsing test suite: %w", err)
 		}
@@ -88,4 +115,18 @@ func (l *LazyTestLoader) findLazyTestSuite(path string, f fs.FileInfo) (*models.
 		}
 	}
 	return nil, nil
+}
+
+func loadFiles(dir string) ([]fs.FileInfo, error) {
+	file, err := os.Open(filepath.Clean(dir))
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	fileInfos, err := file.Readdir(-1)
+	if err != nil {
+		return nil, fmt.Errorf("error reading directory: %w", err)
+	}
+	return fileInfos, err
 }
