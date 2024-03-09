@@ -15,3 +15,7 @@ recipes:
     description: "run the unit tests of the project"
     steps:
       - "go test -v ./..."
+  mockgen:
+    description: "generates the mocks"
+    steps:
+      - "go generate ./..."
