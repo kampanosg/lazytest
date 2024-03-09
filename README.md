@@ -77,8 +77,28 @@ go install github.com/kampanosg/lazytest@latest
 
 ### Build from source
 
-> [!WARNING]
+> [!IMPORTANT]
 > You need **Go v1.22** to build the project.
+
+#### Makefile
+
+You can build the project with `make`
+
+```sh
+make
+```
+
+An executable called `lazytest` will be built. You can move it to your `$PATH`
+
+#### Bakery
+
+If you're a [Bakery](https://github.com/kampanosg/bakery) fan (well, thank you!), LazyTest comes with a `Bakefile` that you can use with `bake`. You can just run
+
+```sh
+bake
+```
+
+An executable called `lazytest` will be built. You can move it to your `$PATH`
 
 ## Engines 🏎️
 
