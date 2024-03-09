@@ -60,12 +60,6 @@ https://github.com/kampanosg/lazytest/assets/30287348/65bb7520-16dc-473b-b342-1c
 
 </details>
 
-### Running tests
-
-### Searching
-
-## Engines 🏎️
-
 ## Installation
 
 ### Go
@@ -78,12 +72,44 @@ go install github.com/kampanosg/lazytest@latest
 
 ### Brew
 
-WIP...
+> [!WARNING]
+> Brew is not yet available, I am working on it.
 
 ### Build from source
 
 > [!WARNING]
 > You need **Go v1.22** to build the project.
+
+## Engines 🏎️
+
+"Engines" are a core concept in LazyTest. It allows the tool to be extensible and work with many languages and test frameworks. When LazyTest parses the codebase, it uses the engines to determine if a given file contains tests. Engines also provide instructions on how to run a given test.
+
+You can write a new Engine by implementing the following function
+
+```go
+type LazyEngine interface {
+  ParseTestSuite(fp string) (*models.LazyTestSuite, error)
+}
+```
+
+The `ParseTestSuite` expects a `filepath`. If it's a valid test file for the given language, then the engine should parse the file and return the `LazyTestSuite` which contains all the tests and instructions on how to run them. As an example, have a look at the Go engine:
+
+https://github.com/kampanosg/lazytest/blob/c4e9a5800f76c01d780e798e0511b95288de0057/pkg/engines/golang/engine.go#L26-L54
+
+### Available Engines
+
+LazyTests comes packed with the following engines:
+
+* Golang
+
+### Upcoming Engines
+
+The following engines are being built:
+
+* Rust
+* Python
+* Zig
+* Jest
 
 ## Usage
 
