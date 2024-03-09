@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"fmt"
-	"sync"
 
 	"github.com/kampanosg/lazytest/internal/tui/elements"
 	"github.com/kampanosg/lazytest/internal/tui/state"
@@ -21,7 +20,6 @@ func HandleRun(r runner, a *tview.Application, e *elements.Elements, s *state.St
 		return
 	}
 
-	var wg sync.WaitGroup
 	s.Reset()
 
 	a.QueueUpdateDraw(func() {
@@ -29,16 +27,15 @@ func HandleRun(r runner, a *tview.Application, e *elements.Elements, s *state.St
 		e.InfoBox.SetText(fmt.Sprintf("Running %s", testNode.GetText()))
 	})
 
-	switch ref.(type) {
+	switch v := ref.(type) {
 	case *models.LazyTestSuite:
 		for _, child := range testNode.GetChildren() {
 			test := child.GetReference().(*models.LazyTest)
-			runTest(r, a, e, s, child, test)
+			go runTest(r, a, e, s, child, test)
 		}
 		HandleNodeChanged(e, s)(testNode)
 	case *models.LazyTest:
-		go runTest(r, a, e, s,  testNode, ref.(*models.LazyTest))
-		wg.Wait()
+		go runTest(r, a, e, s, testNode, v)
 	}
 
 	updateRunInfo(a, e, s)
