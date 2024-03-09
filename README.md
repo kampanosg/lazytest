@@ -60,7 +60,7 @@ https://github.com/kampanosg/lazytest/assets/30287348/65bb7520-16dc-473b-b342-1c
 
 </details>
 
-## Installation
+## Installation ⬇️
 
 ### Go
 
@@ -111,8 +111,21 @@ The following engines are being built:
 * Zig
 * Jest
 
-## Usage
+## Usage ⚙️
 
 ### Use it with ToggleTerm
 
 ## Inspiration & Similar Projects 💬
+
+LazyTest is heavily inspired by the following projects. Go check them out - their work is excellent!
+
+* [LazyGit](https://github.com/jesseduffield/lazygit) - A simple terminal UI for git commands
+* [NeoTest](https://github.com/nvim-neotest/neotest) - A framework for interacting with tests within NeoVim.
+
+## Mandatory GIF 🖼️
+
+<p align="center">
+  <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExMHk3eTA0Z3ZkdjV2dmh2anJjaW85N2F1OGl4d2F2bXFyeDl1OGpuYyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/SV34NE5jEh4cM/giphy.gif" />
+  <br />
+  <i>The average developer when being asked to write tests</i>
+</p>
