@@ -135,6 +135,43 @@ The following engines are being built:
 
 ### Use it with ToggleTerm
 
+[ToggleTerm](https://github.com/akinsho/toggleterm.nvim) is a popular NeoVim plugin that lets you "persist and toggle multiple terminals during an editing session". It can be used with LazyTest, to avoid context-switching when you have to run your tests.
+
+You can add the following to your NeoVim config:
+
+```lua
+local Terminal  = require('toggleterm.terminal').Terminal
+
+local lazytest = Terminal:new({
+  cmd = "lazytest",
+  dir = ".",
+  direction = "float",
+  float_opts = {
+    border = "curved",
+  },
+  -- function to run on opening the terminal
+  on_open = function(term)
+    vim.cmd("startinsert!")
+    vim.api.nvim_buf_set_keymap(term.bufnr, "n", "q", "<cmd>close<CR>", {noremap = true, silent = true})
+  end,
+  -- function to run on closing the terminal
+  on_close = function(term)
+    vim.cmd("startinsert!")
+  end,
+})
+
+function _lazytest_toggle()
+  lazytest:toggle()
+end
+
+vim.api.nvim_set_keymap("n", "<C-t>", "<cmd>lua _lazytest_toggle()<CR>", {noremap = true, silent = true})
+```
+
+The above binds `<C-t>` to bring up a new floating terminal and executes the `./lazytest` command. You can quit the terminal by pressing `q`. Make sure you include this config to your `init.lua`. 
+
+> [!NOTE]
+> You can view and example of my NeoVim x LazyTest configuration [here](https://github.com/kampanosg/.dotfiles/commit/328dea4fe9f1b5f2cec13a188e7330bd11a2c0ed)
+
 ## Inspiration & Similar Projects 💬
 
 LazyTest is heavily inspired by the following projects. Go check them out - their work is excellent!
