@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	"sync"
-
 	"github.com/kampanosg/lazytest/internal/tui/elements"
 	"github.com/kampanosg/lazytest/internal/tui/state"
 	"github.com/kampanosg/lazytest/pkg/models"
@@ -17,8 +15,6 @@ func HandleRunPassed(r runner, a *tview.Application, e *elements.Elements, s *st
 		return
 	}
 
-	var wg sync.WaitGroup
-
 	passedTests := s.PassedTests
 	s.Reset()
 
@@ -28,18 +24,16 @@ func HandleRunPassed(r runner, a *tview.Application, e *elements.Elements, s *st
 	})
 
 	for _, testNode := range passedTests {
-		wg.Add(1)
 		ref := testNode.GetReference()
 		if ref == nil {
 			continue
 		}
 
 		if test, ok := ref.(*models.LazyTest); ok {
-			runTest(r, a, e, s, &wg, testNode, test)
+			runTest(r, a, e, s, testNode, test)
 		}
 
 	}
 
-	wg.Wait()
 	updateRunInfo(a, e, s)
 }
