@@ -124,7 +124,7 @@ LazyTests comes packed with the following engines:
 
 ### Upcoming Engines
 
-The following engines are being built:
+The following engines are being assembled:
 
 * Rust
 * Python
@@ -132,6 +132,26 @@ The following engines are being built:
 * Jest
 
 ## Usage ⚙️
+
+LazyTest aims to be as intuitive and easy to use as possible. If you're familiar with other terminal applications, LazyTest should (hopefully) feel natural. The table below lists all the available keys and modes.
+
+| **Key**       | **Description**                      | **Where**    |
+|---------------|--------------------------------------|--------------|
+| `?`           | Opens the help dialog                |              |
+| `j/k`         | Navigate up/down                     | Tests Panel  |
+| `↑/↓`         | Navigate up down                     | Tests Panel  |
+| `Enter/Space` | Fold/Unfold a node                   | Tests Panel  |
+| `1`           | Focus on the Tests Panel             |              |
+| `2`           | Focus on the Output Panel            |              |
+| `r`           | Run a Test or Test Suite             | Tests Panel  |
+| `a`           | Run all Tests                        | Tests Panel  |
+| `p`           | Run Passed Tests (from previous run) | Tests Panel  |
+| `f`           | Run Failed Tests (from previous run) | Tests Panel  |
+| `/`           | Enter Search Mode                    | Tests Panel  |
+| `Esc`         | Exit Search Mode                     | Search Panel |
+| `Enter`       | Go to Search Results                 | Search Panel |
+| `C`           | Clear Search Results                 | Tests Panel  |
+| `q`           | Quit the app                         |              |
 
 ### Use it with ToggleTerm
 
@@ -171,6 +191,8 @@ The above binds `<C-t>` to bring up a new floating terminal and executes the `./
 
 > [!NOTE]
 > You can view and example of my NeoVim x LazyTest configuration [here](https://github.com/kampanosg/.dotfiles/commit/328dea4fe9f1b5f2cec13a188e7330bd11a2c0ed)
+
+https://github.com/kampanosg/lazytest/assets/30287348/41052e0a-18ed-4908-8857-4271fd33abbd
 
 ## Inspiration & Similar Projects 💬
 
