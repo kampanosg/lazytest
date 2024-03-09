@@ -7,7 +7,7 @@ import (
 	"github.com/rivo/tview"
 )
 
-func HandleRunPassed(r runner, a *tview.Application, e *elements.Elements, s *state.State) {
+func HandleRunPassed(r Runner, a *tview.Application, e *elements.Elements, s *state.State) {
 	if len(s.PassedTests) == 0 {
 		a.QueueUpdateDraw(func() {
 			e.InfoBox.SetText("No passed tests to run. Try running all tests ")

@@ -7,7 +7,7 @@ import (
 	"github.com/rivo/tview"
 )
 
-func HandleRunFailed(r runner, a *tview.Application, e *elements.Elements, s *state.State) {
+func HandleRunFailed(r Runner, a *tview.Application, e *elements.Elements, s *state.State) {
 	if len(s.FailedTests) == 0 {
 		a.QueueUpdateDraw(func() {
 			e.InfoBox.SetText("No failed tests to run. Good job ")

@@ -9,7 +9,7 @@ import (
 	"github.com/rivo/tview"
 )
 
-func HandleRun(r runner, a *tview.Application, e *elements.Elements, s *state.State) {
+func HandleRun(r Runner, a *tview.Application, e *elements.Elements, s *state.State) {
 	testNode := e.Tree.GetCurrentNode()
 	if testNode == nil {
 		return

@@ -10,7 +10,7 @@ import (
 	"github.com/rivo/tview"
 )
 
-func HandleRunAll(r runner, a *tview.Application, e *elements.Elements, s *state.State) {
+func HandleRunAll(r Runner, a *tview.Application, e *elements.Elements, s *state.State) {
 	s.Reset()
 
 	a.QueueUpdateDraw(func() {
@@ -24,7 +24,7 @@ func HandleRunAll(r runner, a *tview.Application, e *elements.Elements, s *state
 }
 
 func doRunAll(
-	r runner,
+	r Runner,
 	a *tview.Application,
 	e *elements.Elements,
 	s *state.State,

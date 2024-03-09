@@ -1,5 +1,7 @@
 package handlers
 
+//go:generate mockgen -source=$GOFILE -destination=mocks/common.go -package=mocks
+
 import (
 	"fmt"
 
@@ -10,8 +12,13 @@ import (
 	"github.com/rivo/tview"
 )
 
-type runner interface {
+type Runner interface {
 	Run(command string) *models.LazyTestResult
+}
+
+type Application interface {
+	SetRoot(root tview.Primitive, fullscreen bool) *tview.Application
+	SetFocus(p tview.Primitive) *tview.Application
 }
 
 func updateRunInfo(a *tview.Application, e *elements.Elements, s *state.State) {
@@ -31,7 +38,7 @@ func updateRunInfo(a *tview.Application, e *elements.Elements, s *state.State) {
 }
 
 func runTest(
-	r runner,
+	r Runner,
 	a *tview.Application,
 	e *elements.Elements,
 	s *state.State,
