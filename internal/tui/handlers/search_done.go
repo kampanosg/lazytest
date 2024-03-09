@@ -4,10 +4,9 @@ import (
 	"github.com/gdamore/tcell/v2"
 	"github.com/kampanosg/lazytest/internal/tui/elements"
 	"github.com/kampanosg/lazytest/internal/tui/state"
-	"github.com/rivo/tview"
 )
 
-func HandleSearchDone(a *tview.Application, e *elements.Elements, s *state.State) func(key tcell.Key) {
+func HandleSearchDone(a Application, e *elements.Elements, s *state.State) func(key tcell.Key) {
 	return func(key tcell.Key) {
 		s.IsSearching = false
 
