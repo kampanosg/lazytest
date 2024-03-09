@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"fmt"
-	"sync"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/kampanosg/lazytest/internal/tui/elements"
@@ -36,12 +35,9 @@ func runTest(
 	a *tview.Application,
 	e *elements.Elements,
 	s *state.State,
-	wg *sync.WaitGroup,
 	testNode *tview.TreeNode,
 	test *models.LazyTest,
 ) {
-	defer wg.Done()
-
 	a.QueueUpdateDraw(func() {
 		testNode.SetText(fmt.Sprintf("[yellow] [darkturquoise]%s", test.Name))
 		e.Output.SetBorderColor(tcell.ColorYellow)
