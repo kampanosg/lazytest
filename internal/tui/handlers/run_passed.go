@@ -30,7 +30,7 @@ func HandleRunPassed(r runner, a *tview.Application, e *elements.Elements, s *st
 		}
 
 		if test, ok := ref.(*models.LazyTest); ok {
-			runTest(r, a, e, s, testNode, test)
+			go runTest(r, a, e, s, testNode, test)
 		}
 
 	}

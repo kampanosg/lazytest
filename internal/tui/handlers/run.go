@@ -32,15 +32,12 @@ func HandleRun(r runner, a *tview.Application, e *elements.Elements, s *state.St
 	switch ref.(type) {
 	case *models.LazyTestSuite:
 		for _, child := range testNode.GetChildren() {
-			wg.Add(1)
 			test := child.GetReference().(*models.LazyTest)
-			runTest(r, a, e, s, &wg, child, test)
+			runTest(r, a, e, s, child, test)
 		}
-		wg.Wait()
 		HandleNodeChanged(e, s)(testNode)
 	case *models.LazyTest:
-		wg.Add(1)
-		runTest(r, a, e, s, &wg, testNode, ref.(*models.LazyTest))
+		go runTest(r, a, e, s,  testNode, ref.(*models.LazyTest))
 		wg.Wait()
 	}
 
