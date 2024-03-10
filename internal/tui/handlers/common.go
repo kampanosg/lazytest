@@ -19,6 +19,7 @@ type Runner interface {
 type Application interface {
 	SetRoot(root tview.Primitive, fullscreen bool) *tview.Application
 	SetFocus(p tview.Primitive) *tview.Application
+	QueueUpdateDraw(func()) *tview.Application
 }
 
 func updateRunInfo(a *tview.Application, e *elements.Elements, s *state.State) {

@@ -77,6 +77,20 @@ func (m *MockApplication) EXPECT() *MockApplicationMockRecorder {
 	return m.recorder
 }
 
+// QueueUpdateDraw mocks base method.
+func (m *MockApplication) QueueUpdateDraw(arg0 func()) *tview.Application {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "QueueUpdateDraw", arg0)
+	ret0, _ := ret[0].(*tview.Application)
+	return ret0
+}
+
+// QueueUpdateDraw indicates an expected call of QueueUpdateDraw.
+func (mr *MockApplicationMockRecorder) QueueUpdateDraw(arg0 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "QueueUpdateDraw", reflect.TypeOf((*MockApplication)(nil).QueueUpdateDraw), arg0)
+}
+
 // SetFocus mocks base method.
 func (m *MockApplication) SetFocus(p tview.Primitive) *tview.Application {
 	m.ctrl.T.Helper()
