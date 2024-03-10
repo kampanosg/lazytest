@@ -39,26 +39,27 @@ type Handlers interface {
 	HandleSearchFocus(a Application, e *elements.Elements, s *state.State)
 	HandleClearSearch(a Application, e *elements.Elements, s *state.State)
 }
+
 type TUI struct {
 	App      Application
 	State    *state.State
 	Elements *elements.Elements
 	Handlers Handlers
+	Runner   Runner
 
 	directory string
-	runner    Runner
 	loader    *loader.LazyTestLoader
 }
 
-func NewTUI(a Application, h Handlers, r Runner, d string, e []engines.LazyEngine) *TUI {
+func NewTUI(a Application, h Handlers, r Runner, e *elements.Elements, d string, eng []engines.LazyEngine) *TUI {
 	return &TUI{
 		App:       a,
-		State:     state.NewState(),
-		Elements:  elements.NewElements(),
 		Handlers:  h,
+		Runner:    r,
+		State:     state.NewState(),
+		Elements:  e,
 		directory: d,
-		runner:    r,
-		loader:    loader.NewLazyTestLoader(e),
+		loader:    loader.NewLazyTestLoader(eng),
 	}
 }
 
@@ -99,13 +100,13 @@ func (t *TUI) InputCapture(event *tcell.EventKey) *tcell.EventKey {
 	case '2':
 		t.App.SetFocus(t.Elements.Output)
 	case 'r':
-		go t.Handlers.HandleRun(t.runner, t.App, t.Elements, t.State)
+		go t.Handlers.HandleRun(t.Runner, t.App, t.Elements, t.State)
 	case 'a':
-		go t.Handlers.HandleRunAll(t.runner, t.App, t.Elements, t.State)
+		go t.Handlers.HandleRunAll(t.Runner, t.App, t.Elements, t.State)
 	case 'f':
-		go t.Handlers.HandleRunFailed(t.runner, t.App, t.Elements, t.State)
+		go t.Handlers.HandleRunFailed(t.Runner, t.App, t.Elements, t.State)
 	case 'p':
-		go t.Handlers.HandleRunPassed(t.runner, t.App, t.Elements, t.State)
+		go t.Handlers.HandleRunPassed(t.Runner, t.App, t.Elements, t.State)
 	case '/':
 		t.Handlers.HandleSearchFocus(t.App, t.Elements, t.State)
 	case 'C':
