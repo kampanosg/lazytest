@@ -4,9 +4,10 @@ import (
 	"testing"
 
 	"github.com/gdamore/tcell/v2"
+	"github.com/kampanosg/lazytest/internal/tui"
 	"github.com/kampanosg/lazytest/internal/tui/elements"
 	"github.com/kampanosg/lazytest/internal/tui/handlers"
-	"github.com/kampanosg/lazytest/internal/tui/handlers/mocks"
+	"github.com/kampanosg/lazytest/internal/tui/mocks"
 	"github.com/kampanosg/lazytest/internal/tui/state"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/mock/gomock"
@@ -16,7 +17,7 @@ func TestHandleSearchDone(t *testing.T) {
 	ctrl := gomock.NewController(t)
 
 	type fields struct {
-		App   handlers.Application
+		App   tui.Application
 		Elems *elements.Elements
 		State *state.State
 	}
@@ -111,7 +112,10 @@ func TestHandleSearchDone(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			fields := tt.fields()
-			handlers.HandleSearchDone(fields.App, fields.Elems, fields.State)(tt.args.key)
+
+			h:= handlers.NewHandlers()
+			h.HandleSearchDone(fields.App, fields.Elems, fields.State)(tt.args.key)
+
 			assert.Equal(t, tt.want.searchFieldText, fields.Elems.Search.GetText())
 			assert.Equal(t, tt.want.infoBoxText, fields.Elems.InfoBox.GetText(true))
 			assert.Equal(t, tt.want.isSearching, fields.State.IsSearching)

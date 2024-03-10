@@ -1,13 +1,13 @@
 package handlers
 
 import (
+	"github.com/kampanosg/lazytest/internal/tui"
 	"github.com/kampanosg/lazytest/internal/tui/elements"
 	"github.com/kampanosg/lazytest/internal/tui/state"
 	"github.com/kampanosg/lazytest/pkg/models"
-	"github.com/rivo/tview"
 )
 
-func HandleRunPassed(r Runner, a *tview.Application, e *elements.Elements, s *state.State) {
+func (h *Handlers) HandleRunPassed(r tui.Runner, a tui.Application, e *elements.Elements, s *state.State) {
 	if len(s.PassedTests) == 0 {
 		a.QueueUpdateDraw(func() {
 			e.InfoBox.SetText("No passed tests to run. Try running all tests ")

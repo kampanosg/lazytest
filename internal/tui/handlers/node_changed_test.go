@@ -151,7 +151,8 @@ func TestHandleNodeChanged(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			fields := tt.fields()
 
-			handlers.HandleNodeChanged(fields.Elems, fields.State)(tt.args.Node)
+			h := handlers.NewHandlers()
+			h.HandleNodeChanged(fields.Elems, fields.State)(tt.args.Node)
 
 			assert.Equal(t, tt.want.text, fields.Elems.Output.GetText(true))
 			assert.Equal(t, tt.want.color, fields.Elems.Output.GetBorderColor())

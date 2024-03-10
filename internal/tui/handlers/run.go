@@ -3,13 +3,13 @@ package handlers
 import (
 	"fmt"
 
+	"github.com/kampanosg/lazytest/internal/tui"
 	"github.com/kampanosg/lazytest/internal/tui/elements"
 	"github.com/kampanosg/lazytest/internal/tui/state"
 	"github.com/kampanosg/lazytest/pkg/models"
-	"github.com/rivo/tview"
 )
 
-func HandleRun(r Runner, a *tview.Application, e *elements.Elements, s *state.State) {
+func (h *Handlers) HandleRun(r tui.Runner, a tui.Application, e *elements.Elements, s *state.State) {
 	testNode := e.Tree.GetCurrentNode()
 	if testNode == nil {
 		return
@@ -33,7 +33,7 @@ func HandleRun(r Runner, a *tview.Application, e *elements.Elements, s *state.St
 			test := child.GetReference().(*models.LazyTest)
 			go runTest(r, a, e, s, child, test)
 		}
-		HandleNodeChanged(e, s)(testNode)
+		h.HandleNodeChanged(e, s)(testNode)
 	case *models.LazyTest:
 		go runTest(r, a, e, s, testNode, v)
 	}

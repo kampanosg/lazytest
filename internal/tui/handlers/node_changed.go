@@ -10,7 +10,7 @@ import (
 	"github.com/rivo/tview"
 )
 
-func HandleNodeChanged(e *elements.Elements, s *state.State) func(node *tview.TreeNode) {
+func (h *Handlers) HandleNodeChanged(e *elements.Elements, s *state.State) func(node *tview.TreeNode) {
 	return func(node *tview.TreeNode) {
 		node.SetColor(tcell.ColorBlueViolet)
 
@@ -22,10 +22,13 @@ func HandleNodeChanged(e *elements.Elements, s *state.State) func(node *tview.Tr
 		switch ref.(type) {
 		case *models.LazyTestSuite:
 			outputs := ""
+			hasTestOutput := false
 			hasFailedTest := false
+			e.Output.SetBorderColor(tcell.ColorWhite)
 			for _, child := range node.GetChildren() {
 				res, ok := s.TestOutput[child]
 				if ok {
+					hasTestOutput = true
 					if !res.IsSuccess {
 						hasFailedTest = true
 					}
@@ -35,10 +38,13 @@ func HandleNodeChanged(e *elements.Elements, s *state.State) func(node *tview.Tr
 			}
 
 			e.Output.SetText(outputs)
-			if hasFailedTest {
-				e.Output.SetBorderColor(tcell.ColorOrangeRed)
-			} else {
-				e.Output.SetBorderColor(tcell.ColorGreen)
+
+			if hasTestOutput {
+				if hasFailedTest {
+					e.Output.SetBorderColor(tcell.ColorOrangeRed)
+				} else {
+					e.Output.SetBorderColor(tcell.ColorGreen)
+				}
 			}
 		case *models.LazyTest:
 			res, ok := s.TestOutput[node]

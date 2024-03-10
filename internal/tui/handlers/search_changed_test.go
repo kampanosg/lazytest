@@ -19,7 +19,8 @@ func TestHandleSearchChanged_EmptyQuery(t *testing.T) {
 
 	s.TestTree = testTree
 
-	handlers.HandleSearchChanged(e, s)("")
+	h := handlers.NewHandlers()
+	h.HandleSearchChanged(e, s)("")
 
 	assert.Equal(t, testTree, e.Tree.GetRoot())
 }
@@ -35,7 +36,8 @@ func TestHandleSearchChanged_Query(t *testing.T) {
 
 	s.TestTree = testTree
 
-	handlers.HandleSearchChanged(e, s)("/Function")
+	h := handlers.NewHandlers()
+	h.HandleSearchChanged(e, s)("/Function")
 
 	assert.Equal(t, "Function", e.Search.GetText())
 	assert.Len(t, e.Tree.GetRoot().GetChildren(), 1)

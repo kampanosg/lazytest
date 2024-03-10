@@ -3,9 +3,10 @@ package handlers_test
 import (
 	"testing"
 
+	"github.com/kampanosg/lazytest/internal/tui"
 	"github.com/kampanosg/lazytest/internal/tui/elements"
 	"github.com/kampanosg/lazytest/internal/tui/handlers"
-	"github.com/kampanosg/lazytest/internal/tui/handlers/mocks"
+	"github.com/kampanosg/lazytest/internal/tui/mocks"
 	"go.uber.org/mock/gomock"
 )
 
@@ -13,7 +14,7 @@ func TestHandleHelpDone(t *testing.T) {
 	ctrl := gomock.NewController(t)
 
 	type fields struct {
-		App   handlers.Application
+		App   tui.Application
 		Elems *elements.Elements
 	}
 
@@ -78,7 +79,8 @@ func TestHandleHelpDone(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			fields := tt.fields()
-			handlers.HandleHelpDone(fields.App, fields.Elems)(tt.args.BtnIndex, tt.args.BtnLbl)
+			h := handlers.NewHandlers()
+			h.HandleHelpDone(fields.App, fields.Elems)(tt.args.BtnIndex, tt.args.BtnLbl)
 		})
 	}
 }

@@ -1,28 +1,17 @@
 package handlers
 
-//go:generate mockgen -source=$GOFILE -destination=mocks/common.go -package=mocks
-
 import (
 	"fmt"
 
 	"github.com/gdamore/tcell/v2"
+	"github.com/kampanosg/lazytest/internal/tui"
 	"github.com/kampanosg/lazytest/internal/tui/elements"
 	"github.com/kampanosg/lazytest/internal/tui/state"
 	"github.com/kampanosg/lazytest/pkg/models"
 	"github.com/rivo/tview"
 )
 
-type Runner interface {
-	Run(command string) *models.LazyTestResult
-}
-
-type Application interface {
-	SetRoot(root tview.Primitive, fullscreen bool) *tview.Application
-	SetFocus(p tview.Primitive) *tview.Application
-	QueueUpdateDraw(func()) *tview.Application
-}
-
-func updateRunInfo(a *tview.Application, e *elements.Elements, s *state.State) {
+func updateRunInfo(a tui.Application, e *elements.Elements, s *state.State) {
 	a.QueueUpdateDraw(func() {
 		totalFailed := len(s.FailedTests)
 		totalPassed := len(s.PassedTests)
@@ -39,8 +28,8 @@ func updateRunInfo(a *tview.Application, e *elements.Elements, s *state.State) {
 }
 
 func runTest(
-	r Runner,
-	a *tview.Application,
+	r tui.Runner,
+	a tui.Application,
 	e *elements.Elements,
 	s *state.State,
 	testNode *tview.TreeNode,

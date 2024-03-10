@@ -8,7 +8,7 @@ import (
 	"github.com/kampanosg/lazytest/internal/tui/utils"
 )
 
-func HandleSearchChanged(e *elements.Elements, s *state.State) func(searchQuery string) {
+func (h *Handlers) HandleSearchChanged(e *elements.Elements, s *state.State) func(searchQuery string) {
 	return func(searchQuery string) {
 		if strings.HasPrefix(searchQuery, "/") {
 			// when the user presses / to search, the / is still in the input field

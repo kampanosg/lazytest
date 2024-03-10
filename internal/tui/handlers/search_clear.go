@@ -1,11 +1,12 @@
 package handlers
 
 import (
+	"github.com/kampanosg/lazytest/internal/tui"
 	"github.com/kampanosg/lazytest/internal/tui/elements"
 	"github.com/kampanosg/lazytest/internal/tui/state"
 )
 
-func HandleClearSearch(a Application, e *elements.Elements, s *state.State) {
+func (h *Handlers) HandleClearSearch(a tui.Application, e *elements.Elements, s *state.State) {
 	a.QueueUpdateDraw(func() {
 		e.Search.SetText("")
 		e.Tree.SetRoot(s.TestTree)
