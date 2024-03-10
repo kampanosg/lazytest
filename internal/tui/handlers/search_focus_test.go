@@ -20,11 +20,15 @@ func TestHandleSearchFocus(t *testing.T) {
 		State *state.State
 	}
 
+	type want struct {
+		isSearching bool
+		infoBoxText string
+	}
+
 	tests := []struct {
-		name          string
-		fields        func() fields
-		wantSearching bool
-		wantText      string
+		name   string
+		fields func() fields
+		want   want
 	}{
 		{
 			name: "search mode enabled",
@@ -42,8 +46,10 @@ func TestHandleSearchFocus(t *testing.T) {
 					State: state.NewState(),
 				}
 			},
-			wantSearching: true,
-			wantText:      "Search mode. Press <ESC> to exit, <Enter> to go to the search results, C to clear the results",
+			want: want{
+				isSearching: true,
+				infoBoxText: "Search mode. Press <ESC> to exit, <Enter> to go to the search results, C to clear the results",
+			},
 		},
 	}
 
@@ -51,8 +57,8 @@ func TestHandleSearchFocus(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			fields := tt.fields()
 			handlers.HandleSearchFocus(fields.App, fields.Elems, fields.State)
-			assert.Equal(t, tt.wantSearching, fields.State.IsSearching)
-			assert.Equal(t, tt.wantText, fields.Elems.InfoBox.GetText(true))
+			assert.Equal(t, tt.want.isSearching, fields.State.IsSearching)
+			assert.Equal(t, tt.want.infoBoxText, fields.Elems.InfoBox.GetText(true))
 		})
 	}
 }

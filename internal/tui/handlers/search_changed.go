@@ -10,10 +10,10 @@ import (
 
 func HandleSearchChanged(e *elements.Elements, s *state.State) func(searchQuery string) {
 	return func(searchQuery string) {
-		if strings.HasSuffix(searchQuery, "/") {
+		if strings.HasPrefix(searchQuery, "/") {
 			// when the user presses / to search, the / is still in the input field
 			// so we're removing it here
-			searchQuery = searchQuery[:len(searchQuery)-1]
+			searchQuery = searchQuery[1:]
 			e.Search.SetText(searchQuery)
 		}
 
@@ -22,8 +22,7 @@ func HandleSearchChanged(e *elements.Elements, s *state.State) func(searchQuery 
 			return
 		}
 
-		root := s.TestTree
-		filtered := utils.Search(root, searchQuery)
+		filtered := utils.Search(s.TestTree, searchQuery)
 		e.Tree.SetRoot(filtered)
 	}
 }
