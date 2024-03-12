@@ -4,13 +4,14 @@ import (
 	"fmt"
 
 	tcell "github.com/gdamore/tcell/v2"
+	"github.com/kampanosg/lazytest/internal/tui"
 	"github.com/kampanosg/lazytest/internal/tui/elements"
 	"github.com/kampanosg/lazytest/internal/tui/state"
 	"github.com/kampanosg/lazytest/pkg/models"
 	"github.com/rivo/tview"
 )
 
-func HandleRunAll(r runner, a *tview.Application, e *elements.Elements, s *state.State) {
+func (h *Handlers) HandleRunAll(r tui.Runner, a tui.Application, e *elements.Elements, s *state.State) {
 	s.Reset()
 
 	a.QueueUpdateDraw(func() {
@@ -24,8 +25,8 @@ func HandleRunAll(r runner, a *tview.Application, e *elements.Elements, s *state
 }
 
 func doRunAll(
-	r runner,
-	a *tview.Application,
+	r tui.Runner,
+	a tui.Application,
 	e *elements.Elements,
 	s *state.State,
 	nodes []*tview.TreeNode,

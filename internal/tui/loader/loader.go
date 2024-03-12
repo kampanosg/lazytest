@@ -22,7 +22,6 @@ func NewLazyTestLoader(e []engines.LazyEngine) *LazyTestLoader {
 	}
 }
 
-// LoadLazyTests will load the lazy tests from the given directory and add them to the parent node
 func (l *LazyTestLoader) LoadLazyTests(dir string, root *tview.TreeNode) error {
 	fileInfos, err := loadFiles(dir)
 	if err != nil {

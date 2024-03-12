@@ -1,11 +1,12 @@
 package tui
 
+//go:generate mockgen -source=$GOFILE -destination=mocks/mocks.go -package=mocks
+
 import (
 	"fmt"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/kampanosg/lazytest/internal/tui/elements"
-	"github.com/kampanosg/lazytest/internal/tui/handlers"
 	"github.com/kampanosg/lazytest/internal/tui/loader"
 	"github.com/kampanosg/lazytest/internal/tui/state"
 	"github.com/kampanosg/lazytest/pkg/engines"
@@ -13,27 +14,52 @@ import (
 	"github.com/rivo/tview"
 )
 
-type runner interface {
+type Application interface {
+	SetRoot(root tview.Primitive, fullscreen bool) *tview.Application
+	SetFocus(p tview.Primitive) *tview.Application
+	EnableMouse(enable bool) *tview.Application
+	SetInputCapture(capture func(event *tcell.EventKey) *tcell.EventKey) *tview.Application
+	QueueUpdateDraw(f func()) *tview.Application
+	Stop()
+}
+
+type Runner interface {
 	Run(command string) *models.LazyTestResult
 }
 
+type Handlers interface {
+	HandleNodeChanged(e *elements.Elements, s *state.State) func(node *tview.TreeNode)
+	HandleSearchChanged(e *elements.Elements, s *state.State) func(searchQuery string)
+	HandleSearchDone(a Application, e *elements.Elements, s *state.State) func(key tcell.Key)
+	HandleHelpDone(a Application, e *elements.Elements) func(btnIdx int, btnLbl string)
+	HandleRun(r Runner, a Application, e *elements.Elements, s *state.State)
+	HandleRunAll(r Runner, a Application, e *elements.Elements, s *state.State)
+	HandleRunFailed(r Runner, a Application, e *elements.Elements, s *state.State)
+	HandleRunPassed(r Runner, a Application, e *elements.Elements, s *state.State)
+	HandleSearchFocus(a Application, e *elements.Elements, s *state.State)
+	HandleClearSearch(a Application, e *elements.Elements, s *state.State)
+}
+
 type TUI struct {
-	App      *tview.Application
+	App      Application
 	State    *state.State
 	Elements *elements.Elements
+	Handlers Handlers
+	Runner   Runner
 
 	directory string
-	runner    runner
 	loader    *loader.LazyTestLoader
 }
 
-func NewTUI(d string, r runner, e []engines.LazyEngine) *TUI {
+func NewTUI(a Application, h Handlers, r Runner, e *elements.Elements, d string, eng []engines.LazyEngine) *TUI {
 	return &TUI{
-		App:       tview.NewApplication(),
+		App:       a,
+		Handlers:  h,
+		Runner:    r,
 		State:     state.NewState(),
+		Elements:  e,
 		directory: d,
-		runner:    r,
-		loader:    loader.NewLazyTestLoader(e),
+		loader:    loader.NewLazyTestLoader(eng),
 	}
 }
 
@@ -46,10 +72,10 @@ func (t *TUI) Run() error {
 	t.Elements = elements.NewElements()
 	t.Elements.Setup(
 		t.State.TestTree,
-		handlers.HandleNodeChanged(t.Elements, t.State),
-		handlers.HandleSearchChanged(t.Elements, t.State),
-		handlers.HandleSearchDone(t.App, t.Elements, t.State),
-		handlers.HandleHelpDone(t.App, t.Elements),
+		t.Handlers.HandleNodeChanged(t.Elements, t.State),
+		t.Handlers.HandleSearchChanged(t.Elements, t.State),
+		t.Handlers.HandleSearchDone(t.App, t.Elements, t.State),
+		t.Handlers.HandleHelpDone(t.App, t.Elements),
 	)
 
 	t.App.EnableMouse(true)
@@ -74,17 +100,17 @@ func (t *TUI) InputCapture(event *tcell.EventKey) *tcell.EventKey {
 	case '2':
 		t.App.SetFocus(t.Elements.Output)
 	case 'r':
-		go handlers.HandleRun(t.runner, t.App, t.Elements, t.State)
+		go t.Handlers.HandleRun(t.Runner, t.App, t.Elements, t.State)
 	case 'a':
-		go handlers.HandleRunAll(t.runner, t.App, t.Elements, t.State)
+		go t.Handlers.HandleRunAll(t.Runner, t.App, t.Elements, t.State)
 	case 'f':
-		go handlers.HandleRunFailed(t.runner, t.App, t.Elements, t.State)
+		go t.Handlers.HandleRunFailed(t.Runner, t.App, t.Elements, t.State)
 	case 'p':
-		go handlers.HandleRunPassed(t.runner, t.App, t.Elements, t.State)
+		go t.Handlers.HandleRunPassed(t.Runner, t.App, t.Elements, t.State)
 	case '/':
-		handlers.HandleSearchFocus(t.App, t.Elements, t.State)
+		t.Handlers.HandleSearchFocus(t.App, t.Elements, t.State)
 	case 'C':
-		go handlers.HandleClearSearch(t.App, t.Elements, t.State)
+		go t.Handlers.HandleClearSearch(t.App, t.Elements, t.State)
 	case '?':
 		t.App.SetRoot(t.Elements.HelpModal, true)
 	}

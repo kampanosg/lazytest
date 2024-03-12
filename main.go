@@ -8,8 +8,11 @@ import (
 
 	"github.com/kampanosg/lazytest/internal/runner"
 	"github.com/kampanosg/lazytest/internal/tui"
+	"github.com/kampanosg/lazytest/internal/tui/elements"
+	"github.com/kampanosg/lazytest/internal/tui/handlers"
 	"github.com/kampanosg/lazytest/pkg/engines"
 	"github.com/kampanosg/lazytest/pkg/engines/golang"
+	"github.com/rivo/tview"
 )
 
 const (
@@ -34,8 +37,12 @@ func main() {
 		engines = append(engines, golang.NewGolangEngine())
 	}
 
+	a := tview.NewApplication()
+	h := handlers.NewHandlers()
 	r := runner.NewRunner()
-	t := tui.NewTUI(*dir, r, engines)
+	e := elements.NewElements()
+
+	t := tui.NewTUI(a, h, r, e, *dir, engines)
 
 	if err := t.Run(); err != nil {
 		panic(err)

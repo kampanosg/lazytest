@@ -1,13 +1,13 @@
 package handlers
 
 import (
+	"github.com/kampanosg/lazytest/internal/tui"
 	"github.com/kampanosg/lazytest/internal/tui/elements"
 	"github.com/kampanosg/lazytest/internal/tui/state"
 	"github.com/kampanosg/lazytest/pkg/models"
-	"github.com/rivo/tview"
 )
 
-func HandleRunFailed(r runner, a *tview.Application, e *elements.Elements, s *state.State) {
+func (h *Handlers) HandleRunFailed(r tui.Runner, a tui.Application, e *elements.Elements, s *state.State) {
 	if len(s.FailedTests) == 0 {
 		a.QueueUpdateDraw(func() {
 			e.InfoBox.SetText("No failed tests to run. Good job ")
