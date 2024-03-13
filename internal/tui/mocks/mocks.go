@@ -5,7 +5,6 @@
 //
 //	mockgen -source=tui.go -destination=mocks/mocks.go -package=mocks
 //
-
 // Package mocks is a generated GoMock package.
 package mocks
 
@@ -186,18 +185,6 @@ func (m *MockHandlers) EXPECT() *MockHandlersMockRecorder {
 	return m.recorder
 }
 
-// HandleClearSearch mocks base method.
-func (m *MockHandlers) HandleClearSearch(a tui.Application, e *elements.Elements, s *state.State) {
-	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "HandleClearSearch", a, e, s)
-}
-
-// HandleClearSearch indicates an expected call of HandleClearSearch.
-func (mr *MockHandlersMockRecorder) HandleClearSearch(a, e, s any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HandleClearSearch", reflect.TypeOf((*MockHandlers)(nil).HandleClearSearch), a, e, s)
-}
-
 // HandleHelpDone mocks base method.
 func (m *MockHandlers) HandleHelpDone(a tui.Application, e *elements.Elements) func(int, string) {
 	m.ctrl.T.Helper()
@@ -286,6 +273,18 @@ func (m *MockHandlers) HandleSearchChanged(e *elements.Elements, s *state.State)
 func (mr *MockHandlersMockRecorder) HandleSearchChanged(e, s any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HandleSearchChanged", reflect.TypeOf((*MockHandlers)(nil).HandleSearchChanged), e, s)
+}
+
+// HandleSearchClear mocks base method.
+func (m *MockHandlers) HandleSearchClear(a tui.Application, e *elements.Elements, s *state.State) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "HandleSearchClear", a, e, s)
+}
+
+// HandleSearchClear indicates an expected call of HandleSearchClear.
+func (mr *MockHandlersMockRecorder) HandleSearchClear(a, e, s any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HandleSearchClear", reflect.TypeOf((*MockHandlers)(nil).HandleSearchClear), a, e, s)
 }
 
 // HandleSearchDone mocks base method.

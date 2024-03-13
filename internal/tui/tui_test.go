@@ -166,7 +166,7 @@ func TestInputCapture(t *testing.T) {
 			fields: func() fields {
 				h := mocks.NewMockHandlers(ctrl)
 				h.EXPECT().
-					HandleClearSearch(gomock.Any(), gomock.Any(), gomock.Any()).
+					HandleSearchClear(gomock.Any(), gomock.Any(), gomock.Any()).
 					Times(1)
 				return fields{
 					App:      tview.NewApplication(),

@@ -6,7 +6,7 @@ import (
 	"github.com/kampanosg/lazytest/internal/tui/state"
 )
 
-func (h *Handlers) HandleClearSearch(a tui.Application, e *elements.Elements, s *state.State) {
+func (h *Handlers) HandleSearchClear(a tui.Application, e *elements.Elements, s *state.State) {
 	a.QueueUpdateDraw(func() {
 		e.Search.SetText("")
 		e.Tree.SetRoot(s.TestTree)

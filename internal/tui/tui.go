@@ -29,15 +29,15 @@ type Runner interface {
 
 type Handlers interface {
 	HandleNodeChanged(e *elements.Elements, s *state.State) func(node *tview.TreeNode)
-	HandleSearchChanged(e *elements.Elements, s *state.State) func(searchQuery string)
-	HandleSearchDone(a Application, e *elements.Elements, s *state.State) func(key tcell.Key)
 	HandleHelpDone(a Application, e *elements.Elements) func(btnIdx int, btnLbl string)
 	HandleRun(r Runner, a Application, e *elements.Elements, s *state.State)
 	HandleRunAll(r Runner, a Application, e *elements.Elements, s *state.State)
 	HandleRunFailed(r Runner, a Application, e *elements.Elements, s *state.State)
 	HandleRunPassed(r Runner, a Application, e *elements.Elements, s *state.State)
+	HandleSearchChanged(e *elements.Elements, s *state.State) func(searchQuery string)
+	HandleSearchDone(a Application, e *elements.Elements, s *state.State) func(key tcell.Key)
 	HandleSearchFocus(a Application, e *elements.Elements, s *state.State)
-	HandleClearSearch(a Application, e *elements.Elements, s *state.State)
+	HandleSearchClear(a Application, e *elements.Elements, s *state.State)
 }
 
 type TUI struct {
@@ -110,7 +110,7 @@ func (t *TUI) InputCapture(event *tcell.EventKey) *tcell.EventKey {
 	case '/':
 		t.Handlers.HandleSearchFocus(t.App, t.Elements, t.State)
 	case 'C':
-		go t.Handlers.HandleClearSearch(t.App, t.Elements, t.State)
+		go t.Handlers.HandleSearchClear(t.App, t.Elements, t.State)
 	case '?':
 		t.App.SetRoot(t.Elements.HelpModal, true)
 	}

@@ -12,7 +12,7 @@ import (
 	"go.uber.org/mock/gomock"
 )
 
-func TestHandleClearSearch(t *testing.T) {
+func TestHandleSearchClear(t *testing.T) {
 	ctrl := gomock.NewController(t)
 
 	type fields struct {
@@ -56,7 +56,7 @@ func TestHandleClearSearch(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			fields := tt.fields()
 			h := handlers.NewHandlers()
-			h.HandleClearSearch(fields.App, fields.Elems, fields.State)
+			h.HandleSearchClear(fields.App, fields.Elems, fields.State)
 			assert.Equal(t, tt.want.searchFieldText, fields.Elems.Search.GetText())
 			assert.Equal(t, tt.want.infoBoxText, fields.Elems.InfoBox.GetText(true))
 		})
