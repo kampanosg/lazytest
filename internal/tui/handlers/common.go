@@ -11,27 +11,17 @@ import (
 	"github.com/rivo/tview"
 )
 
-func updateRunInfo(a tui.Application, e *elements.Elements, s *state.State) {
-	a.QueueUpdateDraw(func() {
-		totalFailed := len(s.FailedTests)
-		totalPassed := len(s.PassedTests)
-		msg := "Finished running."
-		if totalPassed > 0 {
-			msg = fmt.Sprintf("%s [limegreen]%d passed", msg, totalPassed)
-		}
-		if totalFailed > 0 {
-			msg = fmt.Sprintf("%s. [orangered]%d failed", msg, totalFailed)
-		}
-
-		e.InfoBox.SetText(msg)
-	})
+type runResult struct {
+	node *tview.TreeNode
+	test *models.LazyTest
+	res  *models.LazyTestResult
 }
 
 func runTest(
+	ch chan<- *runResult,
 	r tui.Runner,
 	a tui.Application,
 	e *elements.Elements,
-	s *state.State,
 	testNode *tview.TreeNode,
 	test *models.LazyTest,
 ) {
@@ -41,23 +31,54 @@ func runTest(
 	})
 
 	res := r.Run(test.RunCmd)
-	if res.IsSuccess {
-		a.QueueUpdateDraw(func() {
-			e.Output.SetBorderColor(tcell.ColorGreen)
-			testNode.SetText(fmt.Sprintf("[limegreen] [darkturquoise]%s", test.Name))
-		})
-		s.PassedTests = append(s.PassedTests, testNode)
+	ch <- &runResult{
+		node: testNode,
+		res:  res,
+		test: test,
+	}
+}
+
+func receiveTestResults(ch <-chan *runResult, a tui.Application, e *elements.Elements, s *state.State) {
+	for {
+		res := <-ch
+		handleTestFinished(a, e, s, res)
+	}
+}
+
+func handleTestFinished(a tui.Application, e *elements.Elements, s *state.State, testResult *runResult) {
+	txt := fmt.Sprintf("[orangered] [darkturquoise]%s", testResult.test.Name)
+	borderColor := tcell.ColorOrangeRed
+	if testResult.res.IsSuccess {
+		txt = fmt.Sprintf("[limegreen] [darkturquoise]%s", testResult.test.Name)
+		borderColor = tcell.ColorGreen
+	}
+
+	s.TestOutput[testResult.node] = testResult.res
+
+	if testResult.res.IsSuccess {
+		s.PassedTests = append(s.PassedTests, testResult.node)
 	} else {
-		a.QueueUpdateDraw(func() {
-			e.Output.SetBorderColor(tcell.ColorOrangeRed)
-			testNode.SetText(fmt.Sprintf("[orangered] [darkturquoise]%s", test.Name))
-		})
-		s.FailedTests = append(s.FailedTests, testNode)
+		s.FailedTests = append(s.FailedTests, testResult.node)
 	}
 
 	a.QueueUpdateDraw(func() {
-		e.Output.SetText(res.Output)
+		testResult.node.SetText(txt)
+		e.Output.SetBorderColor(borderColor)
+		e.Output.SetText(testResult.res.Output)
+
+		totalPassed := len(s.PassedTests)
+		totalFailed := len(s.FailedTests)
+		msg := "Finished running"
+
+		if totalPassed > 0 {
+			msg = fmt.Sprintf("%s. [limegreen]%d passed", msg, totalPassed)
+		}
+
+		if totalFailed > 0 {
+			msg = fmt.Sprintf("%s. [orangered]%d failed", msg, totalFailed)
+		}
+
+		e.InfoBox.SetText(msg)
 	})
 
-	s.TestOutput[testNode] = res
 }

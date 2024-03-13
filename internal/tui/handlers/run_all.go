@@ -1,9 +1,6 @@
 package handlers
 
 import (
-	"fmt"
-
-	tcell "github.com/gdamore/tcell/v2"
 	"github.com/kampanosg/lazytest/internal/tui"
 	"github.com/kampanosg/lazytest/internal/tui/elements"
 	"github.com/kampanosg/lazytest/internal/tui/state"
@@ -19,53 +16,31 @@ func (h *Handlers) HandleRunAll(r tui.Runner, a tui.Application, e *elements.Ele
 		e.InfoBox.SetText("Running all tests...")
 	})
 
-	doRunAll(r, a, e, s, e.Tree.GetRoot().GetChildren())
+	ch := make(chan *runResult)
 
-	updateRunInfo(a, e, s)
+	go receiveTestResults(ch, a, e, s)
+
+	doRunAll(ch, r, a, e, e.Tree.GetRoot().GetChildren())
 }
 
 func doRunAll(
+	ch chan<- *runResult,
 	r tui.Runner,
 	a tui.Application,
 	e *elements.Elements,
-	s *state.State,
 	nodes []*tview.TreeNode,
 ) {
 	for _, testNode := range nodes {
 		if len(testNode.GetChildren()) > 0 {
-			doRunAll(r, a, e, s, testNode.GetChildren())
+			doRunAll(ch, r, a, e, testNode.GetChildren())
 		} else {
 			ref := testNode.GetReference()
 			if ref == nil {
 				continue
 			}
-
 			switch ref := ref.(type) {
 			case *models.LazyTest:
-				go func() {
-					a.QueueUpdateDraw(func() {
-						testNode.SetText(fmt.Sprintf("[yellow] [darkturquoise]%s", ref.Name))
-						e.Output.SetBorderColor(tcell.ColorYellow)
-					})
-					res := r.Run(ref.RunCmd)
-					if res.IsSuccess {
-						a.QueueUpdateDraw(func() {
-							e.Output.SetBorderColor(tcell.ColorGreen)
-							testNode.SetText(fmt.Sprintf("[limegreen] [darkturquoise]%s", ref.Name))
-						})
-						s.PassedTests = append(s.PassedTests, testNode)
-					} else {
-						a.QueueUpdateDraw(func() {
-							e.Output.SetBorderColor(tcell.ColorOrangeRed)
-							testNode.SetText(fmt.Sprintf("[orangered] [darkturquoise]%s", ref.Name))
-						})
-						s.FailedTests = append(s.FailedTests, testNode)
-					}
-					a.QueueUpdateDraw(func() {
-						e.Output.SetText(res.Output)
-					})
-					s.TestOutput[testNode] = res
-				}()
+				go runTest(ch, r, a, e, testNode, ref)
 			}
 		}
 	}

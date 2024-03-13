@@ -27,16 +27,18 @@ func (h *Handlers) HandleRun(r tui.Runner, a tui.Application, e *elements.Elemen
 		e.InfoBox.SetText(fmt.Sprintf("Running %s", testNode.GetText()))
 	})
 
+	ch := make(chan *runResult)
+
+	go receiveTestResults(ch, a, e, s)
+
 	switch v := ref.(type) {
 	case *models.LazyTestSuite:
 		for _, child := range testNode.GetChildren() {
 			test := child.GetReference().(*models.LazyTest)
-			go runTest(r, a, e, s, child, test)
+			go runTest(ch, r, a, e, child, test)
 		}
 		h.HandleNodeChanged(e, s)(testNode)
 	case *models.LazyTest:
-		go runTest(r, a, e, s, testNode, v)
+		go runTest(ch, r, a, e, testNode, v)
 	}
-
-	updateRunInfo(a, e, s)
 }

@@ -23,6 +23,10 @@ func (h *Handlers) HandleRunFailed(r tui.Runner, a tui.Application, e *elements.
 		e.InfoBox.SetText("Running failed tests...")
 	})
 
+	ch := make(chan *runResult)
+
+	go receiveTestResults(ch, a, e, s)
+
 	for _, testNode := range failedTests {
 		ref := testNode.GetReference()
 		if ref == nil {
@@ -30,9 +34,7 @@ func (h *Handlers) HandleRunFailed(r tui.Runner, a tui.Application, e *elements.
 		}
 
 		if test, ok := ref.(*models.LazyTest); ok {
-			go runTest(r, a, e, s, testNode, test)
+			go runTest(ch, r, a, e, testNode, test)
 		}
 	}
-
-	updateRunInfo(a, e, s)
 }
