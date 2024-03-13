@@ -20,8 +20,8 @@ LazyTest is a command line tool that helps you view, search and run tests in you
 
 <details>
   <summary>Run all tests</summary>
-  
-  https://github.com/kampanosg/lazytest/assets/30287348/31c87349-eb59-43e8-8154-bf65f940686c
+
+https://github.com/kampanosg/lazytest/assets/30287348/9da52725-06d5-4cb1-ac19-43c14d4f1d9f
 
 </details>
 
@@ -35,7 +35,7 @@ https://github.com/kampanosg/lazytest/assets/30287348/42a60237-9757-443e-bb7e-19
 <details>
   <summary>Run passed tests</summary>
 
-https://github.com/kampanosg/lazytest/assets/30287348/02a7b69b-a4d8-4ae7-973b-30d8f63a146d
+https://github.com/kampanosg/lazytest/assets/30287348/3c81c5de-9c7b-4eb5-9e6a-9daab8cc1f80
 
 </details>
 
@@ -58,6 +58,15 @@ https://github.com/kampanosg/lazytest/assets/30287348/f0b084b8-822c-4c76-b86b-f5
 
 https://github.com/kampanosg/lazytest/assets/30287348/65bb7520-16dc-473b-b342-1ce79036854a
 
+</details>
+
+<details>
+  <summary>Select text</summary>
+  
+  You can select output text with `Shift+Drag` and copy it with your OS's default buffer (e.g. `CMD+c` on the Mac)
+
+https://github.com/kampanosg/lazytest/assets/30287348/285ea274-1ec4-4794-8a29-4778238cbb41
+  
 </details>
 
 ## Installation ⬇️
