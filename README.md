@@ -203,6 +203,16 @@ The above binds `<C-t>` to bring up a new floating terminal and executes the `./
 
 https://github.com/kampanosg/lazytest/assets/30287348/41052e0a-18ed-4908-8857-4271fd33abbd
 
+### Flags
+
+LazyTest supports the following flags that can be passed with the executable
+
+| **Flag**  | **Description**                            | **Example**                           |
+|-----------|--------------------------------------------|---------------------------------------|
+| `dir`     | the directory to start searching for tests | `lazytest -dir /Code/example/project` |
+| `excl`    | engines to exclude                         | `lazytest -excl=rust,zig`             |
+| `version` | the current version of LazyTest            |                                       |
+
 ## Inspiration & Similar Projects 💬
 
 LazyTest is heavily inspired by the following projects. Go check them out - their work is excellent!
