@@ -90,7 +90,7 @@ func TestInputCapture(t *testing.T) {
 				}
 			},
 			args: args{
-				key: tcell.NewEventKey(tcell.KeyEnter, rune('r'), tcell.ModNone),
+				key: tcell.NewEventKey(tcell.KeyRune, rune('r'), tcell.ModNone),
 			},
 		},
 		{
