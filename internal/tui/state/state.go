@@ -11,6 +11,12 @@ type State struct {
 	FailedTests []*tview.TreeNode
 	PassedTests []*tview.TreeNode
 	IsSearching bool
+	Size        *Size
+}
+
+type Size struct {
+	Sidebar     int
+	MainContent int
 }
 
 func NewState() *State {
@@ -20,10 +26,18 @@ func NewState() *State {
 		PassedTests: make([]*tview.TreeNode, 0),
 		IsSearching: false,
 		TestTree:    tview.NewTreeNode("."),
+		Size: &Size{
+			Sidebar:     4,
+			MainContent: 8,
+		},
 	}
 }
 
 func (s *State) Reset() {
 	s.FailedTests = make([]*tview.TreeNode, 0)
 	s.PassedTests = make([]*tview.TreeNode, 0)
+	s.Size = &Size{
+		Sidebar:     4,
+		MainContent: 8,
+	}
 }

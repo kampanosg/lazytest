@@ -38,7 +38,15 @@ type Handlers interface {
 	HandleSearchDone(a Application, e *elements.Elements, s *state.State) func(key tcell.Key)
 	HandleSearchFocus(a Application, e *elements.Elements, s *state.State)
 	HandleSearchClear(a Application, e *elements.Elements, s *state.State)
+	HandleResize(d ResizeDirection, e *elements.Elements, s *state.State)
 }
+
+type ResizeDirection int
+
+const (
+	ResizeLeft ResizeDirection = iota
+	ResizeRight
+)
 
 type TUI struct {
 	App      Application
@@ -72,6 +80,8 @@ func (t *TUI) Run() error {
 	t.Elements = elements.NewElements()
 	t.Elements.Setup(
 		t.State.TestTree,
+		t.State.Size.Sidebar,
+		t.State.Size.MainContent,
 		t.Handlers.HandleNodeChanged(t.Elements, t.State),
 		t.Handlers.HandleSearchChanged(t.Elements, t.State),
 		t.Handlers.HandleSearchDone(t.App, t.Elements, t.State),
@@ -111,6 +121,10 @@ func (t *TUI) InputCapture(event *tcell.EventKey) *tcell.EventKey {
 		t.Handlers.HandleSearchFocus(t.App, t.Elements, t.State)
 	case 'C':
 		go t.Handlers.HandleSearchClear(t.App, t.Elements, t.State)
+	case 'L':
+		t.Handlers.HandleResize(ResizeRight, t.Elements, t.State)
+	case 'H':
+		t.Handlers.HandleResize(ResizeLeft, t.Elements, t.State)
 	case '?':
 		t.App.SetRoot(t.Elements.HelpModal, true)
 	}

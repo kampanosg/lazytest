@@ -10,7 +10,7 @@ import (
 func TestInfoBox(t *testing.T) {
 	e := NewElements()
 
-	e.Setup(nil, nil, nil, nil, nil)
+	e.Setup(nil, 4, 8, nil, nil, nil, nil)
 
 	assert.Equal(t, "Info", e.InfoBox.GetTitle())
 	assert.Equal(t, tcell.ColorDefault, e.InfoBox.GetBackgroundColor())

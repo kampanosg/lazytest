@@ -14,7 +14,7 @@ func TestTree(t *testing.T) {
 
 	e := NewElements()
 
-	e.Setup(root, nil, nil, nil, nil)
+	e.Setup(root, 4, 8, nil, nil, nil, nil)
 
 	assert.Equal(t, "Tests", e.Tree.GetTitle())
 	assert.Equal(t, tcell.ColorDefault, e.Tree.GetBackgroundColor())
