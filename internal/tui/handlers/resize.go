@@ -12,6 +12,8 @@ func (h *Handlers) HandleResize(d tui.ResizeDirection, e *elements.Elements, s *
 		handleResizeLeft(e, s)
 	case tui.ResizeRight:
 		handleResizeRight(e, s)
+	case tui.ResizeDefault:
+		handleResizeDefault(e, s)
 	}
 }
 
@@ -34,5 +36,11 @@ func handleResizeRight(e *elements.Elements, s *state.State) {
 	s.Size.Sidebar += 1
 	s.Size.MainContent -= 1
 
+	e.ResizeFlex(s.Size.Sidebar, s.Size.MainContent)
+}
+
+func handleResizeDefault(e *elements.Elements, s *state.State) {
+	s.Size.Sidebar = 4
+	s.Size.MainContent = 8
 	e.ResizeFlex(s.Size.Sidebar, s.Size.MainContent)
 }

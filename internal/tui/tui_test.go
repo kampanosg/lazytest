@@ -237,7 +237,7 @@ func TestInputCapture_HandleResizeLeft(t *testing.T) {
 		Times(1)
 
 	tui.NewTUI(nil, h, nil, nil, "", nil).
-		InputCapture(tcell.NewEventKey(tcell.KeyRune, '<', tcell.ModNone))
+		InputCapture(tcell.NewEventKey(tcell.KeyRune, '-', tcell.ModNone))
 }
 
 func TestInputCapture_HandleResizeRight(t *testing.T) {
@@ -250,5 +250,18 @@ func TestInputCapture_HandleResizeRight(t *testing.T) {
 		Times(1)
 
 	tui.NewTUI(nil, h, nil, nil, "", nil).
-		InputCapture(tcell.NewEventKey(tcell.KeyRune, '>', tcell.ModNone))
+		InputCapture(tcell.NewEventKey(tcell.KeyRune, '+', tcell.ModNone))
+}
+
+func TestInputCapture_HandleResizeDefault(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	h := mocks.NewMockHandlers(ctrl)
+	h.EXPECT().
+		HandleResize(tui.ResizeDefault, gomock.Any(), gomock.Any()).
+		Times(1)
+
+	tui.NewTUI(nil, h, nil, nil, "", nil).
+		InputCapture(tcell.NewEventKey(tcell.KeyRune, '0', tcell.ModNone))
 }

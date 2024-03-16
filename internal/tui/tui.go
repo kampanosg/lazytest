@@ -46,6 +46,7 @@ type ResizeDirection int
 const (
 	ResizeLeft ResizeDirection = iota
 	ResizeRight
+	ResizeDefault
 )
 
 type TUI struct {
@@ -124,10 +125,12 @@ func (t *TUI) InputCapture(event *tcell.EventKey) *tcell.EventKey {
 			t.Handlers.HandleSearchFocus(t.App, t.Elements, t.State)
 		case 'C':
 			go t.Handlers.HandleSearchClear(t.App, t.Elements, t.State)
-		case '>':
+		case '+':
 			t.Handlers.HandleResize(ResizeRight, t.Elements, t.State)
-		case '<':
+		case '-':
 			t.Handlers.HandleResize(ResizeLeft, t.Elements, t.State)
+		case '0':
+			t.Handlers.HandleResize(ResizeDefault, t.Elements, t.State)
 		case '?':
 			t.App.SetRoot(t.Elements.HelpModal, true)
 		}
