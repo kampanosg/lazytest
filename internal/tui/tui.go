@@ -102,31 +102,35 @@ func (t *TUI) InputCapture(event *tcell.EventKey) *tcell.EventKey {
 	if t.State.IsSearching {
 		return event
 	}
-	switch pressed_key := event.Rune(); pressed_key {
-	case 'q':
-		t.App.Stop()
-	case '1':
-		t.App.SetFocus(t.Elements.Tree)
-	case '2':
-		t.App.SetFocus(t.Elements.Output)
-	case 'r':
-		go t.Handlers.HandleRun(t.Runner, t.App, t.Elements, t.State)
-	case 'a':
-		go t.Handlers.HandleRunAll(t.Runner, t.App, t.Elements, t.State)
-	case 'f':
-		go t.Handlers.HandleRunFailed(t.Runner, t.App, t.Elements, t.State)
-	case 'p':
-		go t.Handlers.HandleRunPassed(t.Runner, t.App, t.Elements, t.State)
-	case '/':
-		t.Handlers.HandleSearchFocus(t.App, t.Elements, t.State)
-	case 'C':
-		go t.Handlers.HandleSearchClear(t.App, t.Elements, t.State)
-	case 'L':
-		t.Handlers.HandleResize(ResizeRight, t.Elements, t.State)
-	case 'H':
-		t.Handlers.HandleResize(ResizeLeft, t.Elements, t.State)
-	case '?':
-		t.App.SetRoot(t.Elements.HelpModal, true)
+
+	switch key := event.Key(); key {
+	case tcell.KeyRune:
+		switch event.Rune() {
+		case 'q':
+			t.App.Stop()
+		case '1':
+			t.App.SetFocus(t.Elements.Tree)
+		case '2':
+			t.App.SetFocus(t.Elements.Output)
+		case 'r':
+			go t.Handlers.HandleRun(t.Runner, t.App, t.Elements, t.State)
+		case 'a':
+			go t.Handlers.HandleRunAll(t.Runner, t.App, t.Elements, t.State)
+		case 'f':
+			go t.Handlers.HandleRunFailed(t.Runner, t.App, t.Elements, t.State)
+		case 'p':
+			go t.Handlers.HandleRunPassed(t.Runner, t.App, t.Elements, t.State)
+		case '/':
+			t.Handlers.HandleSearchFocus(t.App, t.Elements, t.State)
+		case 'C':
+			go t.Handlers.HandleSearchClear(t.App, t.Elements, t.State)
+		case 'L':
+			t.Handlers.HandleResize(ResizeRight, t.Elements, t.State)
+		case 'H':
+			t.Handlers.HandleResize(ResizeLeft, t.Elements, t.State)
+		case '?':
+			t.App.SetRoot(t.Elements.HelpModal, true)
+		}
 	}
-	return event
+	return nil
 }
