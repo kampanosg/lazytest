@@ -19,7 +19,7 @@ func (h *Handlers) HandleNodeChanged(e *elements.Elements, s *state.State) func(
 			return
 		}
 
-		switch ref.(type) {
+		switch v := ref.(type) {
 		case *models.LazyTestSuite:
 			outputs := ""
 			hasTestOutput := false
@@ -38,6 +38,7 @@ func (h *Handlers) HandleNodeChanged(e *elements.Elements, s *state.State) func(
 			}
 
 			e.Output.SetText(outputs)
+			e.Output.SetTitle(fmt.Sprintf("Output - %s", v.Path))
 
 			if hasTestOutput {
 				if hasFailedTest {
@@ -54,8 +55,10 @@ func (h *Handlers) HandleNodeChanged(e *elements.Elements, s *state.State) func(
 				} else {
 					e.Output.SetBorderColor(tcell.ColorOrangeRed)
 				}
+
 				e.Output.SetText(res.Output)
 			}
+			e.Output.SetTitle(fmt.Sprintf("Output - %s", v.Name))
 		}
 	}
 }

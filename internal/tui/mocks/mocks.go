@@ -213,6 +213,18 @@ func (mr *MockHandlersMockRecorder) HandleNodeChanged(e, s any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HandleNodeChanged", reflect.TypeOf((*MockHandlers)(nil).HandleNodeChanged), e, s)
 }
 
+// HandleResize mocks base method.
+func (m *MockHandlers) HandleResize(d tui.ResizeDirection, e *elements.Elements, s *state.State) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "HandleResize", d, e, s)
+}
+
+// HandleResize indicates an expected call of HandleResize.
+func (mr *MockHandlersMockRecorder) HandleResize(d, e, s any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HandleResize", reflect.TypeOf((*MockHandlers)(nil).HandleResize), d, e, s)
+}
+
 // HandleRun mocks base method.
 func (m *MockHandlers) HandleRun(r tui.Runner, a tui.Application, e *elements.Elements, s *state.State) {
 	m.ctrl.T.Helper()

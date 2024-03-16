@@ -51,6 +51,7 @@ func TestHandleNodeChanged(t *testing.T) {
 
 	type want struct {
 		text  string
+		title string
 		color tcell.Color
 	}
 
@@ -73,6 +74,7 @@ func TestHandleNodeChanged(t *testing.T) {
 			},
 			want: want{
 				text:  "",
+				title: "",
 				color: tcell.ColorWhite,
 			},
 		},
@@ -96,6 +98,7 @@ func TestHandleNodeChanged(t *testing.T) {
 			want: want{
 				text:  "test passed",
 				color: tcell.ColorGreen,
+				title: "Output - LazyTest1",
 			},
 		},
 		{
@@ -118,6 +121,7 @@ func TestHandleNodeChanged(t *testing.T) {
 			want: want{
 				text:  "test failed",
 				color: tcell.ColorOrangeRed,
+				title: "Output - LazyTest1",
 			},
 		},
 		{
@@ -143,6 +147,7 @@ func TestHandleNodeChanged(t *testing.T) {
 			want: want{
 				text:  "--- LazyTest1 ---\ntest failed\n\n--- LazyTest2 ---\ntest passed\n\n",
 				color: tcell.ColorOrangeRed,
+				title: "Output - Lazy/LazyTest",
 			},
 		},
 	}
@@ -156,6 +161,7 @@ func TestHandleNodeChanged(t *testing.T) {
 
 			assert.Equal(t, tt.want.text, fields.Elems.Output.GetText(true))
 			assert.Equal(t, tt.want.color, fields.Elems.Output.GetBorderColor())
+			assert.Equal(t, tt.want.title, fields.Elems.Output.GetTitle())
 		})
 	}
 }

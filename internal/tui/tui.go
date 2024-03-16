@@ -38,7 +38,16 @@ type Handlers interface {
 	HandleSearchDone(a Application, e *elements.Elements, s *state.State) func(key tcell.Key)
 	HandleSearchFocus(a Application, e *elements.Elements, s *state.State)
 	HandleSearchClear(a Application, e *elements.Elements, s *state.State)
+	HandleResize(d ResizeDirection, e *elements.Elements, s *state.State)
 }
+
+type ResizeDirection int
+
+const (
+	ResizeLeft ResizeDirection = iota
+	ResizeRight
+	ResizeDefault
+)
 
 type TUI struct {
 	App      Application
@@ -72,6 +81,8 @@ func (t *TUI) Run() error {
 	t.Elements = elements.NewElements()
 	t.Elements.Setup(
 		t.State.TestTree,
+		t.State.Size.Sidebar,
+		t.State.Size.MainContent,
 		t.Handlers.HandleNodeChanged(t.Elements, t.State),
 		t.Handlers.HandleSearchChanged(t.Elements, t.State),
 		t.Handlers.HandleSearchDone(t.App, t.Elements, t.State),
@@ -92,27 +103,37 @@ func (t *TUI) InputCapture(event *tcell.EventKey) *tcell.EventKey {
 	if t.State.IsSearching {
 		return event
 	}
-	switch pressed_key := event.Rune(); pressed_key {
-	case 'q':
-		t.App.Stop()
-	case '1':
-		t.App.SetFocus(t.Elements.Tree)
-	case '2':
-		t.App.SetFocus(t.Elements.Output)
-	case 'r':
-		go t.Handlers.HandleRun(t.Runner, t.App, t.Elements, t.State)
-	case 'a':
-		go t.Handlers.HandleRunAll(t.Runner, t.App, t.Elements, t.State)
-	case 'f':
-		go t.Handlers.HandleRunFailed(t.Runner, t.App, t.Elements, t.State)
-	case 'p':
-		go t.Handlers.HandleRunPassed(t.Runner, t.App, t.Elements, t.State)
-	case '/':
-		t.Handlers.HandleSearchFocus(t.App, t.Elements, t.State)
-	case 'C':
-		go t.Handlers.HandleSearchClear(t.App, t.Elements, t.State)
-	case '?':
-		t.App.SetRoot(t.Elements.HelpModal, true)
+
+	switch key := event.Key(); key {
+	case tcell.KeyRune:
+		switch event.Rune() {
+		case 'q':
+			t.App.Stop()
+		case '1':
+			t.App.SetFocus(t.Elements.Tree)
+		case '2':
+			t.App.SetFocus(t.Elements.Output)
+		case 'r':
+			go t.Handlers.HandleRun(t.Runner, t.App, t.Elements, t.State)
+		case 'a':
+			go t.Handlers.HandleRunAll(t.Runner, t.App, t.Elements, t.State)
+		case 'f':
+			go t.Handlers.HandleRunFailed(t.Runner, t.App, t.Elements, t.State)
+		case 'p':
+			go t.Handlers.HandleRunPassed(t.Runner, t.App, t.Elements, t.State)
+		case '/':
+			t.Handlers.HandleSearchFocus(t.App, t.Elements, t.State)
+		case 'C':
+			go t.Handlers.HandleSearchClear(t.App, t.Elements, t.State)
+		case '+':
+			t.Handlers.HandleResize(ResizeRight, t.Elements, t.State)
+		case '-':
+			t.Handlers.HandleResize(ResizeLeft, t.Elements, t.State)
+		case '0':
+			t.Handlers.HandleResize(ResizeDefault, t.Elements, t.State)
+		case '?':
+			t.App.SetRoot(t.Elements.HelpModal, true)
+		}
 	}
-	return event
+	return nil
 }

@@ -43,6 +43,7 @@ func NewElements() *Elements {
 
 func (e *Elements) Setup(
 	t *tview.TreeNode,
+	sidebarSize, mainContentSize int,
 	htc func(node *tview.TreeNode),
 	hsc func(query string),
 	hsd func(key tcell.Key),
@@ -64,5 +65,5 @@ func (e *Elements) Setup(
 	e.initSearch()
 	e.initLegend()
 	e.initHelp()
-	e.initFlex()
+	e.initFlex(sidebarSize, mainContentSize)
 }

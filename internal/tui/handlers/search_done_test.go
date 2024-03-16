@@ -15,6 +15,7 @@ import (
 
 func TestHandleSearchDone(t *testing.T) {
 	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
 	type fields struct {
 		App   tui.Application
@@ -67,7 +68,7 @@ func TestHandleSearchDone(t *testing.T) {
 					Times(1)
 
 				return fields{
-					App: mockApp,
+					App:   mockApp,
 					Elems: elems,
 					State: state.NewState(),
 				}
@@ -93,7 +94,7 @@ func TestHandleSearchDone(t *testing.T) {
 					Times(1)
 
 				return fields{
-					App: mockApp,
+					App:   mockApp,
 					Elems: elems,
 					State: state.NewState(),
 				}
@@ -113,7 +114,7 @@ func TestHandleSearchDone(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			fields := tt.fields()
 
-			h:= handlers.NewHandlers()
+			h := handlers.NewHandlers()
 			h.HandleSearchDone(fields.App, fields.Elems, fields.State)(tt.args.key)
 
 			assert.Equal(t, tt.want.searchFieldText, fields.Elems.Search.GetText())

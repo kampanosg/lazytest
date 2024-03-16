@@ -10,7 +10,7 @@ import (
 func TestSearch(t *testing.T) {
 	e := NewElements()
 
-	e.Setup(nil, nil, nil, nil, nil)
+	e.Setup(nil, 4, 8, nil, nil, nil, nil)
 
 	assert.Equal(t, "Search", e.Search.GetTitle())
 	assert.Equal(t, tcell.ColorDefault, e.Search.GetBackgroundColor())

@@ -10,7 +10,7 @@ import (
 func TestLegend(t *testing.T) {
 	e := NewElements()
 
-	e.Setup(nil, nil, nil, nil, nil)
+	e.Setup(nil, 4, 8, nil, nil, nil, nil)
 
 	assert.Equal(t, legendText, e.Legend.GetText(true))
 	assert.Equal(t, tcell.ColorDefault, e.Legend.GetBackgroundColor())

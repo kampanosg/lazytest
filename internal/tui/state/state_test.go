@@ -21,4 +21,6 @@ func TestReset(t *testing.T) {
 
 	assert.Equal(t, len(s.FailedTests), 0)
 	assert.Equal(t, len(s.PassedTests), 0)
+	assert.Equal(t, 4, s.Size.Sidebar)
+	assert.Equal(t, 8, s.Size.MainContent)
 }
