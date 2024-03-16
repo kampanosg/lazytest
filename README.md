@@ -13,7 +13,7 @@ LazyTest is a command line tool that helps you view, search and run tests in you
 
 <details>
   <summary>Run a test</summary>
-  
+
   https://github.com/kampanosg/lazytest/assets/30287348/99be1ef1-81b2-47e7-8772-44cd957ad744
 
 </details>
@@ -62,12 +62,19 @@ https://github.com/kampanosg/lazytest/assets/30287348/65bb7520-16dc-473b-b342-1c
 
 <details>
   <summary>Select text</summary>
-  
+
   You can select output text with `Shift+Drag` and copy it with your OS's default buffer (e.g. `CMD+c` on the Mac)
 
 https://github.com/kampanosg/lazytest/assets/30287348/285ea274-1ec4-4794-8a29-4778238cbb41
-  
+
 </details>
+
+<details>
+  <summary>Resize the panes</sumary>
+
+  Sometimes test names may exceed the size of the pane. Similarly, you may need more space for the output. Unfortunately, [tview](), the TUI library that LazyTest uses does not support horizontal scrolling (and it's _probably_ [not]() going to be implemented any time soon).
+
+  As an alternative, LazyTest panes can be resized with the `<` and `>` keys
 
 ## Installation ⬇️
 
@@ -160,6 +167,8 @@ LazyTest aims to be as intuitive and easy to use as possible. If you're familiar
 | `Esc`         | Exit Search Mode                     | Search Panel |
 | `Enter`       | Go to Search Results                 | Search Panel |
 | `C`           | Clear Search Results                 | Tests Panel  |
+| `>`           | Resize Right (make tests pane bigger)|              |
+| `<`           | Resize Left (make output pane bigger)|              |
 | `q`           | Quit the app                         |              |
 
 ### Use it with ToggleTerm
