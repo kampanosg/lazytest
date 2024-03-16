@@ -70,11 +70,14 @@ https://github.com/kampanosg/lazytest/assets/30287348/285ea274-1ec4-4794-8a29-47
 </details>
 
 <details>
-  <summary>Resize the panes</sumary>
+  <summary>Resize the panes</summary>
 
   Sometimes test names may exceed the size of the pane. Or you may need more space for the output text. Unfortunately, [tview](https://github.com/rivo/tview), the TUI library that LazyTest uses, does not support horizontal scrolling (and it's _probably_ [not](https://github.com/rivo/tview/issues/707#issuecomment-1991260955) going to be implemented any time soon).
 
   As an alternative, LazyTest panes can be resized with the `+` and `-` keys.
+
+https://github.com/kampanosg/lazytest/assets/30287348/036e302a-4f4b-415d-b4de-42dd5e643b82
+  
 </details>
 
 ## Installation ⬇️
