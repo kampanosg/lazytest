@@ -75,6 +75,7 @@ https://github.com/kampanosg/lazytest/assets/30287348/285ea274-1ec4-4794-8a29-47
   Sometimes test names may exceed the size of the pane. Similarly, you may need more space for the output. Unfortunately, [tview](), the TUI library that LazyTest uses does not support horizontal scrolling (and it's _probably_ [not]() going to be implemented any time soon).
 
   As an alternative, LazyTest panes can be resized with the `<` and `>` keys
+</details>
 
 ## Installation ⬇️
 

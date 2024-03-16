@@ -237,7 +237,7 @@ func TestInputCapture_HandleResizeLeft(t *testing.T) {
 		Times(1)
 
 	tui.NewTUI(nil, h, nil, nil, "", nil).
-		InputCapture(tcell.NewEventKey(tcell.KeyRune, 'H', tcell.ModNone))
+		InputCapture(tcell.NewEventKey(tcell.KeyRune, '<', tcell.ModNone))
 }
 
 func TestInputCapture_HandleResizeRight(t *testing.T) {
@@ -250,5 +250,5 @@ func TestInputCapture_HandleResizeRight(t *testing.T) {
 		Times(1)
 
 	tui.NewTUI(nil, h, nil, nil, "", nil).
-		InputCapture(tcell.NewEventKey(tcell.KeyRune, 'L', tcell.ModNone))
+		InputCapture(tcell.NewEventKey(tcell.KeyRune, '>', tcell.ModNone))
 }

@@ -124,9 +124,9 @@ func (t *TUI) InputCapture(event *tcell.EventKey) *tcell.EventKey {
 			t.Handlers.HandleSearchFocus(t.App, t.Elements, t.State)
 		case 'C':
 			go t.Handlers.HandleSearchClear(t.App, t.Elements, t.State)
-		case 'L':
+		case '>':
 			t.Handlers.HandleResize(ResizeRight, t.Elements, t.State)
-		case 'H':
+		case '<':
 			t.Handlers.HandleResize(ResizeLeft, t.Elements, t.State)
 		case '?':
 			t.App.SetRoot(t.Elements.HelpModal, true)
