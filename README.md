@@ -72,9 +72,9 @@ https://github.com/kampanosg/lazytest/assets/30287348/285ea274-1ec4-4794-8a29-47
 <details>
   <summary>Resize the panes</sumary>
 
-  Sometimes test names may exceed the size of the pane. Similarly, you may need more space for the output. Unfortunately, [tview](), the TUI library that LazyTest uses does not support horizontal scrolling (and it's _probably_ [not]() going to be implemented any time soon).
+  Sometimes test names may exceed the size of the pane. Or you may need more space for the output text. Unfortunately, [tview](https://github.com/rivo/tview), the TUI library that LazyTest uses, does not support horizontal scrolling (and it's _probably_ [not](https://github.com/rivo/tview/issues/707#issuecomment-1991260955) going to be implemented any time soon).
 
-  As an alternative, LazyTest panes can be resized with the `<` and `>` keys
+  As an alternative, LazyTest panes can be resized with the `+` and `-` keys.
 </details>
 
 ## Installation ⬇️
@@ -168,8 +168,9 @@ LazyTest aims to be as intuitive and easy to use as possible. If you're familiar
 | `Esc`         | Exit Search Mode                     | Search Panel |
 | `Enter`       | Go to Search Results                 | Search Panel |
 | `C`           | Clear Search Results                 | Tests Panel  |
-| `>`           | Resize Right (make tests pane bigger)|              |
-| `<`           | Resize Left (make output pane bigger)|              |
+| `+`           | Increase the Tests Panel size        |              |
+| `-`           | Decrease the Tests Panel size        |              |
+| `0`           | Reset the layout                     |              |
 | `q`           | Quit the app                         |              |
 
 ### Use it with ToggleTerm
