@@ -135,5 +135,5 @@ func (t *TUI) InputCapture(event *tcell.EventKey) *tcell.EventKey {
 			t.App.SetRoot(t.Elements.HelpModal, true)
 		}
 	}
-	return nil
+	return event
 }
