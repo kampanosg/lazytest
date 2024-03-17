@@ -14,7 +14,7 @@ test: ## Run the tests
 
 .PHONY: mockgen
 mockgen: ## Generate the mocks
-	go generate ./...
+	rm -rf ./internal/tui/mocks && go generate ./...
 
 .PHONY: help
 help: ## Display this help screen
