@@ -266,3 +266,65 @@ func TestInputCapture_HandleResizeDefault(t *testing.T) {
 	tui.NewTUI(nil, h, nil, nil, nil, state.NewState(), "", nil).
 		InputCapture(tcell.NewEventKey(tcell.KeyRune, '0', tcell.ModNone))
 }
+
+func TestInputCapture_HandleYankNode(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	var wg sync.WaitGroup
+	wg.Add(1)
+
+	h := mocks.NewMockHandlers(ctrl)
+	h.EXPECT().
+		HandleYankNode(gomock.Any(), gomock.Any(), gomock.Any()).
+		Do(func(_ any, _ any, _ any) {
+			defer wg.Done()
+		})
+
+	tui.NewTUI(nil, h, nil, nil, nil, state.NewState(), "", nil).
+		InputCapture(tcell.NewEventKey(tcell.KeyRune, 'y', tcell.ModNone))
+
+	timeout := 5 * time.Second
+	done := make(chan struct{})
+	go func() {
+		defer close(done)
+		wg.Wait()
+	}()
+
+	select {
+	case <-done:
+	case <-time.After(timeout):
+		t.Error("test timeout")
+	}
+}
+
+func TestInputCapture_HandleYankOutput(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	var wg sync.WaitGroup
+	wg.Add(1)
+
+	h := mocks.NewMockHandlers(ctrl)
+	h.EXPECT().
+		HandleYankOutput(gomock.Any(), gomock.Any(), gomock.Any()).
+		Do(func(_ any, _ any, _ any) {
+			defer wg.Done()
+		})
+
+	tui.NewTUI(nil, h, nil, nil, nil, state.NewState(), "", nil).
+		InputCapture(tcell.NewEventKey(tcell.KeyRune, 'Y', tcell.ModNone))
+
+	timeout := 5 * time.Second
+	done := make(chan struct{})
+	go func() {
+		defer close(done)
+		wg.Wait()
+	}()
+
+	select {
+	case <-done:
+	case <-time.After(timeout):
+		t.Error("test timeout")
+	}
+}
