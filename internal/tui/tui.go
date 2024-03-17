@@ -41,6 +41,10 @@ type Handlers interface {
 	HandleResize(d ResizeDirection, e *elements.Elements, s *state.State)
 }
 
+type Clipboard interface {
+	WriteAll(text string) error
+}
+
 type ResizeDirection int
 
 const (
@@ -50,22 +54,33 @@ const (
 )
 
 type TUI struct {
-	App      Application
-	State    *state.State
-	Elements *elements.Elements
-	Handlers Handlers
-	Runner   Runner
+	App       Application
+	State     *state.State
+	Elements  *elements.Elements
+	Handlers  Handlers
+	Runner    Runner
+	Clipboard Clipboard
 
 	directory string
 	loader    *loader.LazyTestLoader
 }
 
-func NewTUI(a Application, h Handlers, r Runner, e *elements.Elements, d string, eng []engines.LazyEngine) *TUI {
+func NewTUI(
+	a Application,
+	h Handlers,
+	r Runner,
+	c Clipboard,
+	e *elements.Elements,
+	s *state.State,
+	d string,
+	eng []engines.LazyEngine,
+) *TUI {
 	return &TUI{
 		App:       a,
 		Handlers:  h,
 		Runner:    r,
-		State:     state.NewState(),
+		Clipboard: c,
+		State:     s,
 		Elements:  e,
 		directory: d,
 		loader:    loader.NewLazyTestLoader(eng),

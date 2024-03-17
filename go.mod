@@ -10,6 +10,7 @@ require (
 )
 
 require (
+	github.com/atotto/clipboard v0.1.4
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/gdamore/encoding v1.0.0 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
