@@ -39,6 +39,8 @@ type Handlers interface {
 	HandleSearchFocus(a Application, e *elements.Elements, s *state.State)
 	HandleSearchClear(a Application, e *elements.Elements, s *state.State)
 	HandleResize(d ResizeDirection, e *elements.Elements, s *state.State)
+	HandleYankNode(a Application, c Clipboard, e *elements.Elements)
+	HandleYankOutput(a Application, c Clipboard, e *elements.Elements)
 }
 
 type Clipboard interface {
@@ -146,6 +148,10 @@ func (t *TUI) InputCapture(event *tcell.EventKey) *tcell.EventKey {
 			t.Handlers.HandleResize(ResizeLeft, t.Elements, t.State)
 		case '0':
 			t.Handlers.HandleResize(ResizeDefault, t.Elements, t.State)
+		case 'y':
+			go t.Handlers.HandleYankNode(t.App, t.Clipboard, t.Elements)
+		case 'Y':
+			go t.Handlers.HandleYankOutput(t.App, t.Clipboard, t.Elements)
 		case '?':
 			t.App.SetRoot(t.Elements.HelpModal, true)
 		}
