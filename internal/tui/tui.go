@@ -39,6 +39,12 @@ type Handlers interface {
 	HandleSearchFocus(a Application, e *elements.Elements, s *state.State)
 	HandleSearchClear(a Application, e *elements.Elements, s *state.State)
 	HandleResize(d ResizeDirection, e *elements.Elements, s *state.State)
+	HandleYankNode(a Application, c Clipboard, e *elements.Elements)
+	HandleYankOutput(a Application, c Clipboard, e *elements.Elements)
+}
+
+type Clipboard interface {
+	WriteAll(text string) error
 }
 
 type ResizeDirection int
@@ -50,22 +56,33 @@ const (
 )
 
 type TUI struct {
-	App      Application
-	State    *state.State
-	Elements *elements.Elements
-	Handlers Handlers
-	Runner   Runner
+	App       Application
+	State     *state.State
+	Elements  *elements.Elements
+	Handlers  Handlers
+	Runner    Runner
+	Clipboard Clipboard
 
 	directory string
 	loader    *loader.LazyTestLoader
 }
 
-func NewTUI(a Application, h Handlers, r Runner, e *elements.Elements, d string, eng []engines.LazyEngine) *TUI {
+func NewTUI(
+	a Application,
+	h Handlers,
+	r Runner,
+	c Clipboard,
+	e *elements.Elements,
+	s *state.State,
+	d string,
+	eng []engines.LazyEngine,
+) *TUI {
 	return &TUI{
 		App:       a,
 		Handlers:  h,
 		Runner:    r,
-		State:     state.NewState(),
+		Clipboard: c,
+		State:     s,
 		Elements:  e,
 		directory: d,
 		loader:    loader.NewLazyTestLoader(eng),
@@ -131,6 +148,10 @@ func (t *TUI) InputCapture(event *tcell.EventKey) *tcell.EventKey {
 			t.Handlers.HandleResize(ResizeLeft, t.Elements, t.State)
 		case '0':
 			t.Handlers.HandleResize(ResizeDefault, t.Elements, t.State)
+		case 'y':
+			go t.Handlers.HandleYankNode(t.App, t.Clipboard, t.Elements)
+		case 'Y':
+			go t.Handlers.HandleYankOutput(t.App, t.Clipboard, t.Elements)
 		case '?':
 			t.App.SetRoot(t.Elements.HelpModal, true)
 		}

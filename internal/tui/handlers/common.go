@@ -26,7 +26,7 @@ func runTest(
 	test *models.LazyTest,
 ) {
 	a.QueueUpdateDraw(func() {
-		testNode.SetText(fmt.Sprintf("[yellow] [darkturquoise]%s", test.Name))
+		testNode.SetText(fmt.Sprintf("[yellow]󰦖 [darkturquoise]%s", test.Name))
 		e.Output.SetBorderColor(tcell.ColorYellow)
 	})
 

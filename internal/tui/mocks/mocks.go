@@ -324,3 +324,64 @@ func (mr *MockHandlersMockRecorder) HandleSearchFocus(a, e, s any) *gomock.Call 
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HandleSearchFocus", reflect.TypeOf((*MockHandlers)(nil).HandleSearchFocus), a, e, s)
 }
+
+// HandleYankNode mocks base method.
+func (m *MockHandlers) HandleYankNode(a tui.Application, c tui.Clipboard, e *elements.Elements) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "HandleYankNode", a, c, e)
+}
+
+// HandleYankNode indicates an expected call of HandleYankNode.
+func (mr *MockHandlersMockRecorder) HandleYankNode(a, c, e any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HandleYankNode", reflect.TypeOf((*MockHandlers)(nil).HandleYankNode), a, c, e)
+}
+
+// HandleYankOutput mocks base method.
+func (m *MockHandlers) HandleYankOutput(a tui.Application, c tui.Clipboard, e *elements.Elements) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "HandleYankOutput", a, c, e)
+}
+
+// HandleYankOutput indicates an expected call of HandleYankOutput.
+func (mr *MockHandlersMockRecorder) HandleYankOutput(a, c, e any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HandleYankOutput", reflect.TypeOf((*MockHandlers)(nil).HandleYankOutput), a, c, e)
+}
+
+// MockClipboard is a mock of Clipboard interface.
+type MockClipboard struct {
+	ctrl     *gomock.Controller
+	recorder *MockClipboardMockRecorder
+}
+
+// MockClipboardMockRecorder is the mock recorder for MockClipboard.
+type MockClipboardMockRecorder struct {
+	mock *MockClipboard
+}
+
+// NewMockClipboard creates a new mock instance.
+func NewMockClipboard(ctrl *gomock.Controller) *MockClipboard {
+	mock := &MockClipboard{ctrl: ctrl}
+	mock.recorder = &MockClipboardMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockClipboard) EXPECT() *MockClipboardMockRecorder {
+	return m.recorder
+}
+
+// WriteAll mocks base method.
+func (m *MockClipboard) WriteAll(text string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "WriteAll", text)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// WriteAll indicates an expected call of WriteAll.
+func (mr *MockClipboardMockRecorder) WriteAll(text any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WriteAll", reflect.TypeOf((*MockClipboard)(nil).WriteAll), text)
+}

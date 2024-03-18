@@ -18,4 +18,5 @@ recipes:
   mockgen:
     description: "generates the mocks"
     steps:
+      - "rm -rf ./internal/tui/mocks"
       - "go generate ./..."

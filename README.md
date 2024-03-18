@@ -174,6 +174,8 @@ LazyTest aims to be as intuitive and easy to use as possible. If you're familiar
 | `+`           | Increase the Tests Panel size        |              |
 | `-`           | Decrease the Tests Panel size        |              |
 | `0`           | Reset the layout                     |              |
+| `y`           | Copy the test name/test suite path   | Tests Panel  |
+| `Y`           | Copy the (current) output            | Tests Panel  |
 | `q`           | Quit the app                         |              |
 
 ### Use it with ToggleTerm

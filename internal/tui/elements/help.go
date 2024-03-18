@@ -15,6 +15,8 @@ const helpText = `
 	[darkturquoise]+: [white]Increase test panel size
 	[darkturquoise]-: [white]Decrease test panel size
 	[darkturquoise]0: [white]Reset layout
+	[darkturquoise]y: [white]Copy the test name or suite path
+	[darkturquoise]Y: [white]Copy the (current) output
 	[darkturquoise]q: [white]Quit
 	[darkturquoise]?: [white]Show this help message
 `
