@@ -28,9 +28,14 @@ func (e *Elements) buildSidebar() *tview.Flex {
 }
 
 func (e *Elements) buildMainContent() *tview.Flex {
+	ht := tview.NewFlex()
+	ht.AddItem(e.History, 0, 6, false)
+	ht.AddItem(e.Timings, 0, 6, false)
+
 	mainContent := tview.NewFlex()
 	mainContent.SetDirection(tview.FlexRow)
-	mainContent.AddItem(e.Output, 0, 20, false)
+	mainContent.AddItem(e.Output, 0, 15, false)
+	mainContent.AddItem(ht, 0, 5, false)
 	mainContent.AddItem(e.InfoBox, 3, 0, false)
 	return mainContent
 }
