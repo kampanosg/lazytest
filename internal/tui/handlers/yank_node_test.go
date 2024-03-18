@@ -14,6 +14,8 @@ import (
 
 func TestHandleYankNode(t *testing.T) {
 	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
 	type fields struct {
 		App       tui.Application
 		Clipboard tui.Clipboard
