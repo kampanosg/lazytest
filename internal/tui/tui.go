@@ -130,6 +130,10 @@ func (t *TUI) InputCapture(event *tcell.EventKey) *tcell.EventKey {
 			t.App.SetFocus(t.Elements.Tree)
 		case '2':
 			t.App.SetFocus(t.Elements.Output)
+		case '3':
+			t.App.SetFocus(t.Elements.History)
+		case '4':
+			t.App.SetFocus(t.Elements.Timings)
 		case 'r':
 			go t.Handlers.HandleRun(t.Runner, t.App, t.Elements, t.State)
 		case 'a':
