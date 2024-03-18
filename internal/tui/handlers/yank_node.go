@@ -22,11 +22,13 @@ func (h *Handlers) HandleYankNode(a tui.Application, c tui.Clipboard, e *element
 		err = c.WriteAll(v.Path)
 	case *models.LazyTest:
 		err = c.WriteAll(v.Name)
+	default:
+		return
 	}
 
 	a.QueueUpdateDraw(func() {
 		if err != nil {
-			e.InfoBox.SetText(fmt.Sprintf("[red] Cannot copy value %v", err))
+			e.InfoBox.SetText(fmt.Sprintf("[red] Cannot copy value, %v", err))
 			return
 		}
 		e.InfoBox.SetText("Coppied!")
