@@ -1,5 +1,7 @@
 package models
 
+import "time"
+
 type LazyTestSuite struct {
 	Tests []*LazyTest
 	Type  string
@@ -15,4 +17,5 @@ type LazyTest struct {
 type LazyTestResult struct {
 	IsSuccess bool
 	Output    string
+	Duration time.Duration
 }
