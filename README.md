@@ -163,6 +163,8 @@ LazyTest aims to be as intuitive and easy to use as possible. If you're familiar
 | `Enter/Space` | Fold/Unfold a node                   | Tests Panel  |
 | `1`           | Focus on the Tests Panel             |              |
 | `2`           | Focus on the Output Panel            |              |
+| `3`           | Focus on the History Panel           |              |
+| `4`           | Focus on the Timings Panel           |              |
 | `r`           | Run a Test or Test Suite             | Tests Panel  |
 | `a`           | Run all Tests                        | Tests Panel  |
 | `p`           | Run Passed Tests (from previous run) | Tests Panel  |
