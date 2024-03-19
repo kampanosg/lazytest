@@ -20,6 +20,7 @@ type State struct {
 	IsSearching bool
 	Size        *Size
 	History     map[*tview.TreeNode][]HistoricalEntry
+	Timings     map[*tview.TreeNode][]time.Duration
 }
 
 type Size struct {
@@ -35,6 +36,7 @@ func NewState() *State {
 		IsSearching: false,
 		TestTree:    tview.NewTreeNode("."),
 		History:     make(map[*tview.TreeNode][]HistoricalEntry),
+		Timings:     make(map[*tview.TreeNode][]time.Duration),
 		Size: &Size{
 			Sidebar:     4,
 			MainContent: 8,

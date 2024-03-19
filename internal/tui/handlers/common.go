@@ -67,6 +67,8 @@ func handleTestFinished(a tui.Application, e *elements.Elements, s *state.State,
 		Passed:    testResult.res.IsSuccess,
 	})
 
+	s.Timings[testResult.node] = append(s.Timings[testResult.node], testResult.res.Duration)
+
 	a.QueueUpdateDraw(func() {
 		testResult.node.SetText(txt)
 		e.Output.SetBorderColor(borderColor)

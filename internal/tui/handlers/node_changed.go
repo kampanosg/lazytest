@@ -66,6 +66,7 @@ func (h *Handlers) HandleNodeChanged(e *elements.Elements, s *state.State) func(
 			}
 			e.Output.SetTitle(fmt.Sprintf("Output - %s", v.Name))
 			updateHistory(e, s, node)
+			updateTimings(e, s, node)
 		}
 	}
 }
@@ -84,5 +85,15 @@ func updateHistory(e *elements.Elements, s *state.State, node *tview.TreeNode) {
 
 		txt = fmt.Sprintf("%s %v", txt, item.Timestamp.Format("2006-01-02 @ 15:04:05"))
 		e.History.AddItem(txt, "", 0, nil)
+	}
+}
+
+func updateTimings(e *elements.Elements, s *state.State, node *tview.TreeNode) {
+	e.Timings.Clear()
+	timings := s.Timings[node]
+	for i := len(timings) - 1; i >= 0; i-- {
+		item := timings[i]
+		txt := fmt.Sprintf("%vms", item.Milliseconds())
+		e.Timings.AddItem(txt, "", 0, nil)
 	}
 }
