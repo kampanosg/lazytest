@@ -65,23 +65,24 @@ func (h *Handlers) HandleNodeChanged(e *elements.Elements, s *state.State) func(
 				e.Output.SetText(res.Output)
 			}
 			e.Output.SetTitle(fmt.Sprintf("Output - %s", v.Name))
-
-			e.InfoBox.SetText(fmt.Sprintf("map size: %v", len(s.History)))
-
-			e.History.Clear()
-			history := s.History[node.GetText()]
-			for i := len(history) - 1; i >= 0; i-- {
-				item := history[i]
-				// var txt string
-				// if item.Passed {
-				// 	txt = "[limegreen]"
-				// } else {
-				// 	txt = "[orangered]"
-				// }
-
-				// txt = fmt.Sprintf("%s %v", txt, item.Timestamp.Format("2006-01-02 @ 15:04:05"))
-				e.History.AddItem(item, "", 0, nil)
-			}
+			updateHistory(e, s, node)
 		}
+	}
+}
+
+func updateHistory(e *elements.Elements, s *state.State, node *tview.TreeNode) {
+	e.History.Clear()
+	history := s.History[node]
+	for i := len(history) - 1; i >= 0; i-- {
+		item := history[i]
+		var txt string
+		if item.Passed {
+			txt = "[limegreen]"
+		} else {
+			txt = "[orangered]"
+		}
+
+		txt = fmt.Sprintf("%s %v", txt, item.Timestamp.Format("2006-01-02 @ 15:04:05"))
+		e.History.AddItem(txt, "", 0, nil)
 	}
 }

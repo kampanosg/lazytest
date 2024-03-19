@@ -62,12 +62,10 @@ func handleTestFinished(a tui.Application, e *elements.Elements, s *state.State,
 		s.FailedTests = append(s.FailedTests, testResult.node)
 	}
 
-	// s.History[testResult.node] = append(s.History[testResult.node], state.HistoricalEntry{
-	// 	Timestamp: time.Now(),
-	// 	Passed:    testResult.res.IsSuccess,
-	// })
-
-	s.History[testResult.node.GetText()] = append(s.History[testResult.node.GetText()], fmt.Sprintf("%v", time.Now()))
+	s.History[testResult.node] = append(s.History[testResult.node], state.HistoricalEntry{
+		Timestamp: time.Now(),
+		Passed:    testResult.res.IsSuccess,
+	})
 
 	a.QueueUpdateDraw(func() {
 		testResult.node.SetText(txt)
