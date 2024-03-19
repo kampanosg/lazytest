@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/kampanosg/lazytest/internal/tui"
@@ -38,14 +39,14 @@ func runTest(
 	}
 }
 
-func receiveTestResults(ch <-chan *runResult, a tui.Application, e *elements.Elements, s *state.State) {
+func receiveTestResults(ch <-chan *runResult, a tui.Application, e *elements.Elements, s *state.State, hnc func(e *elements.Elements, s *state.State) func(node *tview.TreeNode)) {
 	for {
 		res := <-ch
-		handleTestFinished(a, e, s, res)
+		handleTestFinished(a, e, s, res, hnc)
 	}
 }
 
-func handleTestFinished(a tui.Application, e *elements.Elements, s *state.State, testResult *runResult) {
+func handleTestFinished(a tui.Application, e *elements.Elements, s *state.State, testResult *runResult, hnc func(e *elements.Elements, s *state.State) func(node *tview.TreeNode)) {
 	txt := fmt.Sprintf("[orangered] [darkturquoise]%s", testResult.test.Name)
 	borderColor := tcell.ColorOrangeRed
 	if testResult.res.IsSuccess {
@@ -60,6 +61,13 @@ func handleTestFinished(a tui.Application, e *elements.Elements, s *state.State,
 	} else {
 		s.FailedTests = append(s.FailedTests, testResult.node)
 	}
+
+	// s.History[testResult.node] = append(s.History[testResult.node], state.HistoricalEntry{
+	// 	Timestamp: time.Now(),
+	// 	Passed:    testResult.res.IsSuccess,
+	// })
+
+	s.History[testResult.node.GetText()] = append(s.History[testResult.node.GetText()], fmt.Sprintf("%v", time.Now()))
 
 	a.QueueUpdateDraw(func() {
 		testResult.node.SetText(txt)
@@ -79,6 +87,8 @@ func handleTestFinished(a tui.Application, e *elements.Elements, s *state.State,
 		}
 
 		e.InfoBox.SetText(msg)
+
+		hnc(e, s)(testResult.node)
 	})
 
 }

@@ -18,7 +18,7 @@ func (h *Handlers) HandleRunAll(r tui.Runner, a tui.Application, e *elements.Ele
 
 	ch := make(chan *runResult)
 
-	go receiveTestResults(ch, a, e, s)
+	go receiveTestResults(ch, a, e, s, h.HandleNodeChanged)
 
 	doRunAll(ch, r, a, e, e.Tree.GetRoot().GetChildren())
 }

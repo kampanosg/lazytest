@@ -19,8 +19,9 @@ func TestReset(t *testing.T) {
 
 	s.Reset()
 
-	assert.Equal(t, len(s.FailedTests), 0)
-	assert.Equal(t, len(s.PassedTests), 0)
+	assert.Empty(t, s.FailedTests)
+	assert.Empty(t, s.FailedTests, 0)
+	assert.Empty(t, s.History)
 	assert.Equal(t, 4, s.Size.Sidebar)
 	assert.Equal(t, 8, s.Size.MainContent)
 }

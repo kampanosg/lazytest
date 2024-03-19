@@ -19,6 +19,9 @@ func (h *Handlers) HandleNodeChanged(e *elements.Elements, s *state.State) func(
 			return
 		}
 
+		e.Output.SetBorderColor(tcell.ColorWhite)
+		e.Output.SetText("")
+
 		switch v := ref.(type) {
 		case *models.LazyTestSuite:
 			outputs := ""
@@ -40,6 +43,8 @@ func (h *Handlers) HandleNodeChanged(e *elements.Elements, s *state.State) func(
 			e.Output.SetText(outputs)
 			e.Output.SetTitle(fmt.Sprintf("Output - %s", v.Path))
 
+			e.History.Clear()
+
 			if hasTestOutput {
 				if hasFailedTest {
 					e.Output.SetBorderColor(tcell.ColorOrangeRed)
@@ -49,6 +54,7 @@ func (h *Handlers) HandleNodeChanged(e *elements.Elements, s *state.State) func(
 			}
 		case *models.LazyTest:
 			res, ok := s.TestOutput[node]
+
 			if ok {
 				if res.IsSuccess {
 					e.Output.SetBorderColor(tcell.ColorGreen)
@@ -59,6 +65,23 @@ func (h *Handlers) HandleNodeChanged(e *elements.Elements, s *state.State) func(
 				e.Output.SetText(res.Output)
 			}
 			e.Output.SetTitle(fmt.Sprintf("Output - %s", v.Name))
+
+			e.InfoBox.SetText(fmt.Sprintf("map size: %v", len(s.History)))
+
+			e.History.Clear()
+			history := s.History[node.GetText()]
+			for i := len(history) - 1; i >= 0; i-- {
+				item := history[i]
+				// var txt string
+				// if item.Passed {
+				// 	txt = "[limegreen]"
+				// } else {
+				// 	txt = "[orangered]"
+				// }
+
+				// txt = fmt.Sprintf("%s %v", txt, item.Timestamp.Format("2006-01-02 @ 15:04:05"))
+				e.History.AddItem(item, "", 0, nil)
+			}
 		}
 	}
 }
