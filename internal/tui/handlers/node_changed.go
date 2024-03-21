@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/kampanosg/lazytest/internal/tui/elements"
@@ -74,26 +75,45 @@ func (h *Handlers) HandleNodeChanged(e *elements.Elements, s *state.State) func(
 func updateHistory(e *elements.Elements, s *state.State, node *tview.TreeNode) {
 	e.History.Clear()
 	history := s.History[node]
+	idx := 1
 	for i := len(history) - 1; i >= 0; i-- {
 		item := history[i]
-		var txt string
+		var txt = fmt.Sprintf("%d.", idx)
 		if item.Passed {
-			txt = "[limegreen]"
+			txt = fmt.Sprintf("%s [limegreen]", txt)
 		} else {
-			txt = "[orangered]"
+			txt = fmt.Sprintf("%s [orangered]", txt)
 		}
 
 		txt = fmt.Sprintf("%s %v", txt, item.Timestamp.Format("2006-01-02 @ 15:04:05"))
 		e.History.AddItem(txt, "", 0, nil)
+		idx += 1
 	}
 }
 
 func updateTimings(e *elements.Elements, s *state.State, node *tview.TreeNode) {
 	e.Timings.Clear()
 	timings := s.Timings[node]
+	idx := 1
 	for i := len(timings) - 1; i >= 0; i-- {
+		color := "[white]"
 		item := timings[i]
-		txt := fmt.Sprintf("%vms", item.Milliseconds())
+
+		var next time.Duration
+		if i-1 >= 0 {
+			next = timings[i-1]
+		}
+
+		if next == 0 {
+		} else if next.Milliseconds() >= item.Milliseconds() {
+			color = "[limegreen]"
+		} else {
+			color = "[orangered]"
+		}
+
+		txt := fmt.Sprintf("%s%d. %vms", color, idx, item.Milliseconds())
 		e.Timings.AddItem(txt, "", 0, nil)
+		idx += 1
 	}
 }
+
