@@ -2,6 +2,7 @@ package runner
 
 import (
 	"os/exec"
+	"time"
 
 	"github.com/kampanosg/lazytest/pkg/models"
 )
@@ -14,11 +15,13 @@ func NewRunner() *Runner {
 }
 
 func (r *Runner) Run(cmd string) *models.LazyTestResult {
+	now := time.Now()
 	c := exec.Command("sh", "-c", cmd)
 	out, err := c.Output()
 
 	return &models.LazyTestResult{
 		IsSuccess: err == nil,
 		Output:    string(out),
+		Duration:  time.Since(now),
 	}
 }

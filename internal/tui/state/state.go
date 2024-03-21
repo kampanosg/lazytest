@@ -1,9 +1,16 @@
 package state
 
 import (
+	"time"
+
 	"github.com/kampanosg/lazytest/pkg/models"
 	"github.com/rivo/tview"
 )
+
+type HistoricalEntry struct {
+	Timestamp time.Time
+	Passed    bool
+}
 
 type State struct {
 	TestTree    *tview.TreeNode
@@ -12,6 +19,8 @@ type State struct {
 	PassedTests []*tview.TreeNode
 	IsSearching bool
 	Size        *Size
+	History     map[*tview.TreeNode][]HistoricalEntry
+	Timings     map[*tview.TreeNode][]time.Duration
 }
 
 type Size struct {
@@ -26,6 +35,8 @@ func NewState() *State {
 		PassedTests: make([]*tview.TreeNode, 0),
 		IsSearching: false,
 		TestTree:    tview.NewTreeNode("."),
+		History:     make(map[*tview.TreeNode][]HistoricalEntry),
+		Timings:     make(map[*tview.TreeNode][]time.Duration),
 		Size: &Size{
 			Sidebar:     4,
 			MainContent: 8,

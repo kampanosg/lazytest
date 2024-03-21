@@ -25,7 +25,7 @@ func (h *Handlers) HandleRunFailed(r tui.Runner, a tui.Application, e *elements.
 
 	ch := make(chan *runResult)
 
-	go receiveTestResults(ch, a, e, s)
+	go receiveTestResults(ch, a, e, s, h.HandleNodeChanged)
 
 	for _, testNode := range failedTests {
 		ref := testNode.GetReference()

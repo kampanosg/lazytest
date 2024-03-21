@@ -29,7 +29,7 @@ func (h *Handlers) HandleRun(r tui.Runner, a tui.Application, e *elements.Elemen
 
 	ch := make(chan *runResult)
 
-	go receiveTestResults(ch, a, e, s)
+	go receiveTestResults(ch, a, e, s, h.HandleNodeChanged)
 
 	switch v := ref.(type) {
 	case *models.LazyTestSuite:
@@ -37,7 +37,6 @@ func (h *Handlers) HandleRun(r tui.Runner, a tui.Application, e *elements.Elemen
 			test := child.GetReference().(*models.LazyTest)
 			go runTest(ch, r, a, e, child, test)
 		}
-		h.HandleNodeChanged(e, s)(testNode)
 	case *models.LazyTest:
 		go runTest(ch, r, a, e, testNode, v)
 	}

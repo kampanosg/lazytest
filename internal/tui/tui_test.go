@@ -172,6 +172,30 @@ func TestInputCapture_HandleSwitchToOutputPane(t *testing.T) {
 		InputCapture(tcell.NewEventKey(tcell.KeyRune, '2', tcell.ModNone))
 }
 
+func TestInputCapture_HandleSwitchHistory(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	e := elements.NewElements()
+	app := mocks.NewMockApplication(ctrl)
+	app.EXPECT().SetFocus(e.History).Times(1)
+
+	tui.NewTUI(app, nil, nil, nil, e, state.NewState(), "", nil).
+		InputCapture(tcell.NewEventKey(tcell.KeyRune, '3', tcell.ModNone))
+}
+
+func TestInputCapture_HandleSwitchTimings(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	e := elements.NewElements()
+	app := mocks.NewMockApplication(ctrl)
+	app.EXPECT().SetFocus(e.Timings).Times(1)
+
+	tui.NewTUI(app, nil, nil, nil, e, state.NewState(), "", nil).
+		InputCapture(tcell.NewEventKey(tcell.KeyRune, '4', tcell.ModNone))
+}
+
 func TestInputCapture_HandleSearchFocus(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()

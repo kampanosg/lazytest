@@ -3,7 +3,7 @@ package elements
 import "github.com/gdamore/tcell/v2"
 
 const helpText = `
-	[darkturquoise]1 / 2: [white]Focus on the tree / output
+	[darkturquoise]1 / 2 / 4: [white]Focus on the tree / output / history / timings
 	[darkturquoise]r: [white]Run the selected test / test suite
 	[darkturquoise]a: [white]Run all tests
 	[darkturquoise]f: [white]Run all failed tests
