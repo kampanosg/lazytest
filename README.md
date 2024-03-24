@@ -6,7 +6,7 @@
 LazyTest is a command line tool that helps you view, search and run tests in your project.
 
 <p align="center">
-  <img width="1726" alt="Screenshot 2024-03-06 at 16 30 01" src="https://github.com/kampanosg/lazytest/assets/30287348/c744fb01-d8e1-439b-9c12-98076408f88b">
+  <img alt="the lazytest tui" src="https://github.com/kampanosg/lazytest/assets/30287348/e8843e0e-c847-40a7-83d2-6e09231b121e">
 </p>
 
 ## Features ⭐
@@ -14,58 +14,42 @@ LazyTest is a command line tool that helps you view, search and run tests in you
 <details>
   <summary>Run a test</summary>
 
-  https://github.com/kampanosg/lazytest/assets/30287348/99be1ef1-81b2-47e7-8772-44cd957ad744
+  <a href="https://asciinema.org/a/W4MXbeoTxGzyLjCCAgXjHDD2U?t=4" target="_blank"><img src="https://asciinema.org/a/W4MXbeoTxGzyLjCCAgXjHDD2U.svg" /></a>
+
+</details>
+
+<details>
+  <summary>Run a test suite</summary>
+
+  <a href="https://asciinema.org/a/yrAjoTbk6xNea0EP1imokWLA8?t=3" target="_blank"><img src="https://asciinema.org/a/yrAjoTbk6xNea0EP1imokWLA8.svg" /></a>
 
 </details>
 
 <details>
   <summary>Run all tests</summary>
 
-https://github.com/kampanosg/lazytest/assets/30287348/9da52725-06d5-4cb1-ac19-43c14d4f1d9f
+  <a href="https://asciinema.org/a/xrvObScQMKAGbrwq1WO93znrl?t=2" target="_blank"><img src="https://asciinema.org/a/xrvObScQMKAGbrwq1WO93znrl.svg" /></a>
 
 </details>
 
 <details>
   <summary>Run failed tests</summary>
 
-https://github.com/kampanosg/lazytest/assets/30287348/42a60237-9757-443e-bb7e-197002283249
+<a href="https://asciinema.org/a/uRx39aO9qbhwWQV2cYLCsZQYT?t=2" target="_blank"><img src="https://asciinema.org/a/uRx39aO9qbhwWQV2cYLCsZQYT.svg" /></a>
 
 </details>
 
 <details>
   <summary>Run passed tests</summary>
 
-https://github.com/kampanosg/lazytest/assets/30287348/3c81c5de-9c7b-4eb5-9e6a-9daab8cc1f80
-
-</details>
-
-<details>
-  <summary>View Results</summary>
-
-https://github.com/kampanosg/lazytest/assets/30287348/6bd3fef4-8465-428b-b8ea-94e09d4aac5e
+  <a href="https://asciinema.org/a/qkCh5I8DtiRpE9Trb5QQjFKkr?t=3.1" target="_blank"><img src="https://asciinema.org/a/qkCh5I8DtiRpE9Trb5QQjFKkr.svg" /></a>
 
 </details>
 
 <details>
   <summary>Search for a test</summary>
 
-https://github.com/kampanosg/lazytest/assets/30287348/f0b084b8-822c-4c76-b86b-f575a1e1e4e7
-
-</details>
-
-<details>
-  <summary>Viewing and navigating tests</summary>
-
-https://github.com/kampanosg/lazytest/assets/30287348/65bb7520-16dc-473b-b342-1ce79036854a
-
-</details>
-
-<details>
-  <summary>Select text</summary>
-
-  You can select output text with `Shift+Drag` and copy it with your OS's default buffer (e.g. `CMD+c` on the Mac)
-
-https://github.com/kampanosg/lazytest/assets/30287348/285ea274-1ec4-4794-8a29-4778238cbb41
+<a href="https://asciinema.org/a/wODn3nhYWeeqxvpUcUTH1KqgO?t=2" target="_blank"><img src="https://asciinema.org/a/wODn3nhYWeeqxvpUcUTH1KqgO.svg" /></a>
 
 </details>
 
@@ -76,7 +60,7 @@ https://github.com/kampanosg/lazytest/assets/30287348/285ea274-1ec4-4794-8a29-47
 
   As an alternative, LazyTest panes can be resized with the `+` and `-` keys.
 
-https://github.com/kampanosg/lazytest/assets/30287348/036e302a-4f4b-415d-b4de-42dd5e643b82
+<a href="https://asciinema.org/a/Pj9sSFz9I2doITi3sQQkvgpgO?t=3.2" target="_blank"><img src="https://asciinema.org/a/Pj9sSFz9I2doITi3sQQkvgpgO.svg" /></a>
   
 </details>
 
@@ -219,7 +203,7 @@ The above binds `<C-t>` to bring up a new floating terminal and executes the `./
 > [!NOTE]
 > You can view and example of my NeoVim x LazyTest configuration [here](https://github.com/kampanosg/.dotfiles/commit/328dea4fe9f1b5f2cec13a188e7330bd11a2c0ed)
 
-https://github.com/kampanosg/lazytest/assets/30287348/41052e0a-18ed-4908-8857-4271fd33abbd
+<a href="https://asciinema.org/a/tlLvhwKDe7ruyHPyLsc8aZzzg?t=3" target="_blank"><img src="https://asciinema.org/a/tlLvhwKDe7ruyHPyLsc8aZzzg.svg" /></a>
 
 ### Flags
 
