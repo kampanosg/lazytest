@@ -20,8 +20,8 @@ func (r *Runner) Run(cmd string) *models.LazyTestResult {
 	out, err := c.Output()
 
 	return &models.LazyTestResult{
-		IsSuccess: err == nil,
-		Output:    string(out),
-		Duration:  time.Since(now),
+		Passed:   err == nil,
+		Output:   string(out),
+		Duration: time.Since(now),
 	}
 }
