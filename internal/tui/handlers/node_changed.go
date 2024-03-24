@@ -33,7 +33,7 @@ func (h *Handlers) HandleNodeChanged(e *elements.Elements, s *state.State) func(
 				res, ok := s.TestOutput[child]
 				if ok {
 					hasTestOutput = true
-					if !res.IsSuccess {
+					if !res.Passed {
 						hasFailedTest = true
 					}
 					output := fmt.Sprintf("--- %s ---\n%s\n\n", child.GetText(), res.Output)
@@ -57,7 +57,7 @@ func (h *Handlers) HandleNodeChanged(e *elements.Elements, s *state.State) func(
 			res, ok := s.TestOutput[node]
 
 			if ok {
-				if res.IsSuccess {
+				if res.Passed {
 					e.Output.SetBorderColor(tcell.ColorGreen)
 				} else {
 					e.Output.SetBorderColor(tcell.ColorOrangeRed)
@@ -116,4 +116,3 @@ func updateTimings(e *elements.Elements, s *state.State, node *tview.TreeNode) {
 		idx += 1
 	}
 }
-

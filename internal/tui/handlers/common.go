@@ -49,14 +49,14 @@ func receiveTestResults(ch <-chan *runResult, a tui.Application, e *elements.Ele
 func handleTestFinished(a tui.Application, e *elements.Elements, s *state.State, testResult *runResult, hnc func(e *elements.Elements, s *state.State) func(node *tview.TreeNode)) {
 	txt := fmt.Sprintf("[orangered] [darkturquoise]%s", testResult.test.Name)
 	borderColor := tcell.ColorOrangeRed
-	if testResult.res.IsSuccess {
+	if testResult.res.Passed {
 		txt = fmt.Sprintf("[limegreen] [darkturquoise]%s", testResult.test.Name)
 		borderColor = tcell.ColorGreen
 	}
 
 	s.TestOutput[testResult.node] = testResult.res
 
-	if testResult.res.IsSuccess {
+	if testResult.res.Passed {
 		s.PassedTests = append(s.PassedTests, testResult.node)
 	} else {
 		s.FailedTests = append(s.FailedTests, testResult.node)
@@ -64,7 +64,7 @@ func handleTestFinished(a tui.Application, e *elements.Elements, s *state.State,
 
 	s.History[testResult.node] = append(s.History[testResult.node], state.HistoricalEntry{
 		Timestamp: time.Now(),
-		Passed:    testResult.res.IsSuccess,
+		Passed:    testResult.res.Passed,
 	})
 
 	s.Timings[testResult.node] = append(s.Timings[testResult.node], testResult.res.Duration)

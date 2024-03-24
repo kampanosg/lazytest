@@ -15,7 +15,7 @@ type LazyTest struct {
 }
 
 type LazyTestResult struct {
-	IsSuccess bool
-	Output    string
+	Passed   bool
+	Output   string
 	Duration time.Duration
 }

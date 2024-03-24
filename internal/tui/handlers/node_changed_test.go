@@ -83,8 +83,8 @@ func TestHandleNodeChanged(t *testing.T) {
 			fields: func() fields {
 				s := state.NewState()
 				s.TestOutput[testNode1] = &models.LazyTestResult{
-					IsSuccess: true,
-					Output:    "test passed",
+					Passed: true,
+					Output: "test passed",
 				}
 
 				return fields{
@@ -106,8 +106,8 @@ func TestHandleNodeChanged(t *testing.T) {
 			fields: func() fields {
 				s := state.NewState()
 				s.TestOutput[testNode1] = &models.LazyTestResult{
-					IsSuccess: false,
-					Output:    "test failed",
+					Passed: false,
+					Output: "test failed",
 				}
 
 				return fields{
@@ -129,12 +129,12 @@ func TestHandleNodeChanged(t *testing.T) {
 			fields: func() fields {
 				s := state.NewState()
 				s.TestOutput[testNode1] = &models.LazyTestResult{
-					IsSuccess: false,
-					Output:    "test failed",
+					Passed: false,
+					Output: "test failed",
 				}
 				s.TestOutput[testNode2] = &models.LazyTestResult{
-					IsSuccess: true,
-					Output:    "test passed",
+					Passed: true,
+					Output: "test passed",
 				}
 				return fields{
 					Elems: elements.NewElements(),
