@@ -1,12 +1,15 @@
-# lazytest 🧪
-
-![Build Pipeline](https://img.shields.io/github/actions/workflow/status/kampanosg/lazytest/go.yml?style=for-the-badge&logo=go)
-![Security Pipeline](https://img.shields.io/github/actions/workflow/status/kampanosg/lazytest/sec.yml?style=for-the-badge&logo=go&label=Security)
-
-LazyTest is a command line tool that helps you view, search and run tests in your project.
+<p align="center">
+  <b>LazyTest 🥱🧪</b>
+  <br>
+  <i>LazyTest is a command line tool that helps you view, search and run tests in your project.</i>
+  <br />
+  <br />
+  <img alt="the lazytest tui" src="https://github.com/kampanosg/lazytest/assets/30287348/e8843e0e-c847-40a7-83d2-6e09231b121e">
+</p>
 
 <p align="center">
-  <img alt="the lazytest tui" src="https://github.com/kampanosg/lazytest/assets/30287348/e8843e0e-c847-40a7-83d2-6e09231b121e">
+  <img src="https://img.shields.io/github/actions/workflow/status/kampanosg/lazytest/go.yml?style=for-the-badge&logo=go" />
+  <img src="https://img.shields.io/github/actions/workflow/status/kampanosg/lazytest/sec.yml?style=for-the-badge&logo=go&label=Security" />
 </p>
 
 ## Features ⭐
