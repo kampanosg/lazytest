@@ -54,22 +54,13 @@ LazyTest is a command line tool that helps you view, search and run tests in you
 </details>
 
 <details>
-  <summary>Select text</summary>
-
-  You can select output text with `Shift+Drag` and copy it with your OS's default buffer (e.g. `CMD+c` on the Mac)
-
-https://github.com/kampanosg/lazytest/assets/30287348/285ea274-1ec4-4794-8a29-4778238cbb41
-
-</details>
-
-<details>
   <summary>Resize the panes</summary>
 
   Sometimes test names may exceed the size of the pane. Or you may need more space for the output text. Unfortunately, [tview](https://github.com/rivo/tview), the TUI library that LazyTest uses, does not support horizontal scrolling (and it's _probably_ [not](https://github.com/rivo/tview/issues/707#issuecomment-1991260955) going to be implemented any time soon).
 
   As an alternative, LazyTest panes can be resized with the `+` and `-` keys.
 
-https://github.com/kampanosg/lazytest/assets/30287348/036e302a-4f4b-415d-b4de-42dd5e643b82
+<a href="https://asciinema.org/a/Pj9sSFz9I2doITi3sQQkvgpgO?t=3.2" target="_blank"><img src="https://asciinema.org/a/Pj9sSFz9I2doITi3sQQkvgpgO.svg" /></a>
   
 </details>
 
@@ -212,7 +203,7 @@ The above binds `<C-t>` to bring up a new floating terminal and executes the `./
 > [!NOTE]
 > You can view and example of my NeoVim x LazyTest configuration [here](https://github.com/kampanosg/.dotfiles/commit/328dea4fe9f1b5f2cec13a188e7330bd11a2c0ed)
 
-https://github.com/kampanosg/lazytest/assets/30287348/41052e0a-18ed-4908-8857-4271fd33abbd
+<a href="https://asciinema.org/a/tlLvhwKDe7ruyHPyLsc8aZzzg?t=3" target="_blank"><img src="https://asciinema.org/a/tlLvhwKDe7ruyHPyLsc8aZzzg.svg" /></a>
 
 ### Flags
 
