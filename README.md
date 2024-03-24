@@ -14,6 +14,13 @@ LazyTest is a command line tool that helps you view, search and run tests in you
 <details>
   <summary>Run a test</summary>
 
+  <a href="https://asciinema.org/a/W4MXbeoTxGzyLjCCAgXjHDD2U?t=4" target="_blank"><img src="https://asciinema.org/a/W4MXbeoTxGzyLjCCAgXjHDD2U.svg" /></a>
+
+</details>
+
+<details>
+  <summary>Run a test suite</summary>
+
   https://github.com/kampanosg/lazytest/assets/30287348/99be1ef1-81b2-47e7-8772-44cd957ad744
 
 </details>
