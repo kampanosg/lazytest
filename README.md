@@ -28,14 +28,14 @@ LazyTest is a command line tool that helps you view, search and run tests in you
 <details>
   <summary>Run all tests</summary>
 
-  <a href="https://asciinema.org/a/xrvObScQMKAGbrwq1WO93znrl?t=3" target="_blank"><img src="https://asciinema.org/a/xrvObScQMKAGbrwq1WO93znrl.svg" /></a>
+  <a href="https://asciinema.org/a/xrvObScQMKAGbrwq1WO93znrl?t=2" target="_blank"><img src="https://asciinema.org/a/xrvObScQMKAGbrwq1WO93znrl.svg" /></a>
 
 </details>
 
 <details>
   <summary>Run failed tests</summary>
 
-https://github.com/kampanosg/lazytest/assets/30287348/42a60237-9757-443e-bb7e-197002283249
+<a href="https://asciinema.org/a/uRx39aO9qbhwWQV2cYLCsZQYT?t=2" target="_blank"><img src="https://asciinema.org/a/uRx39aO9qbhwWQV2cYLCsZQYT.svg" /></a>
 
 </details>
 
@@ -47,23 +47,9 @@ https://github.com/kampanosg/lazytest/assets/30287348/42a60237-9757-443e-bb7e-19
 </details>
 
 <details>
-  <summary>View Results</summary>
-
-https://github.com/kampanosg/lazytest/assets/30287348/6bd3fef4-8465-428b-b8ea-94e09d4aac5e
-
-</details>
-
-<details>
   <summary>Search for a test</summary>
 
-https://github.com/kampanosg/lazytest/assets/30287348/f0b084b8-822c-4c76-b86b-f575a1e1e4e7
-
-</details>
-
-<details>
-  <summary>Viewing and navigating tests</summary>
-
-https://github.com/kampanosg/lazytest/assets/30287348/65bb7520-16dc-473b-b342-1ce79036854a
+<a href="https://asciinema.org/a/wODn3nhYWeeqxvpUcUTH1KqgO?t=2" target="_blank"><img src="https://asciinema.org/a/wODn3nhYWeeqxvpUcUTH1KqgO.svg" /></a>
 
 </details>
 
