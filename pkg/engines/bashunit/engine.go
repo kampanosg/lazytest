@@ -54,8 +54,8 @@ func (g *BashunitEngine) ParseTestSuite(fp string) (*models.LazyTestSuite, error
 	return suite, err
 }
 
-func extractTests(filepath string) ([]*models.LazyTest, error) {
-	file, err := os.Open(filepath)
+func extractTests(f string) ([]*models.LazyTest, error) {
+	file, err := os.Open(filepath.Clean(f))
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +70,7 @@ func extractTests(filepath string) ([]*models.LazyTest, error) {
 			name = strings.TrimSuffix(name, "()")
 			test := &models.LazyTest{
 				Name:   name,
-				RunCmd: fmt.Sprintf("bashunit -v -S -f \"%s\" %s", name, filepath),
+				RunCmd: fmt.Sprintf("bashunit -v -S -f \"%s\" %s", name, f),
 			}
 			tests = append(tests, test)
 		}
