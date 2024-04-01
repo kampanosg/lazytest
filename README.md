@@ -127,16 +127,8 @@ https://github.com/kampanosg/lazytest/blob/c4e9a5800f76c01d780e798e0511b95288de0
 
 LazyTests comes packed with the following engines:
 
-* Golang
-
-### Upcoming Engines
-
-The following engines are being assembled:
-
-* Rust
-* Python
-* Zig
-* Jest
+* Golang (requires [`go`](https://go.dev/))
+* Bashunit (requires [`bashunit`](https://bashunit.typeddevs.com/))
 
 ## Usage ⚙️
 

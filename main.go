@@ -13,6 +13,7 @@ import (
 	"github.com/kampanosg/lazytest/internal/tui/handlers"
 	"github.com/kampanosg/lazytest/internal/tui/state"
 	"github.com/kampanosg/lazytest/pkg/engines"
+	"github.com/kampanosg/lazytest/pkg/engines/bashunit"
 	"github.com/kampanosg/lazytest/pkg/engines/golang"
 	"github.com/rivo/tview"
 )
@@ -37,6 +38,10 @@ func main() {
 
 	if !slices.Contains(excludedEngines, "golang") {
 		engines = append(engines, golang.NewGolangEngine())
+	}
+
+	if !slices.Contains(excludedEngines, "bashunit") {
+		engines = append(engines, bashunit.NewBashunitEngine())
 	}
 
 	a := tview.NewApplication()
