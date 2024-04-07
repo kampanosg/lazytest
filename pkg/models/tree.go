@@ -6,7 +6,6 @@ type LazyTree struct {
 
 type LazyNode struct {
 	Name     string
-	Path     string
 	Ref      any
 	Children []*LazyNode
 }
@@ -17,10 +16,9 @@ func NewLazyTree(root *LazyNode) *LazyTree {
 	}
 }
 
-func NewLazyNode(name, path string, ref any) *LazyNode {
+func NewLazyNode(name string, ref any) *LazyNode {
 	return &LazyNode{
 		Name: name,
-		Path: path,
 		Ref:  ref,
 	}
 }
@@ -53,4 +51,8 @@ func (n *LazyNode) IsTestSuite() bool {
 
 	_, ok := n.Ref.(*LazyTestSuite)
 	return ok
+}
+
+func (n *LazyNode) IsDir() bool {
+	return !n.IsTest() && !n.IsTestSuite()
 }
