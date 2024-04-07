@@ -9,6 +9,8 @@ require (
 	go.uber.org/mock v0.4.0
 )
 
+require github.com/spf13/afero v1.11.0 // indirect
+
 require (
 	github.com/atotto/clipboard v0.1.4
 	github.com/davecgh/go-spew v1.1.1 // indirect
