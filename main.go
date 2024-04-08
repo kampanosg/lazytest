@@ -13,6 +13,7 @@ import (
 	"github.com/kampanosg/lazytest/internal/tui/handlers"
 	"github.com/kampanosg/lazytest/internal/tui/state"
 	"github.com/kampanosg/lazytest/pkg/engines"
+	"github.com/kampanosg/lazytest/pkg/engines/bashunit"
 	"github.com/kampanosg/lazytest/pkg/engines/golang"
 	"github.com/rivo/tview"
 	"github.com/spf13/afero"
@@ -33,18 +34,16 @@ func main() {
 		return
 	}
 
-	g := golang.NewGoEngine(afero.NewOsFs())
-
 	excludedEngines := strings.Split(*exc, ",")
 	var engines []engines.LazyEngine
 
 	if !slices.Contains(excludedEngines, "golang") {
-		engines = append(engines, g)
+		engines = append(engines, golang.NewGoEngine(afero.NewOsFs()))
 	}
 
-	// if !slices.Contains(excludedEngines, "bashunit") {
-	// 	engines = append(engines, bashunit.NewBashunitEngine())
-	// }
+	if !slices.Contains(excludedEngines, "bashunit") {
+		engines = append(engines, bashunit.NewBashunitEngine(afero.NewOsFs()))
+	}
 
 	a := tview.NewApplication()
 	h := handlers.NewHandlers()

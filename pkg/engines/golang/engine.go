@@ -36,7 +36,7 @@ func NewGoEngine(fs FileSystem) *GoEngine {
 }
 
 func (g *GoEngine) GetIcon() string {
-	return "󰟓"
+	return icon
 }
 
 func (g *GoEngine) Load(dir string) (*models.LazyTree, error) {
@@ -151,7 +151,6 @@ func (g *GoEngine) parseTestSuite(fp string) (*models.LazyTestSuite, error) {
 
 	suite := &models.LazyTestSuite{
 		Path: fp,
-		Type: suiteType,
 		Icon: icon,
 	}
 
