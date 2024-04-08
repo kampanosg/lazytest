@@ -1,5 +1,7 @@
 package models
 
+import "fmt"
+
 type LazyTree struct {
 	Root *LazyNode
 }
@@ -24,9 +26,7 @@ func NewLazyNode(name string, ref any) *LazyNode {
 }
 
 func (n *LazyNode) AddChild(node *LazyNode) {
-	if n.Children == nil {
-		n.Children = append(n.Children, node)
-	}
+	n.Children = append(n.Children, node)
 }
 
 func (n *LazyNode) SetReference(ref any) {
@@ -55,4 +55,10 @@ func (n *LazyNode) IsTestSuite() bool {
 
 func (n *LazyNode) IsDir() bool {
 	return !n.IsTest() && !n.IsTestSuite()
+}
+func (n *LazyNode) PrintDepthFirst() {
+	fmt.Println(n.Name)
+	for _, child := range n.Children {
+		child.PrintDepthFirst()
+	}
 }

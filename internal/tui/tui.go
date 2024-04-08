@@ -90,10 +90,12 @@ func NewTUI(
 }
 
 func (t *TUI) Run() error {
-	t.State.TestTree = tview.NewTreeNode(t.directory)
-	if err := t.loader.LoadLazyTests(t.directory, t.State.TestTree); err != nil {
+	testNode, err := t.loader.LoadLazyTests(t.directory)
+	if err != nil {
 		return fmt.Errorf("unable to load tests, %w", err)
 	}
+
+	t.State.TestTree = testNode
 
 	t.Elements = elements.NewElements()
 	t.Elements.Setup(

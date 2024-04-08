@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	"fmt"
-
 	"github.com/kampanosg/lazytest/internal/tui"
 	"github.com/kampanosg/lazytest/internal/tui/elements"
 	"github.com/kampanosg/lazytest/internal/tui/state"
@@ -24,7 +22,7 @@ func (h *Handlers) HandleRun(r tui.Runner, a tui.Application, e *elements.Elemen
 
 	a.QueueUpdateDraw(func() {
 		e.Output.SetText("")
-		e.InfoBox.SetText(fmt.Sprintf("Running %s", testNode.GetText()))
+		e.InfoBox.SetText("Running...")
 	})
 
 	ch := make(chan *runResult)

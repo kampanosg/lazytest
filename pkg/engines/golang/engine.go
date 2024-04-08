@@ -89,7 +89,7 @@ func (g *GoEngine) doLoad(dir string, f fs.FileInfo) (*models.LazyNode, error) {
 		for _, child := range children {
 			childNode, err := g.doLoad(filepath.Join(dir, child.Name()), child)
 			if err != nil {
-				return nil, err
+				return nil, fmt.Errorf("error loading child: %w", err)
 			}
 
 			if childNode == nil {
