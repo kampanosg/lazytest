@@ -97,7 +97,7 @@ api::item_handlers::tests::test_delete_item: test
 api::item_handlers::tests::test_get_items: test
 api::item_handlers::tests::test_identity_failure: test
 api::item_handlers::tests::test_patch_item: test
-api::item_handlers::tests::test_post_inital_item: test
+api::item_handlers::tests::test_post_initial_item: test
 models::wallet::tests::test_card_brand_from_str: test
      Running unittests src/main.rs (target/debug/deps/wallet_api-67ae81328fc5acea)
    Doc-tests wallet-api`, nil
