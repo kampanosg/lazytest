@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"io/fs"
-	"os"
 	"path/filepath"
 	"strings"
 
@@ -22,10 +21,10 @@ type FileSystem interface {
 }
 
 type BashEngine struct {
-	FS FileSystem
+	FS afero.Fs
 }
 
-func NewBashunitEngine(fs FileSystem) *BashEngine {
+func NewBashunitEngine(fs afero.Fs) *BashEngine {
 	return &BashEngine{
 		FS: fs,
 	}
@@ -64,7 +63,7 @@ func (b *BashEngine) Load(dir string) (*models.LazyTree, error) {
 }
 
 func (b *BashEngine) loadFiles(path string) ([]fs.FileInfo, error) {
-	dir, err := os.Open(filepath.Clean(path))
+	dir, err := b.FS.Open(filepath.Clean(path))
 	if err != nil {
 		return nil, err
 	}
@@ -131,7 +130,7 @@ func (b *BashEngine) parseTestSuite(fp string) (*models.LazyTestSuite, error) {
 		return nil, nil
 	}
 
-	file, err := os.Open(filepath.Clean(fp))
+	file, err := b.FS.Open(filepath.Clean(fp))
 	if err != nil {
 		return nil, err
 	}

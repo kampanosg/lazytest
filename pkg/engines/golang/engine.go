@@ -6,7 +6,6 @@ import (
 	"go/parser"
 	"go/token"
 	"io/fs"
-	"os"
 	"path/filepath"
 	"slices"
 	"strings"
@@ -20,15 +19,12 @@ const (
 	icon   = "󰟓"
 )
 
-type FileSystem interface {
-	Open(name string) (afero.File, error)
-}
 
 type GoEngine struct {
-	FS FileSystem
+	FS afero.Fs
 }
 
-func NewGoEngine(fs FileSystem) *GoEngine {
+func NewGoEngine(fs afero.Fs) *GoEngine {
 	return &GoEngine{
 		FS: fs,
 	}
@@ -123,7 +119,7 @@ func (g *GoEngine) doLoad(dir string, f fs.FileInfo) (*models.LazyNode, error) {
 }
 
 func (g *GoEngine) loadFiles(path string) ([]fs.FileInfo, error) {
-	dir, err := os.Open(filepath.Clean(path))
+	dir, err := g.FS.Open(filepath.Clean(path))
 	if err != nil {
 		return nil, err
 	}
@@ -142,8 +138,19 @@ func (g *GoEngine) parseTestSuite(fp string) (*models.LazyTestSuite, error) {
 		return nil, nil
 	}
 
+	file, err := g.FS.Open(filepath.Clean(fp))
+	if err != nil {
+		return nil, fmt.Errorf("unable to read file, %w", err)
+	}
+	defer file.Close()
+
+	data, err := afero.ReadFile(g.FS, fp)
+	if err != nil {
+		return nil, fmt.Errorf("unable to read file, %w", err)
+	}
+
 	fset := token.NewFileSet()
-	node, err := parser.ParseFile(fset, fp, nil, parser.ParseComments)
+	node, err := parser.ParseFile(fset, fp, data, parser.ParseComments)
 	if err != nil {
 		return nil, fmt.Errorf("unable to parse file, %w", err)
 	}
