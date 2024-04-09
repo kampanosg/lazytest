@@ -59,6 +59,10 @@ func (b *BashEngine) Load(dir string) (*models.LazyTree, error) {
 		root.AddChild(node)
 	}
 
+	if len(root.Children) == 0 {
+		return nil, nil
+	}
+
 	return models.NewLazyTree(root), nil
 }
 
@@ -142,7 +146,7 @@ func (b *BashEngine) parseTestSuite(fp string) (*models.LazyTestSuite, error) {
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		line := scanner.Text()
+		line := strings.TrimSpace(scanner.Text())
 		if strings.HasPrefix(line, "function test_") {
 			name := strings.Fields(line)[1]
 			name = strings.TrimSuffix(name, "()")
