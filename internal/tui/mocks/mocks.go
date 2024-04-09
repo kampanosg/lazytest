@@ -5,6 +5,7 @@
 //
 //	mockgen -source=tui.go -destination=mocks/mocks.go -package=mocks
 //
+
 // Package mocks is a generated GoMock package.
 package mocks
 
@@ -148,18 +149,18 @@ func (m *MockRunner) EXPECT() *MockRunnerMockRecorder {
 	return m.recorder
 }
 
-// Run mocks base method.
-func (m *MockRunner) Run(command string) *models.LazyTestResult {
+// RunTest mocks base method.
+func (m *MockRunner) RunTest(command string) *models.LazyTestResult {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Run", command)
+	ret := m.ctrl.Call(m, "RunTest", command)
 	ret0, _ := ret[0].(*models.LazyTestResult)
 	return ret0
 }
 
-// Run indicates an expected call of Run.
-func (mr *MockRunnerMockRecorder) Run(command any) *gomock.Call {
+// RunTest indicates an expected call of RunTest.
+func (mr *MockRunnerMockRecorder) RunTest(command any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Run", reflect.TypeOf((*MockRunner)(nil).Run), command)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RunTest", reflect.TypeOf((*MockRunner)(nil).RunTest), command)
 }
 
 // MockHandlers is a mock of Handlers interface.

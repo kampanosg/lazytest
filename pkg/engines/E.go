@@ -5,5 +5,6 @@ import (
 )
 
 type LazyEngine interface {
-	ParseTestSuite(fp string) (*models.LazyTestSuite, error)
+	Load(dir string) (*models.LazyTree, error)
+	GetIcon() string
 }

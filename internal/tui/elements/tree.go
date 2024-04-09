@@ -12,7 +12,7 @@ func (e *Elements) initTree() {
 	e.Tree.SetBorderColor(tcell.ColorBlue)
 	e.Tree.SetRoot(e.data.TestTree)
 	e.Tree.SetCurrentNode(e.data.TestTree)
-	e.Tree.SetTopLevel(0)
+	e.Tree.SetTopLevel(1)
 	e.Tree.SetBackgroundColor(tcell.ColorDefault)
 	e.Tree.SetChangedFunc(e.handlers.handleTreeChanged)
 	e.Tree.SetSelectedFunc(func(node *tview.TreeNode) {
