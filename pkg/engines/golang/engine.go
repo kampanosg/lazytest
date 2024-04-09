@@ -16,9 +16,8 @@ import (
 )
 
 const (
-	suffix    = "_test.go"
-	suiteType = "golang"
-	icon      = "󰟓"
+	suffix = "_test.go"
+	icon   = "󰟓"
 )
 
 type FileSystem interface {
@@ -151,7 +150,6 @@ func (g *GoEngine) parseTestSuite(fp string) (*models.LazyTestSuite, error) {
 
 	suite := &models.LazyTestSuite{
 		Path: fp,
-		Icon: icon,
 	}
 
 	for _, f := range node.Decls {

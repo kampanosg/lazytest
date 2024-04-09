@@ -13,9 +13,8 @@ import (
 )
 
 const (
-	suiteType = "bashunit"
-	suffix    = ".sh"
-	icon      = "󱆃"
+	suffix = ".sh"
+	icon   = "󱆃"
 )
 
 type FileSystem interface {
@@ -140,7 +139,6 @@ func (b *BashEngine) parseTestSuite(fp string) (*models.LazyTestSuite, error) {
 
 	suite := &models.LazyTestSuite{
 		Path: fp,
-		Icon: icon,
 	}
 
 	scanner := bufio.NewScanner(file)

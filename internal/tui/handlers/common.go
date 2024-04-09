@@ -31,7 +31,7 @@ func runTest(
 		e.Output.SetBorderColor(tcell.ColorYellow)
 	})
 
-	res := r.Run(test.RunCmd)
+	res := r.RunTest(test.RunCmd)
 	ch <- &runResult{
 		node: testNode,
 		res:  res,

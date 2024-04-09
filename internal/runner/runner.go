@@ -14,7 +14,7 @@ func NewRunner() *Runner {
 	return &Runner{}
 }
 
-func (r *Runner) Run(cmd string) *models.LazyTestResult {
+func (r *Runner) RunTest(cmd string) *models.LazyTestResult {
 	now := time.Now()
 	c := exec.Command("sh", "-c", cmd)
 	out, err := c.Output()
@@ -24,4 +24,11 @@ func (r *Runner) Run(cmd string) *models.LazyTestResult {
 		Output:   string(out),
 		Duration: time.Since(now),
 	}
+}
+
+func (r *Runner) RunCmd(cmd string) (string, error) {
+	c := exec.Command("sh", "-c", cmd)
+	out, err := c.Output()
+
+	return string(out), err
 }

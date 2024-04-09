@@ -5,7 +5,6 @@ import "time"
 type LazyTestSuite struct {
 	Tests []*LazyTest
 	Path  string
-	Icon  string
 }
 
 type LazyTest struct {

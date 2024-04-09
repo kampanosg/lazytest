@@ -27,6 +27,16 @@ func (n *LazyNode) AddChild(node *LazyNode) {
 	n.Children = append(n.Children, node)
 }
 
+func (n *LazyNode) FindChild(name string) *LazyNode {
+	for _, child := range n.Children {
+		if child.Name == name {
+			return child
+		}
+	}
+
+	return nil
+}
+
 func (n *LazyNode) SetReference(ref any) {
 	n.Ref = ref
 }

@@ -24,7 +24,7 @@ type Application interface {
 }
 
 type Runner interface {
-	Run(command string) *models.LazyTestResult
+	RunTest(command string) *models.LazyTestResult
 }
 
 type Handlers interface {
