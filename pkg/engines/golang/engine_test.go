@@ -90,11 +90,10 @@ func Test_Load(t *testing.T) {
 					Name: "src",
 					Children: []*models.LazyNode{
 						{
-							Name:     "main_test.go",
+							Name: "main_test.go",
 							Children: []*models.LazyNode{
 								{
 									Name: "TestMain",
-									Children: nil,
 								},
 							},
 						},

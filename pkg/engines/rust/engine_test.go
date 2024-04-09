@@ -84,8 +84,23 @@ func TestRustEngine_Load(t *testing.T) {
 					runner: &mockRunner{
 						runHandler: func(cmd string) (string, error) {
 							return `
-							
-							`, nil
+Finished test [unoptimized + debuginfo] target(s) in 0.66s
+     Running unittests src/lib.rs (target/debug/deps/wallet_api-93c222fb9d897c74)
+api::account_handlers::tests::test_post_accounts_existing_account: test
+api::account_handlers::tests::test_post_accounts_no_account: test
+api::account_handlers::tests::test_post_accounts_no_account_with_generate_ephemeral_attr: test
+api::account_handlers::tests::test_post_accounts_no_account_without_generate_ephemeral_attr: test
+api::error::tests::test_error_handler_bad_request: test
+api::error::tests::test_error_handler_bad_request_validation: test
+api::error::tests::test_error_handler_unauthorised: test
+api::item_handlers::tests::test_delete_item: test
+api::item_handlers::tests::test_get_items: test
+api::item_handlers::tests::test_identity_failure: test
+api::item_handlers::tests::test_patch_item: test
+api::item_handlers::tests::test_post_inital_item: test
+models::wallet::tests::test_card_brand_from_str: test
+     Running unittests src/main.rs (target/debug/deps/wallet_api-67ae81328fc5acea)
+   Doc-tests wallet-api`, nil
 						},
 					},
 				}
@@ -94,8 +109,20 @@ func TestRustEngine_Load(t *testing.T) {
 				dir: ".",
 			},
 			wantErr: false,
-			wantNil: true,
-			want:    nil,
+			wantNil: false,
+			want: &models.LazyTree{
+				Root: &models.LazyNode{
+					Name: "wallet_api",
+					Children: []*models.LazyNode{
+						{
+							Name: "api",
+						},
+						{
+							Name: "models",
+						},
+					},
+				},
+			},
 		},
 	}
 

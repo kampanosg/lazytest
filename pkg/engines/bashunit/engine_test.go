@@ -33,38 +33,38 @@ func TestBashEngine_Load(t *testing.T) {
 		wantNil bool
 		want    *models.LazyTree
 	}{
-		// {
-		// 	name: "no files",
-		// 	fields: func() fields {
-		// 		appFS := afero.NewMemMapFs()
-		// 		return fields{
-		// 			fs: appFS,
-		// 		}
-		// 	},
-		// 	args: args{
-		// 		dir: "/",
-		// 	},
-		// 	wantErr: false,
-		// 	wantNil: true,
-		// 	want:    nil,
-		// },
-		// {
-		// 	name: "no tests",
-		// 	fields: func() fields {
-		// 		appFS := afero.NewMemMapFs()
-		// 		appFS.MkdirAll("src", 0755)
-		// 		afero.WriteFile(appFS, "src/test.sh", []byte("#!/bin/bash\necho 'hello'"), 0644)
-		// 		return fields{
-		// 			fs: appFS,
-		// 		}
-		// 	},
-		// 	args: args{
-		// 		dir: "src",
-		// 	},
-		// 	wantErr: false,
-		// 	wantNil: true,
-		// 	want:    nil,
-		// },
+		{
+			name: "no files",
+			fields: func() fields {
+				appFS := afero.NewMemMapFs()
+				return fields{
+					fs: appFS,
+				}
+			},
+			args: args{
+				dir: "/",
+			},
+			wantErr: false,
+			wantNil: true,
+			want:    nil,
+		},
+		{
+			name: "no tests",
+			fields: func() fields {
+				appFS := afero.NewMemMapFs()
+				appFS.MkdirAll("src", 0755)
+				afero.WriteFile(appFS, "src/test.sh", []byte("#!/bin/bash\necho 'hello'"), 0644)
+				return fields{
+					fs: appFS,
+				}
+			},
+			args: args{
+				dir: "src",
+			},
+			wantErr: false,
+			wantNil: true,
+			want:    nil,
+		},
 		{
 			name: "with tests",
 			fields: func() fields {
@@ -89,9 +89,6 @@ func TestBashEngine_Load(t *testing.T) {
 							Children: []*models.LazyNode{
 								{
 									Name: "test",
-									Ref: &models.LazyTest{
-										Name: "test",
-									},
 								},
 							},
 						},
