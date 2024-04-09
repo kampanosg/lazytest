@@ -102,6 +102,10 @@ func (r *RustEngine) Load(dir string) (*models.LazyTree, error) {
 		}
 	}
 
+	if len(root.Children) == 0 {
+		return nil, nil
+	}
+
 	lazyRoot := toLazyTree(root)
 	return models.NewLazyTree(lazyRoot), nil
 }
