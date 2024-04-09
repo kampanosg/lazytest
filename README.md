@@ -109,19 +109,20 @@ An executable called `lazytest` will be built. You can move it to your `$PATH`
 
 ## Engines 🏎️
 
-"Engines" are a core concept in LazyTest. It allows the tool to be extensible and work with many languages and test frameworks. When LazyTest parses the codebase, it uses the engines to determine if a given file contains tests. Engines also provide instructions on how to run a given test.
+"Engines" are a core concept in LazyTest. It allows the tool to be extensible and work with many languages and test frameworks. LazyTest uses engines to parse the codebase and determine which files contain tests. Engines also provide instructions on how to run a given test.
 
-You can write a new Engine by implementing the following function
+You can write a new Engine by implementing the following interface:
 
 ```go
 type LazyEngine interface {
-  ParseTestSuite(fp string) (*models.LazyTestSuite, error)
+	Load(dir string) (*models.LazyTree, error)
+	GetIcon() string
 }
 ```
 
-The `ParseTestSuite` expects a `filepath`. If it's a valid test file for the given language, then the engine should parse the file and return the `LazyTestSuite` which contains all the tests and instructions on how to run them. As an example, have a look at the Go engine:
+The `Load` function parses the contents of `dir` and constructs a `LazyTree` which includes all the tests. The tree is then passed to the TUI that renders it on the terminal
 
-https://github.com/kampanosg/lazytest/blob/c4e9a5800f76c01d780e798e0511b95288de0057/pkg/engines/golang/engine.go#L26-L54
+https://github.com/kampanosg/lazytest/blob/c0ce2bfdbc501a91c26662c20bbe154c907dd500/pkg/engines/golang/engine.go#L37-L71
 
 ### Available Engines
 
