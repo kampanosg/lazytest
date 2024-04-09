@@ -39,7 +39,7 @@ func (r *RustEngine) GetIcon() string {
 func (r *RustEngine) Load(dir string) (*models.LazyTree, error) {
 	o, err := r.Runner.RunCmd("cargo test -- --list --format=terse")
 	if err != nil {
-		return nil, fmt.Errorf("error listing tests: %w", err)
+		return nil, nil
 	}
 
 	root := &rustNode{
