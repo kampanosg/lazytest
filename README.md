@@ -10,7 +10,7 @@
 <p align="center">
   <img src="https://img.shields.io/github/actions/workflow/status/kampanosg/lazytest/go.yml?style=for-the-badge&logo=go" />
   <img src="https://img.shields.io/github/actions/workflow/status/kampanosg/lazytest/sec.yml?style=for-the-badge&logo=go&label=Security" />
-  <img src="https://goreportcard.com/report/github.com/kampanosg/lazytest" />
+  <img src="https://goreportcard.com/badge/github.com/kampanosg/lazytest?style=for-the-badge" />
 </p>
 
 ## Features ⭐
