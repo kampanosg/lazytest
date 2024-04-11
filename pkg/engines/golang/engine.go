@@ -19,7 +19,6 @@ const (
 	icon   = "󰟓"
 )
 
-
 type GoEngine struct {
 	FS afero.Fs
 }
