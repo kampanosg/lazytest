@@ -11,7 +11,7 @@ import (
 func TestSearch(t *testing.T) {
 	t.Parallel()
 
-	vaderTests := &models.LazyTestSuite {
+	vaderTests := &models.LazyTestSuite{
 		Path: "Darth Vader",
 		Tests: []*models.LazyTest{
 			{
@@ -33,7 +33,7 @@ func TestSearch(t *testing.T) {
 		Path: "Darth Maul",
 		Tests: []*models.LazyTest{
 			{
-				Name:"TestMaul",
+				Name: "TestMaul",
 			},
 		},
 	}
@@ -80,7 +80,7 @@ func TestSearch(t *testing.T) {
 			},
 		},
 		{
-			name: "match multiple",
+			name:  "match multiple",
 			query: "Darth",
 			want: []*tview.TreeNode{
 				darthVader,
@@ -89,9 +89,9 @@ func TestSearch(t *testing.T) {
 			},
 		},
 		{
-			name: "strict uppercase",
+			name:  "strict uppercase",
 			query: "darth",
-			want: nil,
+			want:  nil,
 		},
 	}
 	for _, tt := range tests {
