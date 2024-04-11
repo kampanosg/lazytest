@@ -58,8 +58,8 @@ func TestHandleSearchFocus(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			fields := tt.fields()
-			
-			h:= handlers.NewHandlers()
+
+			h := handlers.NewHandlers()
 			h.HandleSearchFocus(fields.App, fields.Elems, fields.State)
 
 			assert.Equal(t, tt.want.isSearching, fields.State.IsSearching)
