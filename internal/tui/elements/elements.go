@@ -24,8 +24,8 @@ type Elements struct {
 	InfoBox   *tview.TextView
 	Legend    *tview.TextView
 	HelpModal *tview.Modal
-	History *tview.List
-	Timings *tview.List
+	History   *tview.List
+	Timings   *tview.List
 
 	data     *elementData
 	handlers *handlers
@@ -40,8 +40,8 @@ func NewElements() *Elements {
 		Search:    tview.NewInputField(),
 		Legend:    tview.NewTextView(),
 		HelpModal: tview.NewModal(),
-		History: tview.NewList(),
-		Timings: tview.NewList(),
+		History:   tview.NewList(),
+		Timings:   tview.NewList(),
 	}
 }
 
