@@ -93,7 +93,7 @@ func (r *RustEngine) Load(dir string) (*models.LazyTree, error) {
 
 			if i == len(testParts)-1 {
 				test := &models.LazyTest{
-					Name: part,
+					Name:   part,
 					RunCmd: fmt.Sprintf("cargo t %s -- --exact", testLine),
 				}
 				childNode.Ref = test
