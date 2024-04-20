@@ -1,4 +1,4 @@
-package rust
+package pytest
 
 import (
 	"fmt"
@@ -8,41 +8,38 @@ import (
 	"github.com/kampanosg/lazytest/pkg/models"
 )
 
-const (
-	suffix = ".rs"
-	icon   = ""
-)
+const icon = ""
 
-type RustEngine struct {
+type pyNode struct {
+	Name     string
+	Ref      any
+	Children map[string]*pyNode
+}
+
+type PytestEngine struct {
 	Runner engines.Runner
 }
 
-type rustNode struct {
-	Name     string
-	Ref      any
-	Children map[string]*rustNode
-}
-
-func NewRustEngine(r engines.Runner) *RustEngine {
-	return &RustEngine{
+func NewPytestEngine(r engines.Runner) *PytestEngine {
+	return &PytestEngine{
 		Runner: r,
 	}
 }
 
-func (r *RustEngine) GetIcon() string {
+func (p *PytestEngine) GetIcon() string {
 	return icon
 }
 
-func (r *RustEngine) Load(dir string) (*models.LazyTree, error) {
-	o, err := r.Runner.RunCmd("cargo test -- --list --format=terse")
+func (p *PytestEngine) Load(dir string) (*models.LazyTree, error) {
+	o, err := p.Runner.RunCmd("python3 -m pytest --collect-only -q | head -n -2")
 	if err != nil {
 		return nil, nil
 	}
 
-	root := &rustNode{
+	root := &pyNode{
 		Name:     dir,
 		Ref:      nil,
-		Children: make(map[string]*rustNode),
+		Children: make(map[string]*pyNode),
 	}
 
 	lines := strings.Split(o, "\n")
@@ -52,30 +49,28 @@ func (r *RustEngine) Load(dir string) (*models.LazyTree, error) {
 			continue
 		}
 
-		parts := strings.Split(line, ": test")
-		if len(parts) != 2 {
+		testLine := strings.ReplaceAll(line, "/", " ")
+		testLine = strings.ReplaceAll(testLine, "::", " ")
+
+		parts := strings.Split(testLine, " ")
+		if len(parts) == 0 {
 			continue
 		}
 
-		testLine := parts[0]
-		testParts := strings.Split(testLine, "::")
-
 		currentNode := root
-
 		var testSuite *models.LazyTestSuite
 
-		for i, part := range testParts {
-			part = strings.TrimSpace(part)
+		for i, part := range parts {
 			childNode, exists := currentNode.Children[part]
 			if !exists {
-				childNode = &rustNode{
+				childNode = &pyNode{
 					Name:     part,
-					Children: make(map[string]*rustNode),
+					Children: make(map[string]*pyNode),
 				}
 
-				if i == len(testParts)-2 {
+				if i == len(parts)-2 {
 					childNode.Ref = &models.LazyTestSuite{
-						Path:  strings.Join(testParts[:i+1], "::"),
+						Path:  strings.Join(parts[:i+1], "::"),
 						Tests: make([]*models.LazyTest, 0),
 					}
 				}
@@ -83,14 +78,14 @@ func (r *RustEngine) Load(dir string) (*models.LazyTree, error) {
 			}
 			currentNode = childNode
 
-			if i == len(testParts)-2 {
+			if i == len(parts)-2 {
 				testSuite = currentNode.Ref.(*models.LazyTestSuite)
 			}
 
-			if i == len(testParts)-1 {
+			if i == len(parts)-1 {
 				test := &models.LazyTest{
 					Name:   part,
-					RunCmd: fmt.Sprintf("cargo t %s -- --exact", testLine),
+					RunCmd: fmt.Sprintf("python3 -m pytest -x --verbose %s", line),
 				}
 				childNode.Ref = test
 				testSuite.Tests = append(testSuite.Tests, test)
@@ -106,7 +101,7 @@ func (r *RustEngine) Load(dir string) (*models.LazyTree, error) {
 	return models.NewLazyTree(lazyRoot), nil
 }
 
-func toLazyTree(r *rustNode) *models.LazyNode {
+func toLazyTree(r *pyNode) *models.LazyNode {
 	children := make([]*models.LazyNode, 0)
 	for _, child := range r.Children {
 		children = append(children, toLazyTree(child))

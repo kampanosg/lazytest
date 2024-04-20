@@ -133,6 +133,7 @@ LazyTests comes packed with the following engines:
 
 * Go (requires [`go`](https://go.dev/))
 * Rust (requires [`cargo`](https://www.rust-lang.org/))
+* Pytest (requires [`python3`](https://www.python.org/https://bashunit.typeddevs.com/) and [`pytest`](https://docs.pytest.org/en/8.0.x/))
 * Bashunit (requires [`bashunit`](https://bashunit.typeddevs.com/))
 
 ## Usage ⚙️
