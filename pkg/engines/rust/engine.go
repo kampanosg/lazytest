@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/kampanosg/lazytest/pkg/engines"
 	"github.com/kampanosg/lazytest/pkg/models"
 )
 
@@ -12,12 +13,8 @@ const (
 	icon   = ""
 )
 
-type Runner interface {
-	RunCmd(cmd string) (string, error)
-}
-
 type RustEngine struct {
-	Runner Runner
+	Runner engines.Runner
 }
 
 type rustNode struct {
@@ -26,7 +23,7 @@ type rustNode struct {
 	Children map[string]*rustNode
 }
 
-func NewRustEngine(r Runner) *RustEngine {
+func NewRustEngine(r engines.Runner) *RustEngine {
 	return &RustEngine{
 		Runner: r,
 	}
@@ -77,11 +74,10 @@ func (r *RustEngine) Load(dir string) (*models.LazyTree, error) {
 				}
 
 				if i == len(testParts)-2 {
-					suite := &models.LazyTestSuite{
+					childNode.Ref = &models.LazyTestSuite{
 						Path:  strings.Join(testParts[:i+1], "::"),
 						Tests: make([]*models.LazyTest, 0),
 					}
-					childNode.Ref = suite
 				}
 				currentNode.Children[part] = childNode
 			}

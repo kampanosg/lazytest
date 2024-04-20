@@ -59,7 +59,7 @@ func main() {
 	}
 
 	if !slices.Contains(excludedEngines, "pytest") {
-		engines = append(engines, pytest.NewPytestEngine())
+		engines = append(engines, pytest.NewPytestEngine(r))
 	}
 
 	t := tui.NewTUI(a, h, r, c, e, s, *dir, engines)
