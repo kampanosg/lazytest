@@ -18,3 +18,6 @@ func (p *PytestEngine) Icon() string {
 func (p *PytestEngine) Load(dir string) (*models.LazyTree, error) {
 	return nil, nil
 }
+
+// pytest --co
+// pytest -x --verbose test_divide.py::test_sum

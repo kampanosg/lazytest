@@ -15,6 +15,7 @@ import (
 	"github.com/kampanosg/lazytest/pkg/engines"
 	"github.com/kampanosg/lazytest/pkg/engines/bashunit"
 	"github.com/kampanosg/lazytest/pkg/engines/golang"
+	"github.com/kampanosg/lazytest/pkg/engines/pytest"
 	"github.com/kampanosg/lazytest/pkg/engines/rust"
 	"github.com/rivo/tview"
 	"github.com/spf13/afero"
@@ -55,6 +56,10 @@ func main() {
 
 	if !slices.Contains(excludedEngines, "rust") {
 		engines = append(engines, rust.NewRustEngine(r))
+	}
+
+	if !slices.Contains(excludedEngines, "pytest") {
+		engines = append(engines, pytest.NewPytestEngine())
 	}
 
 	t := tui.NewTUI(a, h, r, c, e, s, *dir, engines)
