@@ -36,14 +36,13 @@ func (p *PytestEngine) Load(dir string) (*models.LazyTree, error) {
 		return nil, nil
 	}
 
-	lines := strings.Split(o, "\n")
-
 	root := &pyNode{
 		Name:     dir,
 		Ref:      nil,
 		Children: make(map[string]*pyNode),
 	}
 
+	lines := strings.Split(o, "\n")
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
 		if line == "" {
