@@ -50,10 +50,10 @@ func (p *PytestEngine) Load(dir string) (*models.LazyTree, error) {
 			continue
 		}
 
-		line = strings.ReplaceAll(line, "/", " ")
-		line = strings.ReplaceAll(line, "::", " ")
+		testLine := strings.ReplaceAll(line, "/", " ")
+		testLine = strings.ReplaceAll(testLine, "::", " ")
 
-		parts := strings.Split(line, " ")
+		parts := strings.Split(testLine, " ")
 		if len(parts) == 0 {
 			continue
 		}
