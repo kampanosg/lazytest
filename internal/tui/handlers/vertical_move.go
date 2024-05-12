@@ -20,7 +20,7 @@ func (h *Handlers) HandleMoveDown(e *elements.Elements) {
 	// So we have to reset the index to zero
 	if e.History.HasFocus() {
 		currentItem := e.History.GetCurrentItem() + 1
-		if currentItem == e.History.GetItemCount()-1 {
+		if e.History.GetCurrentItem() == e.History.GetItemCount()-1 {
 			currentItem = 0
 		}
 		e.History.SetCurrentItem(currentItem)
@@ -28,7 +28,7 @@ func (h *Handlers) HandleMoveDown(e *elements.Elements) {
 
 	if e.Timings.HasFocus() {
 		currentItem := e.Timings.GetCurrentItem() + 1
-		if currentItem == e.Timings.GetItemCount()-1 {
+		if e.Timings.GetCurrentItem() == e.Timings.GetItemCount()-1 {
 			currentItem = 0
 		}
 		e.Timings.SetCurrentItem(currentItem)
