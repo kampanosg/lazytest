@@ -352,3 +352,29 @@ func TestInputCapture_HandleYankOutput(t *testing.T) {
 		t.Error("test timeout")
 	}
 }
+
+func TestInputCapture_HandleMoveUp(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	h := mocks.NewMockHandlers(ctrl)
+	h.EXPECT().
+		HandleMoveUp(gomock.Any()).
+		Times(1)
+
+	tui.NewTUI(nil, h, nil, nil, nil, state.NewState(), "", nil).
+		InputCapture(tcell.NewEventKey(tcell.KeyRune, 'k', tcell.ModNone))
+}
+
+func TestInputCapture_HandleMoveDown(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	h := mocks.NewMockHandlers(ctrl)
+	h.EXPECT().
+		HandleMoveDown(gomock.Any()).
+		Times(1)
+
+	tui.NewTUI(nil, h, nil, nil, nil, state.NewState(), "", nil).
+		InputCapture(tcell.NewEventKey(tcell.KeyRune, 'j', tcell.ModNone))
+}
