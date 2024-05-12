@@ -41,6 +41,8 @@ type Handlers interface {
 	HandleResize(d ResizeDirection, e *elements.Elements, s *state.State)
 	HandleYankNode(a Application, c Clipboard, e *elements.Elements)
 	HandleYankOutput(a Application, c Clipboard, e *elements.Elements)
+	HandleMoveUp(e *elements.Elements)
+	HandleMoveDown(e *elements.Elements)
 }
 
 type Clipboard interface {
@@ -160,6 +162,10 @@ func (t *TUI) InputCapture(event *tcell.EventKey) *tcell.EventKey {
 			go t.Handlers.HandleYankOutput(t.App, t.Clipboard, t.Elements)
 		case '?':
 			t.App.SetRoot(t.Elements.HelpModal, true)
+		case 'j':
+			t.Handlers.HandleMoveDown(t.Elements)
+		case 'k':
+			t.Handlers.HandleMoveUp(t.Elements)
 		}
 	}
 	return event
