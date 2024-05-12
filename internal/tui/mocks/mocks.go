@@ -5,7 +5,6 @@
 //
 //	mockgen -source=tui.go -destination=mocks/mocks.go -package=mocks
 //
-
 // Package mocks is a generated GoMock package.
 package mocks
 
