@@ -5,7 +5,6 @@
 //
 //	mockgen -source=tui.go -destination=mocks/mocks.go -package=mocks
 //
-
 // Package mocks is a generated GoMock package.
 package mocks
 
@@ -198,30 +197,6 @@ func (m *MockHandlers) HandleHelpDone(a tui.Application, e *elements.Elements) f
 func (mr *MockHandlersMockRecorder) HandleHelpDone(a, e any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HandleHelpDone", reflect.TypeOf((*MockHandlers)(nil).HandleHelpDone), a, e)
-}
-
-// HandleMoveDown mocks base method.
-func (m *MockHandlers) HandleMoveDown(e *elements.Elements) {
-	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "HandleMoveDown", e)
-}
-
-// HandleMoveDown indicates an expected call of HandleMoveDown.
-func (mr *MockHandlersMockRecorder) HandleMoveDown(e any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HandleMoveDown", reflect.TypeOf((*MockHandlers)(nil).HandleMoveDown), e)
-}
-
-// HandleMoveUp mocks base method.
-func (m *MockHandlers) HandleMoveUp(e *elements.Elements) {
-	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "HandleMoveUp", e)
-}
-
-// HandleMoveUp indicates an expected call of HandleMoveUp.
-func (mr *MockHandlersMockRecorder) HandleMoveUp(e any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "HandleMoveUp", reflect.TypeOf((*MockHandlers)(nil).HandleMoveUp), e)
 }
 
 // HandleNodeChanged mocks base method.
