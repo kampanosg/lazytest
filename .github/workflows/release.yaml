@@ -1,38 +1,88 @@
-name: Release Go Binaries
+on:
+  push:
+    tags:
+      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
 
-on: 
-  release:
-    types: [created]
-  workflow_dispatch:
+name: Latest Release
+
+defaults:
+  run:
+    shell: bash
 
 jobs:
-  releases-matrix:
-    name: Release Matrix
-    runs-on: ubuntu-latest
+  release:
+    name: Create Release
+    runs-on: 'ubuntu-latest'
     strategy:
       matrix:
-        goos: [linux, windows, darwin]
-        goarch: ["386", amd64]
-        exclude:  
-          - goarch: "386"
-            goos: windows 
-          - goarch: "386"
-            goos: darwin 
+        goosarch:
+          - 'darwin/amd64'
+          - 'darwin/arm64'
+          - 'dragonfly/amd64'
+          - 'freebsd/386'
+          - 'freebsd/amd64'
+          - 'freebsd/arm'
+          - 'freebsd/arm64'
+          - 'illumos/amd64'
+          - 'js/wasm'
+          - 'linux/386'
+          - 'linux/amd64'
+          - 'linux/arm'
+          - 'linux/arm64'
+          - 'linux/mips'
+          - 'linux/mips64'
+          - 'linux/mips64le'
+          - 'linux/mipsle'
+          - 'linux/ppc64'
+          - 'linux/ppc64le'
+          - 'linux/riscv64'
+          - 'linux/s390x'
+          - 'netbsd/386'
+          - 'netbsd/amd64'
+          - 'netbsd/arm'
+          - 'netbsd/arm64'
+          - 'openbsd/386'
+          - 'openbsd/amd64'
+          - 'openbsd/arm'
+          - 'openbsd/arm64'
+          - 'openbsd/mips64'
+          - 'plan9/386'
+          - 'plan9/amd64'
+          - 'plan9/arm'
+          - 'solaris/amd64'
+          - 'windows/386'
+          - 'windows/amd64'
+          - 'windows/arm'
     steps:
-    - uses: actions/checkout@v4
-
-    - name: Set APP_VERSION env
-      run: echo APP_VERSION=$(echo ${GITHUB_REF} | rev | cut -d'/' -f 1 | rev ) >> ${GITHUB_ENV}
-    - name: Set BUILD_TIME env
-      run: echo BUILD_TIME=$(date) >> ${GITHUB_ENV}
-    - name: Environment Printer
-      uses: managedkaos/print-env@v1.0
-
-    - uses: wangyoucao577/go-release-action@v1.16
-      with:
-        github_token: ${{ secrets.LAZY_TOKEN }}
-        goos: ${{ matrix.goos }}
-        goarch: ${{ matrix.goarch }}
-        build_flags: -v
-        ldflags: -X "main.appVersion=${{ env.APP_VERSION }}" -X "main.buildTime=${{ env.BUILD_TIME }}" -X main.gitCommit=${{ github.sha }} -X main.gitRef=${{ github.ref }}
-
+      - name: Checkout code
+        uses: actions/checkout@latest
+        # uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      # - uses: actions/setup-go@v2
+      - uses: actions/setup-go@latest
+        with:
+          go-version: '1.22'
+      - name: Get OS and arch info
+        run: |
+          GOOSARCH=${{matrix.goosarch}}
+          GOOS=${GOOSARCH%/*}
+          GOARCH=${GOOSARCH#*/}
+          BINARY_NAME=${{github.repository}}-$GOOS-$GOARCH
+          echo "BINARY_NAME=$BINARY_NAME" >> $GITHUB_ENV
+          echo "GOOS=$GOOS" >> $GITHUB_ENV
+          echo "GOARCH=$GOARCH" >> $GITHUB_ENV
+      - name: Build
+        run: |
+          go build -o "$BINARY_NAME" -v
+      - name: Release Notes
+        run:
+          git log $(git describe HEAD~ --tags --abbrev=0)..HEAD --pretty='format:* %h %s%n  * %an <%ae>' --no-merges >> ".github/RELEASE-TEMPLATE.md"
+      - name: Release with Notes
+        uses: softprops/action-gh-release@v1
+        with:
+          body_path: ".github/templates/release.md"
+          draft: true
+          files: ${{env.BINARY_NAME}}
+        env:
+          GITHUB_TOKEN: ${{ secrets.LAZY_TOKEN }}
