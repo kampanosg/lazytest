@@ -27,7 +27,6 @@ jobs:
           - 'freebsd/arm'
           - 'freebsd/arm64'
           - 'illumos/amd64'
-          - 'js/wasm'
           - 'linux/386'
           - 'linux/amd64'
           - 'linux/arm'
