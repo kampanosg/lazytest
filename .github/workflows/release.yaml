@@ -3,7 +3,7 @@ on:
     tags:
       - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
 
-name: Latest Release
+name: Release
 
 defaults:
   run:
@@ -55,12 +55,10 @@ jobs:
           - 'windows/arm'
     steps:
       - name: Checkout code
-        uses: actions/checkout@latest
-        # uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      # - uses: actions/setup-go@v2
-      - uses: actions/setup-go@latest
+      - uses: actions/setup-go@v5
         with:
           go-version: '1.22'
       - name: Get OS and arch info
