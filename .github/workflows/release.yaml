@@ -78,9 +78,9 @@ jobs:
           git log $(git describe HEAD~ --tags --abbrev=0)..HEAD --pretty='format:* %h %s%n  * %an <%ae>' --no-merges >> ".github/templates/release.md"
       - name: Release with Notes
         uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: '${{ secrets.LZ_TOKEN }}'
         with:
           body_path: ".github/templates/release.md"
           draft: true
           files: ${{env.BINARY_NAME}}
-          permissions:
-            contents: write
