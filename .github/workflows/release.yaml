@@ -82,5 +82,3 @@ jobs:
           body_path: ".github/templates/release.md"
           draft: true
           files: ${{env.BINARY_NAME}}
-        # env:
-        #   GITHUB_TOKEN: ${{ secrets.LAZY_TOKEN }}
