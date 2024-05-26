@@ -80,11 +80,6 @@ You can use Go to install LazyTest
 go install github.com/kampanosg/lazytest@latest
 ```
 
-### Brew
-
-> [!WARNING]
-> Brew is not yet available, I am working on it.
-
 ### Download the executable
 
 You can download the executable for your OS by going to the [releases](https://github.com/kampanosg/lazytest/releases) page. You can move the executable to your `$PATH`.
