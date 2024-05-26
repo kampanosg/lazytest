@@ -10,7 +10,7 @@ recipes:
   build:
     description: "build the project"
     steps:
-      - "go build -o :name: ./main.go"
+      - "go build -ldflags '-X main.version=DEV' -o :name: ./main.go"
   test:
     description: "run the unit tests of the project"
     steps:
