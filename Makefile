@@ -2,7 +2,7 @@
 
 .PHONY: build
 build: ## Build the binary
-	go build -o lazytest ./main.go
+	go build -ldflags "-X main.version=DEV" -o lazytest main.go
 
 .PHONY: run
 run: build ## Run the binary

@@ -21,8 +21,8 @@ import (
 	"github.com/spf13/afero"
 )
 
-const (
-	Version = "v0.4.2"
+var (
+	version string
 )
 
 func main() {
@@ -32,7 +32,7 @@ func main() {
 	flag.Parse()
 
 	if *vsn {
-		fmt.Printf("LazyTest %s\n", Version)
+		fmt.Printf("LazyTest %s\n", version)
 		return
 	}
 
