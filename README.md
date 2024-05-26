@@ -85,6 +85,10 @@ go install github.com/kampanosg/lazytest@latest
 > [!WARNING]
 > Brew is not yet available, I am working on it.
 
+### Download the executable
+
+You can download the executable for your OS by going to the [releases](https://github.com/kampanosg/lazytest/releases) page. You can move the executable to your `$PATH`.
+
 ### Build from source
 
 > [!IMPORTANT]
