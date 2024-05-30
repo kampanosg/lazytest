@@ -70,7 +70,7 @@ jobs:
           echo "GOARCH=$GOARCH" >> $GITHUB_ENV
       - name: Build
         run: |
-          go build -ldflags="-X main.version=$(github.GITHUB_REF_NAME)" -o "$BINARY_NAME" -v
+          go build -ldflags "-X main.version=$(git describe --tags)" -o "$BINARY_NAME" -v main.go
       - name: Release with Notes
         uses: softprops/action-gh-release@v2
         if: "startsWith(github.ref, 'refs/tags/')"
