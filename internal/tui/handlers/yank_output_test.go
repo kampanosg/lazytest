@@ -74,7 +74,7 @@ func TestYankOutput(t *testing.T) {
 					Elements:  e,
 				}
 			},
-			want: "Coppied output!",
+			want: "Copied output!",
 		},
 	}
 

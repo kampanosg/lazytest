@@ -14,6 +14,6 @@ func (h *Handlers) HandleYankOutput(a tui.Application, c tui.Clipboard, e *eleme
 			e.InfoBox.SetText(fmt.Sprintf("Cannot copy output, %v", err))
 			return
 		}
-		e.InfoBox.SetText("Coppied output!")
+		e.InfoBox.SetText("Copied output!")
 	})
 }

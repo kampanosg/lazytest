@@ -71,7 +71,7 @@ func TestHandleYankNode(t *testing.T) {
 					Elements:  e,
 				}
 			},
-			want: "Coppied!",
+			want: "Copied!",
 		},
 		{
 			name: "error when yanking test node",
@@ -135,7 +135,7 @@ func TestHandleYankNode(t *testing.T) {
 					Elements:  e,
 				}
 			},
-			want: "Coppied!",
+			want: "Copied!",
 		},
 		{
 			name: "error when yanking test suite node",

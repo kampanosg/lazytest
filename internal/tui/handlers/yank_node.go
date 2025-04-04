@@ -31,6 +31,6 @@ func (h *Handlers) HandleYankNode(a tui.Application, c tui.Clipboard, e *element
 			e.InfoBox.SetText(fmt.Sprintf("[red] Cannot copy value, %v", err))
 			return
 		}
-		e.InfoBox.SetText("Coppied!")
+		e.InfoBox.SetText("Copied!")
 	})
 }
