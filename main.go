@@ -14,6 +14,7 @@ import (
 	"github.com/kampanosg/lazytest/internal/tui/state"
 	"github.com/kampanosg/lazytest/pkg/engines"
 	"github.com/kampanosg/lazytest/pkg/engines/bashunit"
+	"github.com/kampanosg/lazytest/pkg/engines/c"
 	"github.com/kampanosg/lazytest/pkg/engines/golang"
 	"github.com/kampanosg/lazytest/pkg/engines/pytest"
 	"github.com/kampanosg/lazytest/pkg/engines/rust"
@@ -21,9 +22,7 @@ import (
 	"github.com/spf13/afero"
 )
 
-var (
-	version string
-)
+var version string
 
 func main() {
 	dir := flag.String("dir", ".", "the directory to start searching for tests")
@@ -60,6 +59,10 @@ func main() {
 
 	if !slices.Contains(excludedEngines, "pytest") {
 		engines = append(engines, pytest.NewPytestEngine(r))
+	}
+
+	if !slices.Contains(excludedEngines, "C") {
+		engines = append(engines, C.NewCEngine(r))
 	}
 
 	t := tui.NewTUI(a, h, r, c, e, s, *dir, engines)
